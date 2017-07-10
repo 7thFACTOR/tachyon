@@ -8,7 +8,8 @@ syntax: glob
 *.pdb
 *.res
 *.log
-build*/*
+build/*
+build_*/*
 *.sdf
 */GeneratedFiles/*
 *.suo
@@ -22,6 +23,6 @@ code/3rdparty/freetype/objs/win32/vc2010/freetype248.lib
 code/3rdparty/freetype/objs/release/freetype.lastbuildstate
 code/3rdparty/freetype/objs/debug/freetype.lastbuildstate
 docs/doxygen/hdocs/html/*
-assets/engine/engine.cache
+assets/**.db
 *.asset
 assets/engine/textures/stress/**
