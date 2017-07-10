@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project(studio)
+add_subdirectory("./project_manager")
+add_subdirectory("./render_viewport")
+add_subdirectory("./entity_editor")
+add_subdirectory("./flowgraph_editor")

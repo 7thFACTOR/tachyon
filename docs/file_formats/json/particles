@@ -1,0 +1,71 @@
+<particles>
+	<properties>
+		<property name="RenderMode" value="CPU_BILLBOARDS"/>
+		<property name="CoordSystem" value="WORLD"/>
+		<property name="MaxLife="-1"/>
+		<property name="ShaderName" value="psys_additive"/>
+		<property name="ShaderPresetName" value="additive_blend_psys"/>
+		<property name="TextureFile" value="textures/engine_flare.jpg"/>
+	</properties>
+
+	<controllers>
+		<controller class="Emission">
+			<properties>
+				<property name="Type" value="CONSTANT" />
+				<property name="EmissionAmount" value="40" />
+			</properties>
+		</controller>
+		<controller class="InitialPosition">
+			<properties>
+				<property name="Type" value="LINE"/>
+				<property name="LinePoint1" value="-250,-220,0" />
+				<property name="LinePoint2" value="250,-220,0" />
+			</properties>
+		</controller>
+
+		<controller class="InitialVelocity">
+			<properties>
+				<property name="Type" value="RANDOM" />
+				<property name="Velocity" value="0,1,0" />
+			</properties>
+		</controller>
+
+		<controller class="InitialSpeed">
+			<properties>
+				<property name="Type" value="RANDOM" />
+				<property name="MinSpeed" value="1" />
+				<property name="MaxSpeed" value="10" />
+			</properties>
+		</controller>
+
+		<controller class="Color">
+			<properties>
+				<property name="Type" value="GRADIENT" />
+				<property name="Colors" value="1,1,1,1; 1,1,1,1; 0,0,0,0" />
+			</properties>
+		</controller>
+		
+		<controller class="Size">
+			<properties>
+				<property name="Type" value="GRADIENT" />
+				<property name="Sizes" value="15,15; 20,20; 5,5" />
+			</properties>
+		</controller>
+		
+		<controller class="Life">
+			<properties>
+				<property name="Type" value="RANDOM" />
+				<property name="MinLife" value="2" />
+				<property name="MaxLife" value="15" />
+			</properties>
+		</controller>
+		
+		<controller class="Force">
+			<properties>
+				<property name="Type" value="GENERIC" />
+				<property name="Force" value="0,1,0" />
+				<property name="Power" value="0.01" />
+			</properties>
+		</controller>
+	</controllers>
+</particles>

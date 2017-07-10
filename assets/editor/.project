@@ -1,0 +1,24 @@
+title: "Editor Assets"
+description: "Editor specific assets"
+
+assetCompiler
+{
+	buildConfig: "win64_dev"
+	buildConfigs
+	{
+		win64_dev
+		{
+			platform: "win64"
+			buildType: "development"
+			outputPath: "../data"
+		}
+		win64_rel
+		{
+			platform: "win64"
+			buildType: "release"
+			outputPath: "../data"
+		}
+	}
+	
+	defaultBundleName: "editor"
+}

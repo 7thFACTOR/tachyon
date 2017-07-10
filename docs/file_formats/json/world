@@ -1,0 +1,68 @@
+world:
+{
+	desc: "",
+	layers:
+	[
+		{
+			name: "Some layer",
+			visible: "1",
+			selectable: "1",
+			color: "10;12;133"
+			entities:
+			[
+				{
+					UniqueId: "12"
+					Name: "Some"
+					components:
+					[
+						{
+							ClassName: "TransformComponent"
+							Translation: "100;122;12"
+							Rotation: "90:1;1;1"
+						}
+						{
+							ClassName: "MeshComponent"
+							MeshFile: "some/mesh.msh.jsn"
+							Rotation: "90:1;1;1"
+						}
+					]
+				}
+				
+				{
+					UniqueId: "12"
+					Name: "Some"
+				}
+				
+				{
+					UniqueId: "12"
+					Name: "Some"
+				}
+				
+				{
+					UniqueId: "12"
+					Name: "Some"
+				}
+			]
+		}		
+	]
+	
+	groups:
+	[
+		{
+			name: "Somegrp"
+			uids: "1,34,22,554,2344,22,3"
+		}
+		
+		{
+			name: "Somegrp2"
+			uids: "1,34,22,554,2344,22,3"
+		}
+	]
+	
+	editor:
+	{
+		camfov: "90"
+		campos: "1;1;1"
+		camrot: "12;2;3;4"
+	}
+}

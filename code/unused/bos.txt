@@ -1,0 +1,34 @@
+NBOS - Nytro Binary Object Serialization
+
+we define SIDX type - string index in the dictionary
+we define VALUETYPE - content of a basic type for values in the json source
+	-1 - array
+	0 - int8
+	1 - int16
+	2 - int32
+	3 - int64
+	4 - float
+	5 - double
+	6 - string
+
+---------------------------------------------
+Type	Size	name and desc
+---------------------------------------------
+SZ		5		"NBOS" signature
+
+--- chunk 1 [optional] --- CUSTOM HEADER
+
+data depends on user format
+
+--- chunk 2 --- STRING DICTIONARY
+
+U32				String dictionary count
+SZ[]			strings
+
+--- chunk 3 --- NODES
+SIDX			Node name
+U32				Child values count
+VALUETYPE		Value type
+U8				Value data count
+?				Value data (if value type is (-1) array, it will be not existent)
+[child values]

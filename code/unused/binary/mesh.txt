@@ -1,0 +1,99 @@
+--------------------------------------------------------------------------------
+mesh format specification
+--------------------------------------------------------------------------------
+
+The mesh file format contains several surfaces, having different textures and shaders.
+
+[ CHUNK ID: 1 ] - header
+--------------------------------------------------------------------------------
+bytes       field                   description
+--------------------------------------------------------------------------------
+i32         flags                   various model flags
+i32         geomBufferCount         the number of available geometry buffers
+i32			clusterCount			number of mesh cluster count (each cluster is a primitive group that has a specific material applied)
+i32			jointCount				number of joints	
+f32*3		pivot                   the pivot point
+f32*3		boundingBoxMin          the local bounding box min corner
+f32*3		boundingBoxMax          the local bounding box max corner
+f32*16      bindShapeMatrix         bind shape matrix for the jointsif mesh is skinned
+
+--------------------------------------------------------------------------------
+[ CHUNK ID: 2 ] - joints
+--------------------------------------------------------------------------------
+for jointCount
+{
+	i16         jointId           
+	i16         parentJointId
+	f32*16      invertedBindMatrix	base joint bind-time matrix (the actor's 'T' rest shape)
+	f32*16      localMatrix  		joint local matrix, in parent space
+}
+
+[ CHUNK ID: 3 ] - geometry buffer info
+--------------------------------------------------------------------------------
+for geomBufferCount
+{
+i32			vertexCount			the number of vertices
+i32			indexCount      	the number of indices
+i32         texcoordSetCount	the number of UV sets per UV coordinate in the geometry buffer
+i32			flags				1-HAS_POSITIONS, 2-HAS_NORMALS,
+								4-HAS_TANGENTS, 8-HAS_BINORMALS, 16-HAS_COLORS,
+i8			primitiveType       the submesh primitive type: TRIANGLES = 0 supported
+i32			primitiveCount      the number of primitives
+i32			indexCountPerPrimitive  the number of indices per primitive
+
+	for numVertices (ideally all vertices should be read with a single fread)
+	{
+		f32*3      Position
+		f32*3      Normal
+		f32*3      Tangent
+		f32*3      BiNormal
+		f32*4      Color
+
+		for uvSetCount
+			f32*2      Texcoord
+		
+		for engine weight count per vertex (4 now)
+		{
+			i16          jointIndex       joint index in the list of joints defined above, from CHUNK ID 2
+			f32          weightValue
+		}
+	}
+
+	for primitiveCount
+	{
+		if primitiveType = TRIANGLES
+		{
+			i32*3      Triangle
+		}
+	}
+}
+
+[ CHUNK ID: 4 ] - clusters
+--------------------------------------------------------------------------------
+
+for clusterCount
+{
+	cluster
+	{
+		i32	geometryBufferIndex - index into the geometry buffer array
+		i32	indexOffset
+		i32	indexCount
+		i32	primitiveCount
+	}
+}
+
+[ CHUNK ID: 5 ] - hull
+--------------------------------------------------------------------------------
+
+i32         vertexCount             the vertex count for the hull mesh 
+i32         triangleCount           the triangle count for the hull mesh 
+
+for vertexCount
+{
+	f32*3      Position
+}
+
+for triangleCount
+{
+	i32*3      Triangle
+}

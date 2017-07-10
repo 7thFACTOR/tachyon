@@ -1,0 +1,1 @@
+cloc ../base ../engine ../tools ../editor ../launcher ../modules ../tests >> cloc_report.txt

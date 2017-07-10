@@ -1,0 +1,16 @@
+<animations>
+	<animation name="animated_object_id">
+		<tracks>
+			<track name="Position" active="true/false">
+				<keys>
+					<key time="" value="" tension="" continuity="" bias="" easeIn="" easeOut=""/>
+				</keys>
+				<events>
+					<event time="0.3" type="sound" active="true">
+						<param name="soundFile" value="sounds/roar.wav"/>
+					</event>
+				</events>
+			</track>
+		</tracks>
+	</animation>
+</animations>

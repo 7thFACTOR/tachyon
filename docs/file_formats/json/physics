@@ -1,0 +1,12 @@
+<physics name="compoundName">
+	<bodies>
+		<body name="body1">
+			<shapes>
+				<shape name="" material="steel" type="box" width="" />
+			</shapes>
+		</body>
+	</bodies>
+	<joints>
+		<joint name="" linkBody1="" linkBody2=""/>
+	</joints>
+</physics>

@@ -1,0 +1,12 @@
+<presets>
+	<basePreset>
+		<param name="MaxSize" value="1024"/>
+		<param name="Mips" value="6"/>
+		<param name="Diffuse_MaxSize" value="1024"/>
+		<param name="Specular_MaxSize" value="1024"/>
+	</basePreset>
+	<preset name="PC">
+	</preset>
+	<preset name="Android">
+	</preset>
+</presets>

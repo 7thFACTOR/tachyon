@@ -1,0 +1,4 @@
+<game title="Swarm" providerClass="SwarmGame" description="RTS demo game" dataFolder="../data" >
+	<locations>
+	</locations>
+</game>

@@ -1,0 +1,2 @@
+To build the 3rdparty libraies, prepare the bin folder and generate the solutions, run setup.cmd / sh
+To just regenerate the engine solutions (when source files added or removed), run generate_solutions.cmd / sh

@@ -1,0 +1,536 @@
+#ifndef __COMMON_CG
+#define __COMMON_CG
+
+//-----------------------------------------------------------------------------
+// Common Main Shader Include File
+// Functions and other definitions for the engine
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+// Engine exported matrices
+//-----------------------------------------------------------------------------
+
+float4x4 mtxLightWorldViewProjection;
+// world
+float4x4 mtxWorld;
+// world inverse transpose
+float4x4 mtxWorldInverse;
+// world inverse transpose
+float4x4 mtxWorldInverseTranspose;
+// texture
+float4x4 mtxTexture;
+
+// view
+float4x4 mtxView;
+// view inversed
+float4x4 mtxViewInverse;
+// view inversed transposed
+float4x4 mtxViewInverseTranspose;
+// view rotation-only
+float4x4 mtxViewRotation;
+// view-projection
+float4x4 mtxViewProjection;
+
+// world-view
+float4x4 mtxWorldView;
+// world-view inversed
+float4x4 mtxWorldViewInverse;
+// world-view inverse transpose
+float4x4 mtxWorldViewInverseTranspose;
+
+// projection
+float4x4 mtxProjection;
+// world-view-projection
+float4x4 mtxWorldProjection;
+// world-view-projection
+float4x4 mtxWorldViewProjection;
+
+// bone matrices
+float4x4 mtxBones[100];
+
+//-----------------------------------------------------------------------------
+// Various engine variables and defines
+//-----------------------------------------------------------------------------
+
+#define PI 3.14159265f
+#define CONST_PI_OVER_180 PI / 180.0f
+
+// engine time, mseconds passed from the engine start
+float time;
+// time in mseconds between 2 frames
+float frameDeltaTime;
+// current render target size: renderTargetSize.x and .y is width and height
+float2 renderTargetSize;
+// current viewport size: viewportSize.x and .y is width and height
+float2 viewportSize;
+// camera up vector
+float3 cameraUpAxis;
+// camera up vector
+float3 cameraPosition;
+// camera far plane
+float cameraFarPlane = 50000;
+// camera near plane
+float cameraNearPlane = 0.1f;
+
+//-----------------------------------------------------------------------------
+// Lighting
+//-----------------------------------------------------------------------------
+
+#define MAX_LIGHTS 8
+
+// lights positions
+float3 lightPosition[MAX_LIGHTS];
+// lights colors
+float3 lightColor[MAX_LIGHTS];
+// lights range
+float lightRange[MAX_LIGHTS];
+// lights direction
+float3 lightDirection[MAX_LIGHTS];
+// lights cone inner angle
+float lightInnerAngle[MAX_LIGHTS];
+// lights cone outer angle
+float lightOuterAngle[MAX_LIGHTS];
+
+// sun color
+float4 sunColor = {1,1,1,1};
+// sun direction
+float3 sunDirection = {0,-1,0};
+// sun intensity
+float sunIntensity = 1;
+
+// fog density
+float fogDensity = 0.023f;
+// fog start Z
+float fogBegin = 20;
+// fog end Z
+float fogEnd = 100000;
+// fog exponent
+float fogExponent = 2;
+// fog color
+float4 fogColor = { 0.6235, 0.8666, 1, 1 };
+
+//-----------------------------------------------------------------------------
+// Material
+//-----------------------------------------------------------------------------
+
+// material colors
+float4 ambientColor = { 0, 0, 0, 1 };
+float4 diffuseColor = { 1, 1, 1, 1 };
+float4 specularColor = { 1, 1, 1, 1 };
+float4 emissiveColor = { 1, 1, 1, 1 };
+
+// phong/blinn or other constants
+float roughness = 1;
+float specularExponent = 10;
+float detailBumpScale = 0.2;
+
+// parallax
+float parallaxScale = 0.07f;
+float parallaxBias = 0.02f;
+
+// fresnel effect
+float4 fresnelColor = { 0.1, 0.1, 0.1, 1 };
+float fresnelBias = 0.05;
+float fresnelPower = 0.1;
+float fresnelScale = 0.001;
+
+//-----------------------------------------------------------------------------
+// Constants
+//-----------------------------------------------------------------------------
+
+// some blur weights used in bloom and DOF
+cfloat blurWeights[7] = { 0.05, 0.1, 0.2, 0.3, 0.2, 0.1, 0.05 };
+
+//-----------------------------------------------------------------------------
+// Textures
+//-----------------------------------------------------------------------------
+
+// UV tiling
+float2 uvDiffuseRepeat = { 1, 1 };
+float2 uvDetailRepeat = { 1, 1 };
+float2 uvNormalRepeat = { 1, 1 };
+float2 uvDetailNormalRepeat = { 1, 1 };
+float2 uvSpecularRepeat = { 1, 1 };
+float2 uvEmissiveRepeat = { 1, 1 };
+
+float2 uvDiffuseOffset = { 0, 0 };
+float2 uvDetailOffset = { 0, 0 };
+float2 uvNormalOffset = { 0, 0 };
+float2 uvDetailNormalOffset	= { 0, 0 };
+float2 uvSpecularOffset = { 0, 0 };
+float2 uvEmissiveOffset = { 0, 0 };
+
+float2 uvDiffuseScrollSpeed = { 0, 0 };
+float2 uvDetailScrollSpeed = { 0, 0 };
+float2 uvNormalScrollSpeed = { 0, 0 };
+float2 uvDetailNormalScrollSpeed = { 0, 0 };
+float2 uvSpecularScrollSpeed = { 0, 0 };
+float2 uvEmissiveScrollSpeed = { 0, 0 };
+
+// RGB - diffuse color, A - opacity
+texture diffuseTexture;
+// RGB - diffuse color, A - opacity
+texture grassTexture;
+// RGB detail map color, A - detail alpha
+texture detailTexture;
+// RGB - normal, A - height
+texture normalTexture;
+// RGB - normal, A - height
+texture detailNormalTexture;
+// RGB - ambient occlusion factor
+texture ambientOcclusionTexture;
+// RGB - specular value, A - specular power
+texture specularTexture;
+// RGB - emissive color
+texture emissiveTexture;
+// RGB - color
+texture cubeTexture;
+texture skyCubeTexture;
+texture distortTexture;
+texture noiseTexture;
+// scene shadow map
+texture shadowTexture;
+// scene color buffer
+texture colorTexture;
+
+//-----------------------------------------------------------------------------
+// Vertex structures
+//-----------------------------------------------------------------------------
+
+struct ShapeVertexIN
+{
+	float3 position : POSITION;
+	float3 normal : NORMAL;
+	float4 color : COLOR;
+	float2 uv : TEXCOORD0;
+};
+
+struct InstancedShapeVertexIN
+{
+	float3 position : POSITION;
+	float3 normal : NORMAL;
+	float4 color : COLOR;
+	float2 uv : TEXCOORD0;
+	float4 instanceColor : TEXCOORD1;
+	float4 mtxInstanceWorldRow0 : TEXCOORD2;
+	float4 mtxInstanceWorldRow1 : TEXCOORD3;
+	float4 mtxInstanceWorldRow2 : TEXCOORD4;
+	float4 mtxInstanceWorldRow3 : TEXCOORD5;
+};
+
+struct VertexIN
+{
+	float3 position : POSITION;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float3 bitangent : BINORMAL;
+	float4 color : COLOR;
+	float2 uv : TEXCOORD0;
+};
+
+struct InstancedVertexIN
+{
+	float3 position : POSITION;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float3 bitangent : BINORMAL;
+	float4 color : COLOR;
+	float2 uv : TEXCOORD0;
+	float4 instanceColor : TEXCOORD1;
+	float4 mtxInstanceWorldRow0 : TEXCOORD2;
+	float4 mtxInstanceWorldRow1 : TEXCOORD3;
+	float4 mtxInstanceWorldRow2 : TEXCOORD4;
+	float4 mtxInstanceWorldRow3 : TEXCOORD5;
+};
+
+struct CanvasVertexIN
+{
+	float3 position : POSITION;
+	float2 uv : TEXCOORD0;
+	float2 atlasItemOffset : TEXCOORD1;
+	float2 atlasItemSize : TEXCOORD2;
+	float4 color : COLOR;
+};
+
+struct CanvasVertexOUT
+{
+	float4 position : POSITION;
+	float4 color : TEXCOORD0;
+	float2 uv : TEXCOORD1;
+};
+
+struct VertexOUT
+{
+	float4 position : POSITION;
+	float3 normal : TEXCOORD0;
+	float4 color : TEXCOORD1;
+	float2 uv : TEXCOORD2;
+	float3 light : TEXCOORD3;
+	float3 view : TEXCOORD4;
+	float3 worldPos : TEXCOORD5;
+	float3 tangent : TEXCOORD6;
+	float3 binormal : TEXCOORD7;
+	
+};
+
+//-----------------------------------------------------------------------------
+// VS and PS for generic rendering
+//-----------------------------------------------------------------------------
+
+VertexOUT postProcessVS(VertexIN IN)
+{
+	VertexOUT OUT;
+
+	OUT.position = mul(float4(IN.position, 1), mtxProjection);
+	OUT.uv = IN.uv;
+	OUT.color = IN.color;
+
+	return OUT;
+}
+
+//-----------------------------------------------------------------------------
+// Utility functions
+//-----------------------------------------------------------------------------
+
+float fresnel(float NdotV, float bias, float power)
+{
+	return bias + (1.0 - bias) * pow(1.0 - max(NdotV, 0), power);
+}
+
+float fogAmount(float3 positionVS, float aFogDensity)
+{
+	float z = length( positionVS );
+	return saturate( pow( 2.7182818, -( aFogDensity * z ) ) );
+}
+
+float fogAmount2(float z, float aFogDensity)
+{
+	return saturate(pow(2.7182818, -(aFogDensity * z)));
+}
+
+float expFog(float3 vPos)
+{
+	float dist = clamp(length(mul(float4(vPos, 1), (float4x3)mtxWorld).xyz - mtxViewInverse[3].xyz) - fogBegin, 0, 100000000);
+
+	return 1.0 / pow(fogExponent, dist * fogDensity);
+}
+
+float2 screenTexCoord(float4 hpos)
+{
+	float2 texPos = 0.5 * hpos.xy / hpos.w + float2(0.5, 0.5);
+	float2 offset = 0.5 / viewportSize;
+	texPos -= offset;
+	texPos.y = 1.0 - texPos.y;
+	
+	return texPos;
+}
+
+float4 blurPixel(uniform sampler2D tex, float2 uv, float2 dir)
+{
+	float4 c = 0;
+	float offsets[7] = {-0.007, -0.006, -0.005, 0, 0.005, 0.006, 0.007};
+	int i;
+
+	for(i = 0; i < 7; i++)
+	{
+		c += tex2D(tex, float2(uv.x + dir.x*offsets[i], uv.y + dir.y*offsets[i])) * blurWeights[i];
+	}
+
+	return c;
+}
+
+//-----------------------------------------------------------------------------
+// Light computation formulas
+//-----------------------------------------------------------------------------
+
+// Blinn lighting with lit function
+float4 getBlinn(
+	float3 N,
+	float3 L,
+	float3 V,
+	uniform float4 diffuseColor,
+	uniform float4 specularColor,
+	uniform float shininessValue,
+	uniform float specularExp)
+{
+	float3 H = (float3)normalize( V + L );
+	float4 lighting = (float4)lit( dot( L, N ), pow( abs(dot( H, N )), specularExp ), shininessValue );
+	return diffuseColor*lighting.y + specularColor*lighting.z;
+}
+
+float4 phong(float4 cDiffuse, float4 cSpecular, float3 normal, float3 viewer, float3 light)
+{
+	// Compute the reflection vector
+	float3 reflection   = normalize( 2.0f * normal * dot( normal, light ) - light );
+
+	// Compute the angle between the reflection and the viewer
+	float  RdotV        = max( dot( reflection, viewer ), 0.0f );
+
+	// Compute the specular colour
+	float3 specular     = (float3)cSpecular * pow( RdotV, specularExponent );
+
+	// Compute the diffuse term for the Phong equation
+	float3 diffuse      = (float3)cDiffuse * max( 0.0f, dot( normal, light ) );
+
+	// Determine the final colour    
+	return float4( diffuse + specular, 1.0f );
+}
+
+float4 blinnPhong( float4 cDiffuse, float4 cSpecular, float3 normal, float3 viewer, float3 light )
+{
+	// Compute the half vector
+	float3 half_vector = normalize(light + viewer);
+
+	// Compute the angle between the half vector and normal
+	float  HdotN = max( 0.000001f, dot( half_vector, normal ) );
+
+	// Compute the specular colour
+	float3 specular = (float3)cSpecular * shininess * pow( HdotN, specularExponent );
+
+	// Compute the diffuse term
+	float3 diffuse = (float3)cDiffuse * max( 0.0f, dot( normal, light ) );
+
+	// Determine the final colour    
+	return float4( diffuse + specular, 0.0f );
+}
+
+// Parallax fetch
+float4 getParallaxUV( sampler2D normalSampler, float3 vEye, float2 texCoord )
+{
+	float2 vCoord = texCoord;
+	float fDepth = tex2D( normalSampler, vCoord).w;
+	float2 vHalfOffset = normalize( vEye ).xy * ( fDepth ) * parallaxScale;
+
+	fDepth = ( fDepth + tex2D( normalSampler, vCoord + vHalfOffset ).x ) * 0.5;
+	vHalfOffset = normalize( vEye ).xy * ( fDepth ) * parallaxScale;
+
+	fDepth = ( fDepth + tex2D( normalSampler, vCoord + vHalfOffset ).x ) * 0.5;
+	vHalfOffset = normalize( vEye ).xy * ( fDepth ) * parallaxScale;
+
+	vCoord += vHalfOffset;
+
+	return float4( vCoord.x, vCoord.y, 1, 1 );
+}
+
+// Iterative parallax
+float4 getIterativeParallaxUV( sampler2D hMap, float4 uv, float3 View )
+{
+	for( int i = 0; i < 4; i++ )
+	{
+		float4 Normal = tex2D( hMap, uv.xy );
+		float h = Normal.a * parallaxScale + parallaxBias;
+		uv += (h - uv.z) * Normal.z * float4(View,1);
+	}
+
+	return uv;
+}
+
+float4 computeSkinnedPosition( const float4 inPos, const float weights[4], const int indices[4] )
+{
+	float4 pos;
+	
+	pos = mul( inPos, mtxBones[indices[0]] ) * weights[0];
+	pos += mul( inPos, mtxBones[indices[1]] ) * weights[1];
+	pos += mul( inPos, mtxBones[indices[2]] ) * weights[2];
+	pos += mul( inPos, mtxBones[indices[3]] ) * weights[3];
+
+	return pos;
+}
+
+float overlayBlend(float value1, float value2, float opacity)
+{
+	float blend = value1 < 0.5 ? 2*value1*value2 : 1 - 2*(1-value1)*(1-value2);
+	return lerp(value1, blend, opacity);
+}
+
+float scaleContrast(float value, float contrast)
+{
+	return saturate((value-0.5)*contrast+0.5);
+}
+
+float4x4 lookTowards( float3 rTo )
+{
+	float3 dir = -rTo;
+	float3 up = float3( 0, 1, 0 );
+	float3 side;
+	float4x4 m;
+
+	dir = normalize( dir );
+	up = -up;
+	side = cross( dir, up );
+	side = normalize( side );
+	up = cross( dir, side );
+
+	m[0][0] = side.x; m[0][1] = side.y; m[0][2] = side.z; m[0][3] = 0;
+	m[1][0] = up.x; m[1][1] = up.y; m[1][2] = up.z; m[1][3] = 0; m[2][0] = dir.x;
+	m[2][1] = dir.y; m[2][2] = dir.z; m[2][3] = 0;	
+	m[3][0] = 0; m[3][1] = 0; m[3][2] = 0; m[3][3] = 1;
+	
+	return m;
+}
+
+float3x3 getRotationMatrixAboutAxis( float3 axis, float angle )
+{
+	angle = angle * 0.5;
+	float s = sin( angle );
+	float x = axis.x * s,
+	y = axis.y * s,
+	z = axis.z * s,
+	w = cos( angle );
+
+	float x2, y2, z2, xx, yy, zz, xy, yz, xz, wx, wy, wz;
+	x2 = x + x; y2 = y + y; z2 = z + z;
+	xx = x * x2; yy = y * y2; zz = z * z2;
+	xy = x * y2; yz = y * z2; xz = z * x2;
+	wx = w * x2; wy = w * y2; wz = w * z2;
+	
+	float3x3 R;
+
+	// [column][row]
+	R[0][0] = 1.0 - (yy + zz);		R[1][0] = xy - wz;			R[2][0] = xz + wy;
+	R[0][1] = xy + wz;				R[1][1] = 1.0 - (xx + zz);	R[2][1] = yz - wx;
+	R[0][2] = xz - wy;				R[1][2] = yz + wx;			R[2][2] = 1.0 - (xx + yy);
+	
+	return R;
+}
+
+inline float4 encodeFloatRGBA( float v ) 
+{
+	float4 enc = float4( 1.0, 255.0, 65025.0, 16581375.0 ) * v;
+
+	enc = frac( enc );
+	enc -= enc.yzww * float4( 1.0 / 255.0, 1.0 / 255.0, 1.0 / 255.0, 0.0 );
+
+	return enc;
+}
+
+inline float decodeFloatRGBA( float4 rgba ) 
+{
+	return dot( rgba, float4( 1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0 ) );
+}
+
+inline float sign( float value )
+{
+	return value > 0 ? 1 : -1;
+}
+
+inline float linearstep( float lo, float hi, float input )
+{
+	float diff = hi - lo;
+	float offset = input - lo;
+	return min( 1.0, max( 0.0, offset / diff ) );
+}
+
+float3 fresnelSchlick(float3 specularColor, float3 E, float3 H)
+{
+	return specularColor + (1.0f - specularColor) * pow(1.0f - saturate(dot(E, H)), 5);
+}
+
+float fresnelSchlick2(float dot_v_h)
+{
+	float value  = clamp(1 - dot_v_h, 0.0, 1.0);
+	float value2 = value * value;
+	return (value2 * value2 * value);
+}
+
+#endif

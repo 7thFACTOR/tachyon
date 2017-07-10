@@ -1,0 +1,9 @@
+<physicsMaterial name="Default">
+	<properties>
+		<property name="DynamicFriction" value="0.2"/>
+		<property name="StaticFriction" value="0.4"/>
+		<property name="Restitution" value="0.5"/>
+		<property name="DisableFriction" value="false"/>
+		<property name="IsSolid" value="true"/>
+	</properties>
+</physicsMaterial>

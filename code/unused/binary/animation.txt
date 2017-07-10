@@ -1,0 +1,72 @@
+--------------------------------------------------------------------------------
+generic node animation format specification
+--------------------------------------------------------------------------------
+[ CHUNK ID: 1 ] - header
+--------------------------------------------------------------------------------
+bytes       field                   description
+--------------------------------------------------------------------------------
+I4          flags					reserved, 0
+SZ          anim_name               name of the animation
+SZ          anim_author             animation's author and (C)
+I2          nodeCount               number of animated nodes
+
+--------------------------------------------------------------------------------
+[ CHUNK ID: 2 ] - animations
+--------------------------------------------------------------------------------
+for nodesCount:
+{
+    SZ          nodeName                name of the bone
+	I4			flags					type of interpolation: BEZIER = 2,TCB = 1,LINEAR = 4
+    I4          translationKeyCount     number of translation keys
+    I4          rotationKeyCount        number of rotation keys
+    I4          scaleKeyCount           number of scale keys
+	
+    for translationKeyCount:
+    {
+        I4      flags
+        F       time
+		if(TCB)
+			F       tension
+			F       continuity
+			F       bias
+			F       easeIn
+			F       easeOut
+		end TCB
+        F       TX
+        F       TY
+        F       TZ
+    }
+
+    for rotationKeyCount:
+    {
+        I4      flags
+        F       time
+		if(TCB)
+			F       tension
+			F       continuity
+			F       bias
+			F       easeIn
+			F       easeOut
+		end TCB
+        F       angle
+        F       AxisX
+        F       AxisY
+        F       AxisZ
+    }
+
+    for scaleKeyCount:
+    {
+        I4      flags
+        F       time
+		if(TCB)
+			F       tension
+			F       continuity
+			F       bias
+			F       easeIn
+			F       easeOut
+		end TCB
+        F       SX
+        F       SY
+        F       SZ
+    }
+}

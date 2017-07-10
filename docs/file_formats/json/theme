@@ -1,0 +1,151 @@
+<uiSkin>
+	<skinMaps>
+		<skinMap name="all" file="textures/gui/gui.png" />
+		<skinMap name="all_hover" file="textures/gui/gui_hover.png" />
+	</skinMaps>
+	<widgetSkins>
+		<skin widget="UIButton">
+			<stateMaps>
+				<stateMap state="up" map="all" />
+				<stateMap state="down" map="all" />
+				<stateMap state="up_hover" map="all_hover" />
+				<stateMap state="down_hover" map="all_hover" />
+			</stateMaps>
+			<sliceSets>
+				<sliceSet stateMap="up">
+					<slice name="leftTop" coords="3,3,8,8" />
+					<slice name="centerTop" coords="11,3,54,8" />
+					<slice name="rightTop" coords="65,3,8,8" />
+					
+					<slice name="leftMiddle" coords="3,11,8,55" />
+					<slice name="centerMiddle" coords="11,11,54,55" />
+					<slice name="rightMiddle" coords="65,11,8,55" />
+
+					<slice name="leftBottom" coords="3,66,8,8" />
+					<slice name="centerBottom" coords="11,66,54,8" />
+					<slice name="rightBottom" coords="65,66,8,8" />
+				</sliceSet>
+				<sliceSet stateMap="up_hover" inherit="up">
+				</sliceSet>
+				<sliceSet stateMap="down_hover" inherit="up">
+				</sliceSet>
+			</sliceSets>
+		</skin>
+		<skin widget="UICheck">
+			<stateMaps>
+				<stateMap state="up" map="all" />
+				<stateMap state="down" map="all" />
+				<stateMap state="up_hover" map="all_hover" />
+				<stateMap state="down_hover" map="all_hover" />
+			</stateMaps>
+			<sliceSets>
+				<sliceSet stateMap="up">
+					<slice name="checkImage" coords="77,3,22,22" />
+				</sliceSet>
+				<sliceSet stateMap="down">
+					<slice name="checkImage" coords="101,3,22,22" />
+				</sliceSet>
+				<sliceSet stateMap="up_hover" inherit="up">
+				</sliceSet>
+				<sliceSet stateMap="down_hover" inherit="down">
+				</sliceSet>
+			</sliceSets>
+		</skin>
+		<skin widget="UIRadio">
+			<stateMaps>
+				<stateMap state="up" map="all" />
+				<stateMap state="down" map="all" />
+				<stateMap state="up_hover" map="all_hover" />
+				<stateMap state="down_hover" map="all_hover" />
+			</stateMaps>
+			<sliceSets>
+				<sliceSet stateMap="up">
+					<slice name="radioImage" coords="77,30,22,22" />
+				</sliceSet>
+				<sliceSet stateMap="down">
+					<slice name="radioImage" coords="101,30,22,22" />
+				</sliceSet>
+				<sliceSet stateMap="up_hover" inherit="up">
+				</sliceSet>
+				<sliceSet stateMap="down_hover" inherit="down">
+				</sliceSet>
+			</sliceSets>
+		</skin>
+		<skin widget="UIEdit">
+			<stateMaps>
+				<stateMap state="up" map="all" />
+				<stateMap state="up_hover" map="all_hover" />
+			</stateMaps>
+			<sliceSets>
+				<sliceSet stateMap="up">
+					<slice name="leftTop" coords="3,76,8,8" />
+					<slice name="centerTop" coords="11,76,54,8" />
+					<slice name="rightTop" coords="65,76,8,8" />
+					
+					<slice name="leftMiddle" coords="3,84,8,53" />
+					<slice name="centerMiddle" coords="11,84,54,53" />
+					<slice name="rightMiddle" coords="65,84,8,53" />
+
+					<slice name="leftBottom" coords="3,137,8,8" />
+					<slice name="centerBottom" coords="11,137,54,8" />
+					<slice name="rightBottom" coords="65,137,8,8" />
+				</sliceSet>
+				<sliceSet stateMap="up_hover" inherit="up">
+				</sliceSet>
+			</sliceSets>
+		</skin>
+		<skin widget="UISlider">
+			<stateMaps>
+				<stateMap state="up" map="all" />
+			</stateMaps>
+			<sliceSets>
+				<sliceSet stateMap="up">
+					<slice name="leftSlide" coords="127,7,8,14" />
+					<slice name="centerSlide" coords="137,7,35,14" />
+					<slice name="rightSlide" coords="170,7,8,14" />
+					
+					<slice name="topKnob" coords="128,24,21,9" />
+					<slice name="middleKnob" coords="128,33,21,10" />
+					<slice name="bottomKnob" coords="128,43,21,9" />
+				</sliceSet>
+			</sliceSets>
+		</skin>
+	</widgetSkins>
+</uiSkin>
+
+{
+	atlas: "gui/atlases/default"
+	
+	
+	font_styles:
+	{
+		arial_10_bold_italic:
+		{
+			font: "arial"
+			font_size: "10"
+			font_bold: true
+			font_italic: true
+			font_strike: true
+			font_underline: true
+		}
+	}	
+	
+	button:
+	{
+		normal:
+		{
+			font_style: "arial_10_bold_italic";
+			font: "arial"
+			font_size: "10"
+			font_bold: true
+			font_italic: true
+			font_strike: true
+			font_underline: true
+			body_rect: "100 20 40 50"
+			body_border: "10 10 10 10"
+			body_middle_border_modes: "stretch repeat stretch repeat"
+			drop_down_rect: 
+		}
+	}
+}
+

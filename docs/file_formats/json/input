@@ -1,0 +1,31 @@
+<input mouse_speed="1" joystick_speed="1">
+	<action name="run" bind="lshift,rshift" />
+	<action name="exit" bind="Esc,f10" />
+	<action name="move_left" bind="arrow_left,a" />
+	<action name="move_right" bind="arrow_right,d" />
+	<action name="move_forward" bind="arrow_up,w" />
+	<action name="move_backward" bind="arrow_down,s" />
+	<action name="screenshot" bind="printscr" delay="1.5" />
+	<action name="move_up" bind="z"/>
+	<action name="move_down" bind="x"/>
+	<action name="physics" bind="enter" />
+	<action name="toggle_console" bind="grave" delay="1" />
+	<!--<action name="toggle_fullscreen" bind="F12" delay="1.5" />-->
+	<action name="gamma+" bind="1"/>
+	<action name="gamma-" bind="2"/>
+	<action name="explosion" bind="e"/>
+	<action name="attract" bind="r"/>
+	<action name="vortex" bind="t"/>
+	<action name="toggle_antialias" bind="F11" delay="0.5"/>
+	<action name="toggle_postprocess0" bind="F1" delay="0.5"/>
+	<action name="toggle_postprocess1" bind="F2" delay="0.5"/>
+	<action name="toggle_postprocess2" bind="F3" delay="0.5"/>
+	<action name="toggle_postprocess3" bind="F4" delay="0.5"/>
+	<action name="toggle_postprocess4" bind="F5" delay="0.5"/>
+	<action name="toggle_postprocess5" bind="F6" delay="0.5"/>
+	<action name="shake" bind="space" delay="0.5" rate="0.1"/>
+	<action name="fire_left" bind="lbutton" delay="0.5" rate="0.3"/>
+	<action name="lod" bind="0" delay="0.5" rate="0.3"/>
+	<action name="savegame" bind="f11" delay="0.5" rate="0.3"/>
+	<action name="loadgame" bind="f12" delay="0.5" rate="0.3"/>
+</input>

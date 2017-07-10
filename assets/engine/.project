@@ -1,0 +1,47 @@
+version: 1
+title: "System Assets"
+description: "Engine specific assets"
+
+assetCompiler
+{
+	defaultBuildConfig: "win64_development"
+	
+	buildConfigs
+	{
+		win64_development
+		{
+			platform: "win64"
+			buildType: "development"
+			outputPath: "../data"
+			deployPath: "../data"
+			processorConfigs
+			{
+				texture
+				{
+					format="rgba8"
+				}
+			}
+		}
+		win64_shipping
+		{
+			platform: "win64"
+			buildType: "shipping"
+			outputPath: "../data"
+			deployPath: "../data"
+		}
+	}
+	
+	bundles:
+	{
+		"engine":
+		{
+			"path": ""
+		},
+		"textures":
+		{
+			"path": "textures"
+		}
+	}
+	
+	defaultBundleName: "engine"
+}

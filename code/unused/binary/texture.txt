@@ -1,0 +1,27 @@
+--------------------------------------------------------------------------------
+texture format specification
+--------------------------------------------------------------------------------
+Bytes		Field				description
+--------------------------------------------------------------------------------
+U32			header_size			header size starting at 0 file offset
+U16			revision			revision number
+U16			slice_count			image slice count, or depth
+U8			mip_count			the mip count, valid for each slice
+U8			format				0 - RGBA, 1 - BGRA, 2 - LUMINANCE
+U8			bpp					bits per pixel (8,32,64,128)
+U32			flags				if 1 - CUBEMAP is set, then the slice count must be 6
+								(cube faces in this order: X,-X,Y,-Y,Z,-Z)
+U8			compression			0 - none 1- zlib
+
+for slice_count, SLICE_INFO_STRUCT:
+	for mip_count, MIP_INFO_STRUCT:
+	{
+		U32			file_offset			offset to mip data chunk
+		U32			uncompressed_size	size of mip data chunk
+		U32			compressed_size		size of compressed mip data
+		U16			width				mip level width
+		U16			height				mip level height
+	}
+
+DATA CHUNKS		
+data[slice_count][mip_count]	????	mip image data for slice count and for mip_count levels

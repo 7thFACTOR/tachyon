@@ -1,0 +1,43 @@
+title: ""
+description: ""
+
+assetCompiler:
+{
+	buildConfig: "win32_dev"
+	buildConfigs:
+	{
+		"win32_dev"
+		{
+			platform: "win32" //win64, linux, osx, android, ios, ps4, xbone, psvita
+			buildType: "development"
+			processorConfigs:
+			{
+				gpuprogram:
+				{}
+				mesh:
+				{}
+				texture:
+				{}
+			}
+		}
+	
+	}
+	
+	bundles:
+	{
+		textures:
+		{
+			// relative to the current project folder
+			folderPath: "/textures"
+		}
+		
+		// if we want all data in a bundle
+		meshes:
+		{
+			folder: "/meshes"
+		}
+	}
+}
+
+worldSections:
+{}

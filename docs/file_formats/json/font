@@ -1,0 +1,12 @@
+<fontMap name="Arial Narrow" face="Arial Narrow" image="fonts/console.tga">
+	<characters>
+		<character code="32" pixelCoords="5,5,9,26" uvCoords="0.0098,0.0098,0.0176,0.0508" />
+		<character code="33" pixelCoords="19,5,10,26" uvCoords="0.0371,0.0098,0.0195,0.0508" />
+		<character code="35" pixelCoords="34,5,13,26" uvCoords="0.0664,0.0098,0.0254,0.0508" />
+	</characters>
+	<kerningPairs>
+		<kerningPair leftCharCode="49" rightCharCode="49" pixelKerning="-1" uvKerning="-0.0020" />
+		<kerningPair leftCharCode="65" rightCharCode="84" pixelKerning="-1" uvKerning="-0.0020" />
+		<kerningPair leftCharCode="65" rightCharCode="86" pixelKerning="-1" uvKerning="-0.0020" />
+	</kerningPairs>
+</fontMap>

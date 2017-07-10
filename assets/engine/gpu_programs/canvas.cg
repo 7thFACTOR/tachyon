@@ -1,0 +1,22 @@
+#include "common.cg"
+
+sampler2D diffuseSampler;
+
+CanvasVertexOUT mainVS(CanvasVertexIN IN)
+{
+	VertexOUT OUT;
+	
+	float3 worldPos = normalize(mul(float4(IN.position, 1.0), mtxWorld).xyz);
+	OUT.position = mul(float4(IN.position, 1.0), mtxWorldViewProjection);
+	OUT.normal = IN.normal;
+	OUT.color = IN.color;
+	OUT.uv = IN.atlasItemOffset + IN.atlasItemSize * frac(IN.uv);
+
+	return OUT;
+}
+
+float4 mainPS(CanvasVertexOUT IN) : COLOR
+{
+	float4 tex = tex2D(diffuseSampler, IN.uv);
+	return tex;
+}

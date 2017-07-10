@@ -1,0 +1,16 @@
+properties:
+[
+	{
+		name:"Opacity"
+		type:"f32"
+		default:"1.0"
+		minValue:"0.1"
+		maxValue:"1.0"
+		animatable:"true"
+		defaultCurve:
+		[
+			{ inTan:"0,0,0"; outTan:"0,0,0"; value: "1"; time:"0"}
+		]
+		readOnly: "false"
+	}
+]

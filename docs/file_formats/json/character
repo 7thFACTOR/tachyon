@@ -1,0 +1,11 @@
+<skinnedModel name="Hero" model="hero.model.xml">
+    <skins>
+        <skin name="normal" file="meshes/hero.skin"/>
+        <skin name="fatty" file="meshes/heroFat.skin"/>
+    </skins>
+    <animations>
+        <animation name="IDLE" file="meshes/heroIdle.anim"/>
+        <animation name="RUN" file="meshes/heroRun.anim"/>
+        <animation name="WALK" file="meshes/heroWalk.anim"/>
+    </animations>
+</skinnedModel>

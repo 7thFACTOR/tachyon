@@ -1,0 +1,11 @@
+<graph name="ShaderX4" description="some shader">
+	<node class="Color">
+		<properties>
+			<property name="Name" value="Color001"/>
+			<property name="Value" value="1,0,1,1"/>
+		</properties>
+		<outputs>
+			<output name="Color" node="node01" slot="Diffuse" value="1,1,1,1"/>
+		</outputs>
+	</node>
+</graph>

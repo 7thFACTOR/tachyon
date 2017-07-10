@@ -1,0 +1,56 @@
+<prefab name="" >
+	<entity class="TriggerEntity" >
+		<property name="CanBeReflected" value="true" />
+		<property name="CastShadows" value="true" />
+		<property name="Common" value="on" />
+		<property name="EditorColor" value="1.0000;0.0000;1.0000;0.3000" />
+		<property name="Entity" value="on" />
+		<property name="Group" value="" />
+		<property name="Layer" value="" />
+		<property name="Name" value="Trigger125" />
+		<property name="OcclusionCulled" value="true" />
+		<property name="Prefab" value="" />
+		<property name="ReceiveShadows" value="true" />
+		<property name="Roll" value="0.000000" />
+		<property name="Rotation" value="0.0000;0.0000;0.0000;0.0000" />
+		<property name="Scale" value="15.0000;15.0000;15.0000" />
+		<property name="SceneNode" value="on" />
+		<property name="Selectable" value="true" />
+		<property name="StaticEntity" value="true" />
+		<property name="SuperClassID" value="Entity" />
+		<property name="Translation" value="12.271523;0.000000;0.000000" />
+		<property name="Trigger" value="on" />
+		<property name="TriggerType" value="Sphere" />
+		<property name="UniqueID" value="124" />
+		<property name="UseLookDirection" value="false" />
+		<property name="UseRoll" value="false" />
+		<property name="Visible" value="true" />
+	</entity>
+	<entity class="TriggerEntity" >
+		<property name="CanBeReflected" value="true" />
+		<property name="CastShadows" value="true" />
+		<property name="Common" value="on" />
+		<property name="EditorColor" value="0.0000;1.0000;1.0000;0.3000" />
+		<property name="Entity" value="on" />
+		<property name="Group" value="" />
+		<property name="Layer" value="" />
+		<property name="Name" value="Trigger116" />
+		<property name="OcclusionCulled" value="true" />
+		<property name="Prefab" value="" />
+		<property name="ReceiveShadows" value="true" />
+		<property name="Roll" value="0.000000" />
+		<property name="Rotation" value="0.0000;0.0000;0.0000;0.0000" />
+		<property name="Scale" value="15.0000;15.0000;15.0000" />
+		<property name="SceneNode" value="on" />
+		<property name="Selectable" value="true" />
+		<property name="StaticEntity" value="true" />
+		<property name="SuperClassID" value="Entity" />
+		<property name="Translation" value="-12.271523;0.000000;0.000000" />
+		<property name="Trigger" value="on" />
+		<property name="TriggerType" value="Sphere" />
+		<property name="UniqueID" value="116" />
+		<property name="UseLookDirection" value="false" />
+		<property name="UseRoll" value="false" />
+		<property name="Visible" value="true" />
+	</entity>
+</prefab>

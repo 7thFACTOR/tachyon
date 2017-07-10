@@ -1,0 +1,66 @@
+--------------------------------------------------------------------------------
+character animation file
+--------------------------------------------------------------------------------
+[ CHUNK ID: 1 ] - header
+--------------------------------------------------------------------------------
+bytes       field                   description
+--------------------------------------------------------------------------------
+I4          flags                   various flags: SKELETON_ANIM = 1, NODES_ANIM = 2
+SZ          anim_name               name of the animation
+SZ          anim_author             name of the animation' author and (C)
+I2          nodesCount              number of animated nodes
+
+--------------------------------------------------------------------------------
+[ CHUNK ID: 2 ] - animations
+--------------------------------------------------------------------------------
+for nodesCount:
+{
+    SZ          nodeName                name of the bone
+	I4			flags					type of interpolation: BEZIER = 2,TCB = 1,LINEAR = 4
+    I4          translationKeyCount     number of translation keys
+    I4          rotationKeyCount        number of rotation keys
+    I4          scaleKeyCount           number of scale keys
+	
+    for translationKeyCount:
+    {
+        I4      flags
+        F       time
+        F       tension
+        F       continuity
+        F       bias
+        F       easeIn
+        F       easeOut
+        F       TX
+        F       TY
+        F       TZ
+    }
+
+    for rotationKeyCount:
+    {
+        I4      flags
+        F       time
+        F       tension
+        F       continuity
+        F       bias
+        F       easeIn
+        F       easeOut
+        F       angle
+        F       AX
+        F       AY
+        F       AZ
+    }
+
+    for scaleKeyCount:
+    {
+        I4      flags
+        F       time
+        F       tension
+        F       continuity
+        F       bias
+        F       easeIn
+        F       easeOut
+        F       SX
+        F       SY
+        F       SZ
+    }
+}

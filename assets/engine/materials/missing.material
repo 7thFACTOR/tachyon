@@ -1,0 +1,29 @@
+version = 1
+gpuProgram = "gpu_programs/default.gpu_program"
+
+states 
+{
+	alphaBlendEnable = false
+	srcBlend = "one"
+	destBlend = "one"
+	depthWriteEnable = true
+	depthTestEnable = true
+	fillMode = "solid"
+	cullMode = "ccw"
+}
+
+constants
+{
+	diffuseColor = ".5;.5;.5;1"
+	ambientColor = ".2;.2;.2;1"
+	emissiveColor = "0;0;0;0"
+	specularColor = ".2;.2;.5;1"
+	uvDiffuseRepeat = "6;6"
+	uvNormalRepeat = "6;6"
+	uvDetailNormalRepeat = "1;1"
+	uvEmissiveRepeat = "1;1"
+	specularExponent = 1
+	roughness = 0.5
+	diffuseSampler = "textures/missing_texture.png"
+	normalSampler = "textures/default_n.png"
+}

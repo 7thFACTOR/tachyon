@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="../../../styles.css" rel="stylesheet" type="text/css" /></head>
+
+<body>
+  <div class="title"> Introduction  to the Nytro engine concepts and subsystems</div>
+  <ol class="paragraph">
+    <li><a href="#1">General information</a></li>
+    <li><span class="smallTitle"><a href="#2">Engine subsystems details</a></span></li>
+  </ol>
+  <div class="smallTitle">
+    <a name="1" id="1"></a>General information  </div>
+<p class="paragraph">The Nytro  Game Engine is based on a plugin arhitecture to drive its subsystems, loading Dynamic  Link Libraries, <em><strong>DLL</strong></em> files, with the custom file extension <em><strong>*.nyp</strong></em> , so the engine only loads DLL files with that extension.</p>
+<p class="paragraph">Providers - these are special plugins for each major subsystem of the engine, so we have graphics provider, audio provider, network provider, physics provider, stream provider, input provider, AI provider, script provider and a special one, game provider who is actually the game code ( known from other engines as game.dll ).<br />
+For example we can have more than one provider for a specific subsystem and we can load one or another (Direct3D or OpenGL, FMOD or DirectSound, PhysX or ODE).</p>
+<p class="paragraph">First let us analyze the SDK folder structure (some folders you probably do not have, depends on your access/license):<br />
+  <br />
+  <strong><em>3rdparty</em></strong> - 3rdparty libraries, like CURL, zlib, DevIL, Lua, etc.<br />
+  <strong><em>bin32</em></strong> - release mode binaries for 32bit OS<br />
+          <strong><em>bin32d</em></strong> - debug mode binaries for 32bit OS<br />
+          <strong><em>bin64</em></strong> - release mode binaries for 64bit OS<br />
+          <strong><em>bin64d</em></strong> - debug mode binaries for 64bit OS<br />
+          <strong><em>data</em></strong> - current game data, you can have many of these folders like MyGame, TheAwesomeGameData, etc., data for your games<br />
+          <em><strong>documentation</strong></em> - documentation of the engine, CHM and HTML files<br />
+          <em><strong>editor</strong></em> - this folder holds editor data, like icons, temporary files, editor UI settings<br />
+          <em><strong>examples</strong></em> - engine usage examples source code <br />
+          <em><strong>include</strong></em> - core engine C++ include files<br />
+          <em><strong>libraries</strong></em> - various 3rdparty and nytro core library files<br />
+          <em><strong>plugins</strong></em> - source code for the plugins (Direct3D provider, FMOD provider, etc. )<br />
+          <em><strong>setup</strong></em> - setup source files for distribution of the engine SDK<br />
+          <em><strong>source</strong></em> - core engine source files<br />
+          <em><strong>tools</strong></em> - source files for the editor and tools<br />
+          <em><strong>workspace</strong></em> - VisualStudio solution and make files for core engine<br />
+</p>
+<p class="paragraph">The binaries contain the <em><strong>nytro.dll</strong></em> core engine file, various 3rdparty library dlls, <em><strong>NytroStudio.exe</strong></em> world editor.</p>
+<div class="smallTitle"><a name="2" id="2"></a>Engine subsystems details</div>
+<p class="paragraph">This is the Nytro Game Engine architecture:</p>
+<p class="paragraph"><img src="EngineOverview.png" width="489" height="569" /></p>
+<ul>
+  <li class="paragraph"><span class="paragraph"><strong>AI
+    </strong></span>
+    <ul>
+      <li class="paragraph"> the engine's Artificial Intelligence classes</li>
+      <li class="paragraph"> includes A* pathfinding and planning algorithms</li>
+    </ul>
+  </li>
+  <li class="paragraph"><span class="paragraph"><strong>Graphics
+    </strong></span>
+    <ul>
+      <li class="paragraph">the engine has a GraphicsProvider base class which is used as parent by the Direct3D plugin or the OpenGL plugin; </li>
+      <li class="paragraph">the graphics namespace contains classes for vertex buffers, textures, images, video devices, instancing, shaders, animation, movie player, render states</li>
+    </ul>
+  </li>
+  <li><span class="paragraph"><strong>Audio
+    </strong></span>
+    <ul>
+      <li class="paragraph">the audio subsystem is handling all the sounds in the game</li>
+      <li class="paragraph">it has a sound class and sound blocker geometry</li>
+      <li class="paragraph">cross fading between music / soundtracks (idle-battle)</li>
+    </ul>
+  </li>
+  <li><span class="paragraph"><strong>Editor
+    </strong></span>
+    <ul>
+      <li class="paragraph">editor interface class, editor tool plugin base class and other classes used by the Nytro editor</li>
+    </ul>
+  </li>
+  <li><span class="paragraph"><strong>Game
+    </strong></span>
+    <ul>
+      <li class="paragraph">from here you derive your actual  game code</li>
+      <li class="paragraph">game provider, game states (play,menu,loading,intro)</li>
+      <li class="paragraph">game entity base class</li>
+      <li class="paragraph">world class, to load levels full of entities</li>
+      <li class="paragraph">flow graph engine for visual scripting and game logic</li>
+      <li class="paragraph">various handy classes for game code (FpsCameraController, RtsCameraController, TpsCameraController) </li>
+    </ul>
+  </li>
+  <li><span class="paragraph"><strong>GUI
+    </strong></span>
+    <ul>
+      <li class="paragraph">user interface system, UI manager, widgets</li>
+    </ul>
+  </li>
+  <li><span class="paragraph"><strong>Input
+    </strong></span>
+    <ul>
+      <li class="paragraph">user input from mouse, keyboards, joypads, joysticks, wheel or other input devices</li>
+      <li class="paragraph">action - controller binding, mapping keys to actions, example: &quot;fire&quot;=&quot;LClick,Ctrl&quot;</li>
+      <li class="paragraph">combo actions</li>
+    </ul>
+  </li>
+  <li><span class="paragraph"><strong>Math
+    </strong></span>
+    <ul>
+      <li class="paragraph">mathematical functions and classes</li>
+      <li class="paragraph">vector, quaternion, matrix, axis aligned box, object aligned box, ray, plane</li>
+    </ul>
+  </li>
+  <li class="paragraph"><strong>Network</strong>
+    <ul>
+      <li>networking, for LAN or internet, network packet, client/server, UDP and TCP/IP</li>
+    </ul>
+  </li>
+  <li class="paragraph"><strong>Physics</strong>
+    <ul>
+      <li>physics computations, with a plugin for NVIDIA PhysX</li>
+      <li>rigid bodies, ropes, soft bodies, joints, breakable bodies, terrain patches</li>
+    </ul>
+  </li>
+  <li class="paragraph"><strong>Scene</strong>
+    <ul>
+      <li>the scene graph which holds high level scene nodes in a hierachy</li>
+      <li>scene nodes: model, camera, hash spacing, octtree, particle system, render pipeline, sky dome, special effect, terrain</li>
+    </ul>
+  </li>
+  <li class="paragraph"><strong>Script</strong>
+    <ul>
+      <li>scripting for the engine, currently using LUA</li>
+    </ul>
+  </li>
+  <li class="paragraph"><strong>System</strong>
+    <ul>
+      <li>various general purpose utility classes and functions</li>
+      <li>application, auto pointer, base class with RTTI and property system, code coverage, command console functions</li>
+      <li>dynamic libraries, exceptions, engine core functions, localization, logger, observer, performance profiler</li>
+      <li>plugins, resource manager, statistics, stream provider, threading, timer, variants, XML loader/saver, string utils</li>
+    </ul>
+  </li>
+</ul>
+<p>&nbsp;</p>
+</body>
+</html>

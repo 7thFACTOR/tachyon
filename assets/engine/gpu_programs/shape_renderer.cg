@@ -1,0 +1,176 @@
+#include "common.cg"
+
+sampler2D diffuseSampler;
+int useLight;
+
+VertexOUT mainVS(ShapeVertexIN IN)
+{
+	VertexOUT OUT;
+	
+	float3 worldPos = normalize(mul(float4(IN.position, 1.0), mtxWorld).xyz);
+	OUT.position = mul(float4(IN.position, 1.0), mtxWorldViewProjection);
+	OUT.normal = IN.normal;
+	OUT.color = IN.color;
+	OUT.uv = IN.uv;
+	OUT.light = normalize(mul(float4(-sunDirection, 1.0), mtxWorld).xyz);
+	OUT.view = normalize(worldPos - mtxViewInverse[3].xyz);
+	OUT.worldPos = worldPos;
+
+	return OUT;
+}
+
+VertexOUT mainVS_instanced(InstancedShapeVertexIN IN)
+{
+	VertexOUT OUT;
+	
+	float4x4 mtxInstance = float4x4
+	(
+		IN.mtxInstanceWorldRow0,
+		IN.mtxInstanceWorldRow1,
+		IN.mtxInstanceWorldRow2,
+		IN.mtxInstanceWorldRow3
+	);
+
+	float4x4 mtxInstanceRot = float4x4
+	(
+		IN.mtxInstanceWorldRow0,
+		IN.mtxInstanceWorldRow1,
+		IN.mtxInstanceWorldRow2,
+		float4(0,0,0,IN.mtxInstanceWorldRow3.w)
+	);
+
+	float4 localPos = mul(float4(IN.position, 1.0), mtxInstance);
+	float light = dot(sunDirection, normalize(mul(float4(IN.normal, 1.0), mtxInstanceRot).xyz));
+	OUT.position = mul(localPos, mtxWorldViewProjection);
+	OUT.color = IN.color * diffuseColor * IN.instanceColor;
+	OUT.color.rgb *= light;
+	OUT.normal = IN.normal;
+	OUT.uv = IN.uv;
+	OUT.light = float3(0,0,0);
+	OUT.view = float3(0,0,0);
+	OUT.worldPos = float3(0,0,0);
+
+	return OUT;
+}
+
+float4 mainPS(VertexOUT IN) : COLOR
+{
+	return IN.color;
+}
+
+VertexOUT mainTexVS(ShapeVertexIN IN)
+{
+	VertexOUT OUT;
+	
+	float3 worldPos = mul(float4(IN.position, 1.0), mtxWorld).xyz;
+	OUT.position = mul(float4(IN.position, 1.0), mtxWorldViewProjection);
+	OUT.normal = normalize(mul(IN.normal, (float3x3)mtxWorld));
+	OUT.color = IN.color * diffuseColor;
+	OUT.uv = IN.uv * uvDiffuseRepeat + uvDiffuseOffset;
+	OUT.light = -sunDirection;
+	float3 view = mtxViewInverse[3].xyz - worldPos;
+	OUT.view = normalize(view);
+	OUT.worldPos = worldPos;
+	
+	return OUT;
+}
+
+VertexOUT mainTexVS_instanced(InstancedShapeVertexIN IN)
+{
+	VertexOUT OUT;
+	float4x4 mtxInstance = float4x4
+	(
+		IN.mtxInstanceWorldRow0,
+		IN.mtxInstanceWorldRow1,
+		IN.mtxInstanceWorldRow2,
+		IN.mtxInstanceWorldRow3
+	);
+	
+	float4 instPos = mul(float4(IN.position, 1.0), mtxInstance);
+	OUT.position = mul(instPos, mtxWorldViewProjection);
+	OUT.color = IN.color * diffuseColor;
+	OUT.uv = IN.uv * uvDiffuseRepeat + uvDiffuseOffset;
+	OUT.normal = IN.normal;
+	OUT.light = float3(0,0,0);
+	OUT.view = float3(0,0,0);
+	OUT.worldPos = float3(0,0,0);
+
+	return OUT;
+}
+float G_Kelemen( float3 L, float3 V )
+{
+	return 1 / ( 2 + 2 * dot(L, V) );
+}
+
+// Clamp the base, so it's never <= 0.0f (INF/NaN).
+float ClampedPow(float X, float Y)
+{
+	return pow(max(abs(X),0.000001f),Y);
+}
+
+// [Blinn 1977, "Models of light reflection for computer synthesized pictures"]
+float D_Blinn(float Roughness, float NoH)
+{
+	float m = Roughness * Roughness;
+	float m2 = m * m;
+	float n = 2 / m2 - 2;
+	return (n+2)/ 2 * ClampedPow( NoH, n );
+}
+
+// Tuned to match behavior of G_Smith
+// [Schlick 1994, "An Inexpensive BRDF Model for Physically-Based Rendering"]
+float G_Schlick(float Roughness, float NoV, float NoL)
+{
+	float k = Roughness * Roughness * 0.5;
+	float G_SchlickV = NoV * (1 - k) + k;
+	float G_SchlickL = NoL * (1 - k) + k;
+	return 0.25 / ( G_SchlickV * G_SchlickL );
+}
+
+// [Schlick 1994, "An Inexpensive BRDF Model for Physically-Based Rendering"]
+// [Lagarde 2012, "Spherical Gaussian approximation for Blinn-Phong, Phong and Fresnel"]
+float3 F_Schlick( float3 SpecularColor, float VoH )
+{
+	// Anything less than 2% is physically impossible and is instead considered to be shadowing 
+	return SpecularColor + (saturate( 50.0 * SpecularColor.g) - SpecularColor) * exp2((-5.55473 * VoH - 6.98316) * VoH);
+}
+
+float3 Diffuse_Lambert( float3 DiffuseColor )
+{
+	return DiffuseColor / PI;
+}
+
+// [Burley 2012, "Physically-Based Shading at Disney"]
+float3 Diffuse_Burley( float3 DiffuseColor, float Roughness, float NoV, float NoL, float VoH )
+{
+	float FD90 = 0.5 + 2 * VoH * VoH * Roughness;
+	float FdV = 1 + (FD90 - 1) * exp2( (-5.55473 * NoV - 6.98316) * NoV );
+	float FdL = 1 + (FD90 - 1) * exp2( (-5.55473 * NoL - 6.98316) * NoL );
+	return DiffuseColor / PI * FdV * FdL;
+}
+
+// [Gotanda 2012, "Beyond a Simple Physically Based Blinn-Phong Model in Real-Time"]
+float3 Diffuse_OrenNayar( float3 DiffuseColor, float Roughness, float NoV, float NoL, float VoH )
+{
+	float VoL = 2 * VoH - 1;
+	float m = Roughness * Roughness;
+	float m2 = m * m;
+	float C1 = 1 - 0.5 * m2 / (m2 + 0.33);
+	float Cosri = VoL - NoV * NoL;
+	float C2 = 0.45 * m2 / (m2 + 0.09) * Cosri * ( Cosri >= 0 ? min( 1, NoL / NoV ) : NoL );
+	return DiffuseColor / PI * ( NoL * C1 + C2 );
+}
+
+float3 Diffuse( float3 DiffuseColor, float Roughness, float NoV, float NoL, float VoH )
+{
+	//return Diffuse_Lambert( DiffuseColor );
+	return Diffuse_Burley( DiffuseColor, Roughness, NoV, NoL, VoH );
+	//return Diffuse_OrenNayar( DiffuseColor, Roughness, NoV, NoL, VoH );
+}
+
+
+float4 mainTexPS(VertexOUT IN) : COLOR
+{
+	float3 tex = tex2D(diffuseSampler, IN.uv.xy);
+	return float4(tex, 1);
+}

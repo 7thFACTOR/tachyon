@@ -1,0 +1,106 @@
+<pipeline name="dx9_HDR_fsaa_copybuffers">
+	<maps>
+		<map name="sceneMap" format="rgba16f"/>
+		<map name="sceneMap2" format="rgba16f"/>
+		<map name="downsampleMap" scale=".25" format="rgba16f"/>
+		<map name="blurMap" scale=".25" format="rgba16f"/>
+		<map name="finalMap" scale=".25" format="rgba16f"/>
+		<map name="depthMap" format="rgba16f"/>
+		<map name="randMap" format="rgba32" file="engine:textures/noise.dds"/>
+		<map name="ssaoMap" scale="0.5" format="rgba16f"/>
+	</maps>
+	<stages>
+		<stage name="renderSceneDepth" active="true">
+			<bindTarget map="depthMap"/>
+			<mapAlias map="depthMap" alias="#lastTarget"/>
+			<clearTarget colorValue="1;1;1;1" />
+			<renderScene material="engine:materials/depth.material.xml"/>
+		</stage>
+		<stage name="renderScene" active="true">
+			<bindTarget map="sceneMap" alias="#lastTarget"/>
+			<clearTarget colorValue="0.6;0.7;1;1" />
+			<renderScene />
+		</stage>
+		<stage name="postprocess_0" active="true">
+			<bindTarget map="ssaoMap"/>
+			<bindMap name="tex0" map="depthMap" />
+			<bindMap name="tex1" map="randMap" />
+			<renderQuad material="engine:materials/post.material.xml" technique="SSAO" />
+			
+			<bindTarget map="downsampleMap"/>
+			<bindMap name="tex0" map="#lastTarget" />
+			<mapAlias map="downsampleMap" alias="#lastTarget"/>
+			<renderQuad material="engine:materials/post_bloom.material.xml" technique="DownSample" />
+
+			<bindTarget map="finalMap" />
+			<bindMap name="tex0" map="#lastTarget" />
+			<mapAlias map="finalMap" alias="#lastTarget"/>
+			<renderQuad material="engine:materials/post_bloom.material.xml" technique="FilterHdr" />
+
+			<bindTarget map="blurMap" />
+			<bindMap name="tex0" map="#lastTarget" />
+			<mapAlias map="blurMap" alias="#lastTarget"/>
+			<renderQuad material="engine:materials/post_bloom.material.xml" technique="GlowH" />
+
+			<bindTarget map="finalMap" />
+			<bindMap name="tex0" map="#lastTarget" />
+			<mapAlias map="finalMap" alias="#lastTarget"/>
+			<renderQuad material="engine:materials/post_bloom.material.xml" technique="GlowV" />
+
+			<bindTarget map=""/>
+			<bindMap name="tex0" map="sceneMap"/>
+			<bindMap name="tex1" map="#lastTarget"/>
+			<mapAlias map="sceneMap2" alias="#lastTarget"/>
+			<renderQuad material="engine:materials/post_bloom.material.xml" technique="FinalComp" />
+			<!--
+			<bindTarget map=""/>
+			<bindMap name="tex0" map="#lastTarget"/>
+			<bindMap name="tex1" map="depthMap"/>
+			<renderQuad material="engine:materials/post_bloom.material.xml" technique="GlobalFog" />
+			-->
+		</stage>
+		<stage name="ssao" active="false">
+			<!-- remember last target -->
+			<mapAlias map="#lastTarget" alias="#lastImage"/>
+			
+			<!-- bind and render SSAO -->
+			<bindTarget map="ssaoMap" alias="#lastTarget"/>
+			<bindMap name="tex0" map="depthMap" />
+			<bindMap name="tex1" map="randMap" />
+			<renderQuad material="engine:materials/post.material.xml" technique="SSAO" />
+
+			<bindTarget map="downsampleMap" />
+			<bindMap name="tex0" map="#lastTarget" />
+			<bindMap name="tex1" map="downsampleMap" />
+			<bindMap name="tex2" map="blurMap" />
+			<bindMap name="tex3" map="finalMap" />
+			<renderQuad material="engine:materials/post_bloom.material.xml" technique="DownSample" />
+			
+			<bindTarget map="blurMap" />
+			<bindMap name="tex0" map="#lastTarget" />
+			<bindMap name="tex1" map="downsampleMap" />
+			<bindMap name="tex2" map="blurMap" />
+			<bindMap name="tex3" map="finalMap" />
+			<renderQuad material="engine:materials/post_bloom.material.xml" technique="GlowH" />
+			
+			<bindMap name="tex0" map="#lastTarget" />
+			<bindMap name="tex1" map="downsampleMap" />
+			<bindMap name="tex2" map="blurMap" />
+			<bindMap name="tex3" map="finalMap" />
+			<bindTarget map="ssaoMap" alias="#lastTarget"/>
+			<renderQuad material="engine:materials/post_bloom.material.xml" technique="GlowV" />
+		
+			<mapAlias map="#lastImage" alias="#lastTarget"/>
+			<bindMap name="tex0" map="#lastTarget"/>
+			<bindMap name="tex1" map="ssaoMap" />
+			<bindTarget map="sceneMap" alias="#lastTarget"/>
+			<renderQuad material="engine:materials/post.material.xml" technique="SSAOComp" />
+
+		</stage>
+		<stage name="final" active="false">
+			<bindTarget map=""/>
+			<bindMap name="tex0" map="#lastTarget"/>
+			<renderQuad material="engine:materials/post.material.xml" technique="ShowMap" />
+		</stage>
+	</stages>
+</pipeline>

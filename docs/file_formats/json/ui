@@ -1,0 +1,45 @@
+<ui name="layout1">
+    <widget class="UIButton" name="btn1" rect="100,120,500,500" script="scripts/ui/buttonu.lua" >
+		<properties>
+			<property name="" value="" />
+		</properties>
+		<children>
+		......... other widgets ..........
+		</children>
+	</widget>
+</ui>
+
+{
+	transitions:
+	[
+		{
+			name: "button_panel_hover"
+			parameters:
+			[
+				{ name: "width" from: "32" to: "64" duration: 100 ease: "elastic" }
+				{ name: "color" from: "current" to: "white" duration: 100 ease: "linear"}
+				{ name: "font_size" from: "12" to: "14"}
+			]
+	]
+
+	widgets:
+	[
+		{
+			type: "button"
+			name: "btn1"
+			text: "GENERATE"
+			text_align: "middle_center"
+			image: "editor/icons/generate"
+			image_placement: "top"
+			on_click: "on_click_btn1"
+			on_click_transition: "button_panel_click"
+			on_hover_transition: "button_panel_hover"
+			on_mousemove:
+			on_mousedown:
+			on_mouseup
+			on_drag_started:
+			on_drag_ended:
+			on_drag_moving:
+		}
+	]
+}

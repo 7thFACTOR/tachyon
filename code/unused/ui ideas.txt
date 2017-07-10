@@ -1,0 +1,71 @@
+all the widgets are autolayout and live in a root widget called Panel, which can be tabbed and floated
+
+example of making an ui in JSON
+
+
+{
+	name: "btn1"
+	type: "button""
+	margins: "100 100 300 200"
+	text: "PUSHME"
+	
+	children
+	[
+		{
+			name: "pnl2"
+			type: "panel"
+			active: false
+			margins: "10 10 111 111"
+			center: "0.5 0.5"
+		}
+		
+		
+	]
+}
+
+
+panels
+[
+	{
+		name: "Inspector"
+		children:
+		[
+			{
+				name: "btn1"
+				type: "button"
+				visible: 1
+				focused: 0
+				active: 1
+			}
+			{
+				name: "btn2"
+				type: "button"
+				text: "PUSHME"
+			}
+			{
+				name: "ed0"
+				type: "editbox"
+				defaultText: "Type here the search string"
+			}
+			{
+				name: "grp1"
+				type: "group"
+				children:
+				[
+					{
+						name: "ed1"
+						type: "editbox"
+					}
+					{
+						name: "ed2"
+						type: "editbox"
+					}
+					{
+						name: "ed3"
+						type: "editbox"
+					}
+				]
+			}
+		]
+	}
+]
