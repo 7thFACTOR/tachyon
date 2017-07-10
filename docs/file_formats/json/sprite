@@ -1,0 +1,5 @@
+<sprite texture="textures/explosprite.png" frameWidth="64" frameHeight="64">
+	<animations>
+		<animation name="default" startFrame="0" endFrame="15" loop="true" pingPong="true" speed="15"/>
+	</animations>
+</sprite>

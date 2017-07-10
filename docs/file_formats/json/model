@@ -1,0 +1,23 @@
+<model name="BrokenCarpenTreeTrunk" physicsSetup="physics/wheel.phys.xml">
+	<meshes>
+		<mesh name="wheel" file="meshes/trunk.mesh" />
+		<mesh name="wheel_lod1" file="meshes/trunk_lod1.mesh" />
+	</meshes>
+	<lods>
+		<lod mesh="wheel_lod0" fromDistance="0"/>
+			<parts>
+				<part name="wheel1" parent="body" defaultMaterial="models/wheel/wheel.material.xml">
+					<clusters>
+						<cluster material="models/wheel/wheel_lod1.material.xml"/>
+						<cluster material="models/wheel/wheel_lod1.material.xml"/>
+						<cluster material="models/wheel/wheel_lod1.material.xml"/>
+					<clusters>
+				</part>
+			<parts>
+		</lod>
+		<lod fromDistance="50" mesh="wheel_lod1">
+		</lod>
+	</lods>
+</model>
+
+Camera--> LOD0(nearDistance) ------ LOD1 --------- (farDistance)LOD2

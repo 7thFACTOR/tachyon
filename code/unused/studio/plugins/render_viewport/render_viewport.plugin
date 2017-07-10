@@ -1,0 +1,12 @@
+{
+	"name":"RenderViewport",
+	"description":"Render the scene",
+	"author":"Nicusor Nedelcu",
+	"url":"http://7thfactor.com",
+	"guid":"31D9B911-6125-4784-81FF-119C15267FC3",
+	"version":"0.0.1",
+	"minEditorVersion":"0.0.0",
+	"maxEditorVersion":"1.0.0",
+	"icon":"render_viewport.png",
+	"unloadable":"false"
+}

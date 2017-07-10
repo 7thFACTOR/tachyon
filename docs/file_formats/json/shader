@@ -1,0 +1,67 @@
+{
+	"description": "a generic shader",
+	"program": "programs/generic.cg",
+	"techniques":
+	[
+		{
+			name: "textured",
+			fallback: "",
+			passes:
+			[
+				{
+					"name": "pass0",
+					"vertex":
+					{
+						"entry": "mainTexVS",
+						"dx9": "programs/generic.cg",
+						"dx11": "programs/generic.hlsl",
+						"ogl3": "programs/generic.glsl",
+						"ogl4": "programs/generic.glsl",
+						"ogles": "programs/generic.cg",
+						"x360": "programs/generic.cg",
+						"x720": "programs/generic.cg",
+						"ps3": "programs/generic.cg",
+						"ps4": "programs/generic.cg",
+						"psvita": "programs/generic.cg"
+					},
+					"pixel":
+					{
+						"entry": "mainTexPS"	
+						"program": "programs/generic.cg"
+					}
+					"constants":
+					[
+						{
+							"type": "worldViewProjection",
+							"name": "mtxWorldViewProjection"
+						},
+						{
+							"type": "texture",
+							"name": "diffuseSampler"
+							"value": "textures/default.ntex"
+						}
+					],
+					"vertexComponents":
+					[
+						"position",
+						"normal",
+						"tangent",
+						"bitangent",
+						"color",
+						"uv0"
+					]
+					"states":
+					[
+						"alphaBlendEnable": "false",
+						"srcBlend": "one",
+						"destBlend": "one",
+						"depthWriteEnable": "true",
+						"depthEnable": "true",
+						"fillMode": "solid",
+						"cullMode": "ccw"
+					]
+				}
+			]
+		}
+	]
+}

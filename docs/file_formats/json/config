@@ -1,0 +1,40 @@
+<setup comment="Standard engine setup file">
+	<section id="general">
+		<param name="pluginsFolder" value="." />
+		<param name="gameProviderClass" value="" />
+		<param name="graphicsProviderClass" value="" />
+		<param name="soundProviderClass" value="" />
+		<param name="networkProviderClass" value="" />
+		<param name="physicsProviderClass" value="" />
+		<param name="scriptingProviderClass" value="" />
+		<param name="inputProviderClass" value="" />
+		<param name="fileProviderClass" value="" />
+	</section>
+	<section id="gfx">
+		<param name="width" value="640" />
+		<param name="height" value="480" />
+		<param name="colorDepth" value="32" />
+		<param name="fullScreen" value="true" />
+		<param name="deviceIndex" value="0" />
+		<param name="antiAliasing" value="false" />
+		<param name="antiAliasingQuality" value="" />
+		<param name="refreshRate" value="" />
+		<param name="vSync" value="false" />
+		<param name="shaderQuality" value="auto" />
+		<param name="pipeline" value="simple.pipeline.xml" />
+	</section>
+	<section id="sound">
+		<param name="soundFx" value="true" />
+		<param name="music" value="true" />
+		<param name="soundFxVolume" value="100" />
+		<param name="musicVolume" value="100" />
+		<param name="bufferSize" value="150" />
+		<param name="frequency" value="44100" />
+		<param name="driverIndex" value="0" />
+		<param name="outputIndex" value="0" />
+	</section>
+	<section id="game">
+		<param name="gameDataPath" value="data" />
+		<param name="gameSetupFile" value="default.game.xml" />
+	</section>
+</setup>

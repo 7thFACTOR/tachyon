@@ -1,0 +1,12 @@
+{
+	"name":"FlowGraph Editor",
+	"description":"Edit flowgraphs",
+	"author":"Nicusor Nedelcu",
+	"url":"http://7thfactor.com",
+	"guid":"3459B911-6125-4784-81FF-119C15267FC3",
+	"version":"0.0.1",
+	"minEditorVersion":"0.0.0",
+	"maxEditorVersion":"1.0.0",
+	"icon":"flowgraph_editor.png",
+	"unloadable":"true"
+}

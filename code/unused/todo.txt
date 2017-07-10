@@ -1,0 +1,39 @@
+-------------------------------------------
+	DEMOS
+-------------------------------------------
+FPS - Eternal [main R&D project, others optional]
+Casual - IceWorld
+Driving - NuclearSands
+MMO - BattleOfVa
+RTS - LocustWars
+Space - Rogues
+TPS - SmallAntventures
+
+-------------------------------------------
+	RENDERING
+-------------------------------------------
+Deferred channels:
+Albedo
+Normal
+Velocity
+Depth
+Specular
+Roughness
+Translucency
+MatID
+
+
+-------------------------------------------
+	GUI
+-------------------------------------------
+- responsive layout, based on size, reconfigure widgets
+- vert and horiz layout based on specified widgets size or their default sizes, not spread cells
+- finish grid layout
+- split layout, one of the cells can be fixed size, the other fills the rest of the space
+- DockSite - 4 side container for docking dock panels
+- DockPanel, float as native window
+- Knob, min angle, max angle, min value, max value, label on top
+- Slider, with range, dual knobs [---[>]======[<]--------][from][to]
+- edit undo
+- cascade ui creation, like blender
+- link ui to property system and create widgets based on property types

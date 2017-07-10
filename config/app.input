@@ -1,0 +1,46 @@
+"mouseSpeed" : 1.2,
+"joystickSpeed" : 1.4,
+"bindings":
+{
+	"run":
+	{
+		"keyCombos": ["T Y", "E R T", "K", "L F1", "lshift", "rshift"]
+	},
+	"exit":
+	{
+		"keyCombos": ["F10", "Esc", "LAlt F4"]
+	},	
+	"fire":
+	{
+		"keyCombos": ["LButton", "LControl", "RControl"]
+	},	
+	"moveLeft":
+	{
+		"keyCombos": ["Left", "A"]
+	},
+	"moveRight":
+	{ 
+		"keyCombos": ["Right", "D"]
+	},
+	"moveForward":
+	{
+		"keyCombos": ["Up", "W"]
+	},
+	"moveBackward":
+	{
+		"keyCombos": ["Down", "S"]
+	},
+	"jump":
+	{
+		"keyCombos": ["SPACE"]
+	}
+},
+
+"actionCombos":
+{
+	"ultraFire":
+	{
+		"actions": "moveLeft fire fire",
+		"maxDelay": 500
+	}
+}

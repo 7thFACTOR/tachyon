@@ -1,0 +1,26 @@
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+DATA TYPES:
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+SZ  = zero ended ascii  text + \0
+I2  = integer 16bit     2 bytes
+I4  = integer 32bit     4 bytes
+I8  = integer 64bit     8 bytes
+C   = char              1 byte 
+F   = float             4 bytes
+D   = double            8 bytes
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+CHUNK HEADER (32bit values):
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+A binary nytro file is made of chunks with the header:
+
+bytes       name                desc
+-------------------------------------------------------------------------------
+4           chunkID             the chunk's id
+4           chunkVersion        the chunk's version
+4           chunkSize           the chunk's size (no header size included)
+4           nextChunkPos        the position in the file of the next chunk
+-------------------------------------------------------------------------------
+... chunk specific data coming ( size: chunkSize )...
+-------------------------------------------------------------------------------

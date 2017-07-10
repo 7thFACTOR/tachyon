@@ -1,0 +1,4 @@
+components:
+[
+	{ name:"CameraComponent", properties: "camera.properties" }
+]

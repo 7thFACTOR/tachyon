@@ -1,0 +1,31 @@
+<material name="default" shader="engine:materials/shaders/generic.shader.xml" physicsMaterial="materials/default.physmtl.xml">
+	<shaderPreset renderLayerName="opaque">
+		<constants>
+			<constant type="float4" name="diffuseColor" value=".5;.5;.5;1" />
+			<constant type="float4" name="ambientColor" value=".01;.01;.01;1" />
+			<constant type="float4" name="emissiveColor" value="0;0;0;0" />
+			<constant type="float4" name="specularColor" value=".8;.8;.8;1" />
+			<constant type="float2" name="uvDiffuseRepeat" value="1;1" />
+			<constant type="float2" name="uvNormalRepeat" value="1;1" />
+			<constant type="float2" name="uvDetailNormalRepeat" value="1;1" />
+			<constant type="float2" name="uvEmissiveRepeat" value="1;1" />
+			<constant type="float"	name="specularExponent" value="1" />
+			<constant type="float"	name="shininess" value="1" />
+		</constants>
+		<states>
+			<state name="alphaBlendEnable" value="false"/>
+			<state name="srcBlend" value="one"/>
+			<state name="destBlend" value="one"/>
+			<state name="zWriteEnable" value="true"/>
+			<state name="zEnable" value="true"/>
+			<state name="fillMode" value="solid"/>
+			<state name="cullMode" value="ccw"/>
+		</states>
+	</shaderPreset>
+	<textures>
+		<texture name="diffuseTexture" file="engine:textures/checkers.jpg" />
+		<texture name="normalTexture" file="engine:textures/checkers_n.jpg" />
+	</textures>
+	<sounds>
+	</sounds>
+</material>

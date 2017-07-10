@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="studio">
+    <file>res/splash.png</file>
+    <file>res/crash_face.png</file>
+  </qresource>
+</RCC>

@@ -1,0 +1,10 @@
+version = 1
+source = "default.cg"
+vertexMain = "mainVS_instanced"
+pixelMain = "mainPS"
+
+constants
+{
+	mtxWorldViewProjection { type = "worldViewProjection" }
+	diffuseSampler { type = "texture" }
+}
