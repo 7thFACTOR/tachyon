@@ -30,13 +30,13 @@ bool AssetCompiler::compile(const CommandLineArguments& arguments)
 	String buildConfigName = args.getArgValue("build-cfg");
 	String mask = args.getArgValue("mask", "*.*");
 	String excludeMask = args.getArgValue("exclude-mask", "");
-	bool forceCompile = args.hasSwitch("force-compile", false);
+	bool forceCompile = args.hasSwitch("force-compile", false) || args.hasSwitch("fc", false);
 	bool noCompile = args.hasSwitch("no-compile", false);
-	bool forceImport = args.hasSwitch("force-import", false);
+	bool forceImport = args.hasSwitch("force-import", false) || args.hasSwitch("fi", false);
 	String importFilename = args.getArgValue("import");
 
-	threaded = args.hasSwitch("mt", false);
-	workerThreadCount = args.getArgValue("threads", toString((i32)workerThreadCount)).asInt();
+	threaded = args.hasSwitch("mt", true);
+	workerThreadCount = args.getArgValue("workers", toString((i32)workerThreadCount)).asInt();
 
 	String projectFilename = mergePathName(projectFolder, ".project");
 

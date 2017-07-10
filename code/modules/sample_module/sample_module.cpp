@@ -199,7 +199,7 @@ public:
 		shpRenderer.setTexture(loadResource("textures/missing_material.png"));
 		shpRenderer.setTransform({ -20, 0, 0 }, Quat(), Vec3(1, 1, 1));
 		shpRenderer.drawSolidEllipsoid(50, 50, 50, 30, 30);
-		shpRenderer.setTexture(loadResource("textures/wip.png"));
+		shpRenderer.setTexture(loadResource("textures/sponza/textures_pbr/Sponza_Arch_diffuse.tga"));
 		shpRenderer.setTransform({ 200, 0, 0 }, Quat(), Vec3(1, 1, 1));
 		shpRenderer.textureScale.set(1, 1);
 		shpRenderer.drawSolidBox(50, 50, 50);
