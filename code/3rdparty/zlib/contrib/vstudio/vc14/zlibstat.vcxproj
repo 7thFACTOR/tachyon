@@ -455,9 +455,7 @@
     <ClCompile Include="..\..\minizip\zip.c" />
     <ClCompile Include="..\..\..\zutil.c" />
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="zlib.rc" />
-  </ItemGroup>
+  
   <ItemGroup>
     <None Include="zlibvc.def" />
   </ItemGroup>

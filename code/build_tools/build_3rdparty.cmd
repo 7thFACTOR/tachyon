@@ -1,8 +1,19 @@
+@echo off
+
 echo Building 3rdParty libraries...
-echo 	Building [Release]...
-MSBuild "%basePath%\build\3rdparty\ALL_BUILD.vcxproj" /t:clean,build /p:Configuration=Release;Platform=x64
-echo 	Building [Debug]...
-MSBuild "%basePath%\build\3rdparty\ALL_BUILD.vcxproj" /t:clean,build /p:Configuration=Debug;Platform=x64
+
+if "%VS140COMNTOOLS%"=="" goto VSNotInstalledError
+call "%VS140COMNTOOLS%\vsvars32.bat"
+
+echo Building Freetype [Release]...
+MSBuild ".\code\3rdparty\freetype\builds\windows\vc2015\freetype.vcxproj" /t:clean,build /p:Configuration="Release Multithreaded";Platform=x64
+
+echo Building ZLib [Release]
+MSBuild "code\3rdparty\zlib\contrib\vstudio\vc14\zlibstat.vcxproj" /t:clean,build /p:Configuration="ReleaseWithoutAsm";Platform=x64
+
+echo Building Squish [Release]
+MSBuild "code\3rdparty\squish\vs2015\squish\squish.vcxproj" /t:clean,build /p:Configuration="Debug";Platform=x64
+MSBuild "code\3rdparty\squish\vs2015\squish\squish.vcxproj" /t:clean,build /p:Configuration="Release";Platform=x64
 
 REM ===========================================================================
 REM Check for build errors
@@ -17,6 +28,10 @@ REM ===========================================================================
 REM Deploy the files
 REM ===========================================================================
 
+xcopy /y .\code\3rdparty\Cg\bin\*.dll .\bin\
+xcopy /y .\code\3rdparty\Cg\bin\*.exe .\bin\
+xcopy /y .\code\3rdparty\physx\PhysX_3.4\Bin\vc14win64\*.dll .\bin\
+
 echo Deploying 3rdParty libraries...
 echo Installing OpenAL...
-%basePath%/code/3rdparty/SFML/oalinst.exe /silent
+.\code\3rdparty\SFML\oalinst.exe /silent

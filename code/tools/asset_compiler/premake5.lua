@@ -1,4 +1,5 @@
 project "asset_compiler"
+	filter {}
 	kind "ConsoleApp"
 	defines {"B_IMPORTS", "E_IMPORTS"}
 	defines {"_CONSOLE"}
