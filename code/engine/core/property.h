@@ -94,7 +94,10 @@ enum class PropertyFlags
 	//! the property value must use the range to limit values
 	UseRange = B_BIT(6),
 	//! if set, then this property cannot be upwards promoted to a prefab public property list
-	NoPrefabPromote = B_BIT(7)
+	NoPrefabPromote = B_BIT(7),
+	//! if set, then the property is shown in the editor as a slider with percentage from 0-100%
+	//! this works for int (0-100 range) and float/double (0-1 range) property types
+	PercentageValue = B_BIT(8)
 };
 B_ENUM_AS_FLAGS(PropertyFlags);
 

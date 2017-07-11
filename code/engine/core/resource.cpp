@@ -37,6 +37,9 @@ ResourceId loadResource(const String& filename)
 {
 	ResourceId id = toResourceId(filename);
 
+	if (!getResources().isLoaded(id))
+		B_LOG_INFO("Trying to load #" << id << " -> " << filename);
+
 	getResources().load(id);
 
 	return id;

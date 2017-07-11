@@ -212,13 +212,12 @@ public:
 	//! Supported languages enumeration list
 	enum ELanguage
 	{
-		eENU,			//!< English - United States
-		eDEU,			//!< German - Germany
-		eFRA,			//!< French - France
-		eJPN,			//!< Japanese - Japan
-		eKOR,			//!< Korean(Extended Wansung) - Korea 
-		eCHS,			//!< Chinese - PRC
-		ePTB,           //!< Portuguese - Brasil
+		eENU,			//!< 409 English - United States
+		eDEU,			//!< 407 German - Germany
+		eFRA,			//!< 40c French - France
+		eJPN,			//!< 411 Japanese - Japan
+		eKOR,			//!< 412 Korean(Extended Wansung) - Korea 
+		eCHS,			//!< 804 Chinese - PRC
 		eLanguageCount	//!< Total language count
 	};
 
@@ -484,6 +483,7 @@ public:
 	ELanguage UILanguage;
 	FbxString GetLanguageLabel(FbxProperty& pProp);
 	void SetLanguageLabel(FbxProperty& pProp, FbxString& pLabel);
+	ELanguage Get_Max_Runtime_Language(FbxString pRegLocation);
 
 	FbxIOInfo impInfo;
 	FbxIOInfo expInfo;

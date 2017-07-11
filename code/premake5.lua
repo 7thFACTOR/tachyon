@@ -26,8 +26,9 @@ end
 
 postbuildcommands { "mkdir -p ../bin" }
 postbuildcommands { "{COPY} \"%{cfg.buildtarget.abspath}\" ../bin" }
+
 filter { "configurations:Debug or DebugEditor", "system:windows" }
-postbuildcommands { "{COPY} \"%{cfg.buildtarget.directory}\%{prj.name}.pdb\" ../bin" }
+	postbuildcommands { "{COPY} \"%{cfg.buildtarget.directory}\%{prj.name}.pdb\" ../bin" }
 filter {}
 
 language "C++"
@@ -146,50 +147,31 @@ function link_win32()
 end
 
 function link_opengl()
+	filter {}
+	defines {"USE_OPENGL"}
+
 	filter { "system:windows" }
-		defines {"USE_OPENGL"}
 		links { "opengl32" }
+
+	filter { "system:linux" }
+		defines {"USE_OPENGL"}
+		links { "GL" }
+		
 	filter {}
 end
 
 function link_freetype_static()
 	filter {}
 	includedirs {scriptRoot.."/3rdparty/freetype/include"}
-	filter { "configurations:Debug or DebugEditor", "system:windows" }
-		libdirs { scriptRoot.."/3rdparty/freetype/objs/vc2015/x64" }
-		links { "freetype28MTd" }
-	filter { "configurations:Debug or DebugEditor", "system:linux" }
-		libdirs { scriptRoot.."/3rdparty/freetype/objs/" }
-		links { "freetype28MTd" }
-	filter {}
-	
-	filter { "configurations:Development or Shipping or DevelopmentEditor or ShippingEditor", "system:windows" }
+
+	filter { "system:windows" }
 		libdirs { scriptRoot.."/3rdparty/freetype/objs/vc2015/x64" }
 		links { "freetype28MT" }
-	filter { "configurations:Development or Shipping or DevelopmentEditor or ShippingEditor", "system:linux" }
+		
+	filter { "system:linux" }
 		libdirs { scriptRoot.."/3rdparty/freetype/objs/" }
 		links { "freetype28MT" }
 	filter {}
-end
-
-function link_base()
-	includedirs {scriptRoot}
-	links { "base" }
-end
-
-function link_base_static()
-	includedirs {scriptRoot}
-	links { "base_s" }
-end
-
-function link_engine()
-	includedirs {scriptRoot.."/engine"}
-	links { "engine" }
-end
-
-function link_engine_static()
-	includedirs {scriptRoot.."/engine"}
-	links { "engine_s" }
 end
 
 function link_sfml_static()
@@ -203,18 +185,15 @@ function link_sfml_static()
 	filter { "configurations:Debug or DebugEditor", "system:windows" }
 		libdirs { "../3rdparty/SFML/lib" }
 		links { "sfml-system-s-d", "sfml-network-s-d", "sfml-audio-s-d", "sfml-window-s-d", "openal32", "ogg", "vorbis", "vorbisenc", "vorbisfile", "flac" }
-	filter { "configurations:Debug or DebugEditor", "system:linux" }
-		libdirs { "../3rdparty/SFML/lib" }
-		links { "libsfml-system-s-d", "libsfml-network-s-d", "libsfml-audio-s-d", "libsfml-window-s-d" }
-		--, "libopenal", "libogg", "libvorbis", "libvorbisenc", "libvorbisfile", "libflac"
-	filter {}
-
-	filter { "configurations:Development or Shipping or DevelopmentEditor or ShippingEditor", "system:windows" }
+		
+	filter { "configurations:Development or DevelopmentEditor or Shipping or ShippingEditor", "system:windows" }
 		libdirs { "../3rdparty/SFML/lib" }
 		links { "sfml-system-s", "sfml-network-s", "sfml-audio-s", "sfml-window-s", "openal32", "ogg", "vorbis", "vorbisenc", "vorbisfile", "flac" }
-	filter { "configurations:Development or Shipping or DevelopmentEditor or ShippingEditor", "system:linux" }
+
+	filter { "system:linux" }
 		libdirs { "../3rdparty/SFML/lib" }
 		links { "libsfml-system-s", "libsfml-network-s", "libsfml-audio-s", "libsfml-window-s" }
+		
 	filter {}
 end
 
@@ -223,20 +202,15 @@ function link_zlib_static()
 	filter {}
 	defines {"USE_ZLIB", "ZLIB_STATIC"}
 	includedirs {scriptRoot.."/3rdparty/zlib/"}
-	filter { "configurations:Debug or DebugEditor", "system:windows" }
-		libdirs { scriptRoot.."/3rdparty/zlib/Debug" }
-		links { "zlib" }
-	filter { "configurations:Debug or DebugEditor", "system:linux" }
+	
+	filter { "system:windows" }
+		libdirs { scriptRoot.."/3rdparty/zlib/contrib/vstudio/vc14/x64/ZlibStatReleaseWithoutAsm" }
+		links { "zlibstat" }
+	
+	filter { "system:linux" }
 		libdirs { scriptRoot.."/3rdparty/zlib/" }
-		links { "zlib" }
-	filter {}
+		links { "zlibstat" }
 
-	filter { "configurations:Development or Shipping or DevelopmentEditor or ShippingEditor", "system:windows" }
-		libdirs { scriptRoot.."/3rdparty/zlib/Release" }
-		links { "zlib" }
-	filter { "configurations:Development or Shipping or DevelopmentEditor or ShippingEditor", "system:linux" }
-		libdirs { scriptRoot.."/3rdparty/zlib/" }
-		links { "zlib" }
 	filter {}
 end
 
@@ -249,17 +223,15 @@ function link_squish_static()
 	filter { "configurations:Debug or DebugEditor", "system:windows" }
 		libdirs { scriptRoot.."/3rdparty/squish/lib64" }
 		links { "squishd" }
-	filter { "configurations:Debug or DebugEditor", "system:linux" }
-		libdirs { scriptRoot.."/3rdparty/squish/lib" }
-		links { "squishd" }
-	filter {}
-			
-	filter { "configurations:Development or Shipping or DevelopmentEditor or ShippingEditor", "system:windows" }
+	
+	filter { "configurations:Development or DevelopmentEditor or Shipping or ShippingEditor", "system:windows" }
 		libdirs { scriptRoot.."/3rdparty/squish/lib64" }
 		links { "squish" }
-	filter { "configurations:Development or Shipping or DevelopmentEditor or ShippingEditor", "system:linux" }
+
+	filter { "system:linux" }
 		libdirs { scriptRoot.."/3rdparty/squish/lib" }
 		links { "squish" }
+
 	filter {}
 end
 
@@ -269,41 +241,34 @@ function link_fbxsdk_static()
 	includedirs {scriptRoot.."/3rdparty/fbx/include"}
 
 	filter { "configurations:Debug or DebugEditor", "system:windows" }
-		libdirs { scriptRoot.."/3rdparty/fbx/lib/vs2015/Debug" }
+		libdirs { scriptRoot.."/3rdparty/fbx/lib/vs2015/x64/debug" }
 		links { "libfbxsdk-md" }
-	filter { "configurations:Debug or DebugEditor", "system:linux" }
-		libdirs { scriptRoot.."/3rdparty/fbx/lib/gcc4/debug" }
-		links { "libfbxsdk" }
-	filter {}
 
-	filter { "configurations:Development or Shipping or DevelopmentEditor or ShippingEditor", "system:windows" }
-		libdirs { scriptRoot.."/3rdparty/fbx/lib/vs2015/Release" }
+	filter { "configurations:Development or DevelopmentEditor or Shipping or ShippingEditor", "system:windows" }
+		libdirs { scriptRoot.."/3rdparty/fbx/lib/vs2015/x64/release" }
 		links { "libfbxsdk-md" }
-	filter { "configurations:Development or Shipping or DevelopmentEditor or ShippingEditor", "system:linux" }
-		libdirs { scriptRoot.."/3rdparty/fbx/lib/gcc4/release" }
+	
+	filter { "system:linux" }
+		libdirs { scriptRoot.."/3rdparty/fbx/lib" }
 		links { "libfbxsdk" }
+
 	filter {}
 end
 
 function link_cg()
 	print("Linking Cg...")
+
 	filter {}
 	includedirs {scriptRoot.."/3rdparty/Cg/include"}
 
-	filter { "configurations:Debug or DebugEditor", "system:windows" }
+	filter { "system:windows" }
 		libdirs { scriptRoot.."/3rdparty/Cg/lib" }
 		links { "cg", "cgGL" }
-	filter { "configurations:Debug or DebugEditor", "system:linux" }
+	
+	filter { "system:linux" }
 		libdirs { scriptRoot.."/3rdparty/Cg/lib" }
-		links { "libcg", "libcgGL" }
-	filter {}
+		links { "libCg", "libCgGL" }
 
-	filter { "configurations:Development or Shipping or DevelopmentEditor or ShippingEditor", "system:windows" }
-		libdirs { scriptRoot.."/3rdparty/Cg/lib" }
-		links { "cg", "cgGL" }
-	filter { "configurations:Development or Shipping or DevelopmentEditor or ShippingEditor", "system:linux" }
-		libdirs { scriptRoot.."/3rdparty/Cg/lib" }
-		links { "libcg", "libcgGL" }
 	filter {}
 end
 
@@ -328,17 +293,49 @@ function link_physx()
 	filter {}
 end
 
+function link_glew_static()
+	filter {}
+	defines {"GLEW_STATIC"}
+	includedirs {scriptRoot.."/3rdparty/glew/include"}
+
+	filter { "system:windows" }
+		libdirs { "../3rdparty/glew/lib/Release/x64" }
+		links { "glew32s" }
+	filter {}
+	
+	filter { "system:linux" }
+		libdirs { "../3rdparty/glew/linux/lib" }
+		links { "libglew" }
+	filter {}
+end
+
+---
+--- Own libs
+---
+
+function link_base()
+	includedirs {scriptRoot}
+	links { "base" }
+end
+
+function link_base_static()
+	includedirs {scriptRoot}
+	links { "base_s" }
+end
+
+function link_engine()
+	includedirs {scriptRoot.."/engine"}
+	links { "engine" }
+end
+
+function link_engine_static()
+	includedirs {scriptRoot.."/engine"}
+	links { "engine_s" }
+end
+
 ---
 --- Add code files directly to projects
 ---
-
-function add_glew()
-	defines {"GLEW_STATIC"}
-	includedirs {scriptRoot.."/3rdparty/glew/include"}
-	add_sources_from(scriptRoot.."/3rdparty/glew/")
-	-- map some folder filters for VS
-	vpaths { ["3rdparty/glew"] = scriptRoot.."/3rdparty/glew/**.*" }
-end
 
 function add_binpack()
 	add_sources_from(scriptRoot.."/3rdparty/binpack/")

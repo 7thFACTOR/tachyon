@@ -22,6 +22,28 @@ namespace engine
 {
 using namespace base;
 
+void Graphics::shutdown()
+{
+	for (auto item : gpuPrograms)
+	{
+		delete item.value;
+	}
+
+	for (auto item : textures)
+	{
+		delete item.value;
+	}
+
+	for (auto item : meshes)
+	{
+		delete item.value;
+	}
+
+	gpuPrograms.clear();
+	textures.clear();
+	meshes.clear();
+}
+
 u32 Graphics::getVideoAdapterIndex() const
 {
 	return videoAdapterIndex;
