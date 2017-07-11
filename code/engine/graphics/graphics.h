@@ -27,7 +27,7 @@ public:
 	Graphics() {}
 	virtual ~Graphics() {}
 	virtual bool initialize() = 0;
-	virtual void shutdown() = 0;
+	virtual void shutdown();
 	virtual Texture* createTexture() = 0;
 	virtual GpuProgram* createGpuProgram() = 0;
 	virtual GpuBuffer* createGpuBuffer() = 0;

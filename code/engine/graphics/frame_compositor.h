@@ -6,9 +6,23 @@
 
 namespace engine
 {
-class E_API FrameCompositor
+class Texture;
+typedef u32 RenderFrameLayerPriority;
+
+
+class E_API RenderFrameLayer
 {
 public:
+	virtual void render(RenderFrameCompositor* compositor) = 0;
+
+	RenderFrameLayerPriority priority = 0;
+};
+
+class E_API RenderFrameCompositor
+{
+public:
+	Array<RenderFrameLayer*> layers;
+	Dictionary<String, Texture*> renderTargets;
 };
 
 }
