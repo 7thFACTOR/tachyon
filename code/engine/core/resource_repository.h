@@ -38,6 +38,7 @@ public:
 	u64 getMemoryUsage() const;
 	ResourceId getId(const String& resourceFilename);
 	String getName(ResourceId resId);
+	bool isLoaded(ResourceId resId);
 	ResourceType getResourceType(ResourceId resId);
 	template <typename Type>
 	Type* map(ResourceId resId, u32 waitTryMsec = maxWaitToMapResourceMsec)

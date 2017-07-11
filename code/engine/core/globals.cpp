@@ -278,9 +278,6 @@ bool initializeEngine()
 	}
 
 	B_LOG_INFO("************************************");
-	B_LOG_INFO("\tEngine Log");
-	B_LOG_INFO("\t" << getEngineVersionString());
-	B_LOG_INFO("************************************");
 	B_LOG_INFO("*** Starting engine initialization sequence...");
 
 	sysInfo = getSystemInfo();

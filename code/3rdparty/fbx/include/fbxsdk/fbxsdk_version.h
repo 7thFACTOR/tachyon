@@ -1,6 +1,6 @@
 /****************************************************************************************
  
-   Copyright (C) 2017 Autodesk, Inc.
+   Copyright (C) 2016 Autodesk, Inc.
    All rights reserved.
  
    Use of this software is subject to the terms of the Autodesk license agreement
@@ -21,13 +21,13 @@
 
 //FBX SDK version defines
 #define FBXSDK_VERSION_MAJOR	2018		//<! Integer, version major number
-#define FBXSDK_VERSION_MINOR	1			//<! Integer, version minor number
-#define FBXSDK_VERSION_POINT	1			//<! Integer, version point number
-#define FBXSDK_VERSION_NAME		"Release"   //<! String, version name, example: Alpha, Beta, RC, Release
+#define FBXSDK_VERSION_MINOR	0			//<! Integer, version minor number
+#define FBXSDK_VERSION_POINT	0			//<! Integer, version point number
+#define FBXSDK_VERSION_NAME		"Release"	//<! String, version name, example: Alpha, Beta, RC, Release
 
 #define FBXSDK_VERSION_YEAR     2017		//<! Integer, release date year
-#define FBXSDK_VERSION_MONTH	5			//<! Integer, release date month
-#define FBXSDK_VERSION_DAY		5			//<! Integer, release date day
+#define FBXSDK_VERSION_MONTH	4			//<! Integer, release date month
+#define FBXSDK_VERSION_DAY		26			//<! Integer, release date day
 
 // macro for a 0 leading month and day
 #if FBXSDK_VERSION_MONTH < 10

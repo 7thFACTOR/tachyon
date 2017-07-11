@@ -322,6 +322,11 @@ String ResourceRepository::getName(ResourceId resId)
 	return "";
 }
 
+bool ResourceRepository::isLoaded(ResourceId resId)
+{
+	return resourcesUsage.contains(resId);
+}
+
 ResourceType ResourceRepository::getResourceType(ResourceId resId)
 {
 	AutoLock<Mutex> lock(streamingThreadLock);
