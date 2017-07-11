@@ -53,27 +53,158 @@ void OpenglTexture::freeGL()
 	}
 }
 
-void OpenglTexture::setData(u32 lod, u32 depth, u8* data, size_t dataSize)
+void OpenglTexture::setImageData(u32 lod, u32 depthIndex, u32 lodWidth, u32 lodHeight, u32 lodDepth, u8* bitmapData, size_t bitmapDataSize, bool isCompressed)
 {
-	//TODO
-	B_ASSERT_NOT_IMPLEMENTED
-}
+	glBindTexture(oglTexType, oglTexId);
+	CHECK_OPENGL_ERROR;
+	
+	if (renderTarget)
+	{
+		glTexImage2D(
+			oglTexType,
+			lod,
+			internalFormat,
+			width,
+			height,
+			0,
+			format,
+			pixelPrecision,
+			bitmapData);
+		CHECK_OPENGL_ERROR;
+	}
+	else
+	{
+		switch (textureType)
+		{
+		case GL_TEXTURE_1D:
+		{
+			if (isCompressed)
+			{
+				glCompressedTexImage1D(
+					oglTexType,
+					lod,
+					internalFormat,
+					lodWidth,
+					0,
+					bitmapDataSize,
+					bitmapData);
+			}
+			else
+			{
+				glTexImage1D(
+					oglTexType,
+					lod,
+					internalFormat,
+					lodWidth,
+					0,
+					format,
+					pixelPrecision,
+					bitmapData);
+			}
+			CHECK_OPENGL_ERROR;
+		}
+		break;
 
-void OpenglTexture::resize(u32 width, u32 height, u32 depth)
-{
-	//TODO
-	B_ASSERT_NOT_IMPLEMENTED
+		case GL_TEXTURE_2D:
+		{
+			if (isCompressed)
+			{
+				glCompressedTexImage2D(
+					oglTexType,
+					lod,
+					internalFormat,
+					lodWidth,
+					lodHeight,
+					0,
+					bitmapDataSize,
+					bitmapData);
+			}
+			else
+			{
+				glTexImage2D(
+					oglTexType,
+					lod,
+					internalFormat,
+					lodWidth,
+					lodHeight,
+					0,
+					format,
+					pixelPrecision,
+					bitmapData);
+			}
+			CHECK_OPENGL_ERROR;
+		}
+		break;
+
+		case GL_TEXTURE_CUBE_MAP:
+		{
+			if (isCompressed)
+			{
+				glCompressedTexImage2D(
+					cubeFace[depthIndex],
+					lod,
+					internalFormat,
+					lodWidth,
+					lodHeight,
+					0,
+					bitmapDataSize,
+					bitmapData);
+			}
+			else
+			{
+				glTexImage2D(
+					cubeFace[depthIndex],
+					lod,
+					internalFormat,
+					lodWidth,
+					lodHeight,
+					0, format, pixelPrecision,
+					bitmapData);
+			}
+			CHECK_OPENGL_ERROR;
+		}
+		break;
+
+		case GL_TEXTURE_3D:
+		{
+			if (isCompressed)
+			{
+				//TODO: this needs to be tested to see if the volume images have the same size
+				// DXT images have same bitmap size because they all have same width/height
+				glCompressedTexImage3D(
+					GL_TEXTURE_3D,
+					lod,
+					internalFormat,
+					lodWidth,
+					lodHeight,
+					lodDepth,
+					0,
+					bitmapDataSize,
+					bitmapData);
+			}
+			else
+			{
+				glTexImage3D(
+					GL_TEXTURE_3D,
+					lod,
+					internalFormat,
+					lodWidth,
+					lodHeight,
+					lodDepth,
+					0, format, pixelPrecision,
+					bitmapData);
+			}
+			CHECK_OPENGL_ERROR;
+		}
+		break;
+		}
+	}
 }
 
 bool OpenglTexture::upload()
 {
 	ScopedResourceMapping<TextureResource> texRes(textureResourceId);
 	B_ASSERT(texRes);
-	GLenum format = GL_RGBA;
-	GLenum internalFormat = GL_RGBA;
-	GLenum pixelPrecision = GL_UNSIGNED_BYTE;
-	bool autoGenMips = texRes->mipMaps.size() == 1;
-	bool compressed = false;
 
 	renderTarget = texRes->isRenderTarget;
 	renderTargetAutoSizeScale = texRes->renderTargetAutoSizeScale;
@@ -386,7 +517,6 @@ void OpenglTexture::setFromResource(ResourceId newResourceId)
 void OpenglTexture::setParameters(const TextureParameters& value)
 {
 	parameters = value;
-	//TODO: update opengl texparams
 }
 
 }
