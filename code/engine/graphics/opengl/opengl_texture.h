@@ -12,8 +12,7 @@ class E_API OpenglTexture : public Texture
 public:
 	OpenglTexture();
 	~OpenglTexture();
-	void setData(u32 lod, u32 depth, u8* data, size_t dataSize) override;
-	void resize(u32 width, u32 height, u32 depth = 1) override;
+	void setImageData(u32 lod, u32 depthIndex, u32 lodWidth, u32 lodHeight, u32 lodDepth, u8* bitmapData, size_t bitmapDataSize, bool isCompressed) override;
 	void setFromResource(ResourceId resId) override;
 	void setParameters(const TextureParameters& value) override;
 	bool upload() override;
@@ -25,6 +24,13 @@ public:
 	GLuint oglDepthRBO = 0;
 	GLuint oglStencilRBO = 0;
 	GLuint oglTexType = 0;
+	GLenum format = GL_RGBA;
+	GLenum internalFormat = GL_RGBA;
+	GLenum pixelPrecision = GL_UNSIGNED_BYTE;
+	GLenum textureType = GL_TEXTURE_2D;
+	bool autoGenMips = false;
+	bool compressed = false;
+	u32 mipMapCount = 0;
 };
 
 }
