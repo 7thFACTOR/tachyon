@@ -23,19 +23,19 @@ namespace base
 {
 void showFatalMessageBox(const String& message)
 {
-	//TODO:
+	//TODO: make a window in X11
 	B_LOG_ERROR("FATAL MSGBOX: " << message);
 }
 
 void showErrorMessageBox(const String& message)
 {
-	//TODO:
+	//TODO: make a window in X11
 	B_LOG_ERROR("ERROR MSGBOX: " << message);
 }
 
 MessageBoxResult showMessageBox(MessageBoxFlags flags, const String& message)
 {
-	//TODO:
+	//TODO: make a window in X11
 	B_LOG_INFO("MSGBOX: " << message);
 	return MessageBoxResult::Unknown;
 }
