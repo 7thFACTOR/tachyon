@@ -65,6 +65,7 @@ public:
 	virtual void update();
 
 public:
+//TODO: move to input component
 	InputMap inputMap;
 
 protected:
