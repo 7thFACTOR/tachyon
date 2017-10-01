@@ -57,7 +57,9 @@ public:
 		shortStr[0] = 0;
 		assign(str);
 	}
-	
+
+	String(String&& str);
+
 	String(size_t maxLength)
 		: longStr(nullptr)
 		, bufferSize(0)

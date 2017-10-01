@@ -260,7 +260,7 @@ public:
 						randomFloat(-0.0f, 0.0f),
 						randomFloat(-5000.0f, 5000.0f) };
 
-					mesh->meshResourceId = loadResource("meshes/cube.mesh");
+					mesh->meshResourceId = loadResource("meshes/primitives_cube.mesh");
 					meshRend->materials.append(loadResource("meshes/animated_box_01 - Default.material"));
 				}
 			}
