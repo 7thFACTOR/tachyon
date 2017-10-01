@@ -18,6 +18,7 @@ public:
 	
 	Array();
 	Array(const Array& other);
+	Array(Array&& other);
 	Array(size_t size);
 	~Array();
 
@@ -75,10 +76,10 @@ protected:
 		obj->~Type();
 	}
 
-	Type *elements;
-	size_t elementCount;
-	size_t growCount;
-	size_t maxCapacity;
+	Type *elements = nullptr;
+	size_t elementCount = 0;
+	size_t growCount = 0;
+	size_t maxCapacity = 0;
 	AllocatorType allocator;
 	static const size_t defaultGrowSize = 16;
 };
@@ -107,6 +108,18 @@ Array<Type, AllocatorType>::Array(const Array& other)
 }
 
 template <typename Type, typename AllocatorType>
+Array<Type, AllocatorType>::Array(Array&& other)
+{
+	elements = other.elements;
+	elementCount = other.elementCount;
+	growCount = other.growCount;
+	maxCapacity = other.maxCapacity;
+	other.elements = nullptr;
+	other.elementCount = 0;
+	other.maxCapacity = 0;
+}
+
+template <typename Type, typename AllocatorType>
 Array<Type, AllocatorType>::Array(size_t size)
 	: growCount(defaultGrowSize)
 	, elementCount(0)
@@ -120,15 +133,7 @@ Array<Type, AllocatorType>::Array(size_t size)
 template <typename Type, typename AllocatorType>
 Array<Type, AllocatorType>::~Array()
 {
-	if (elements)
-	{
-		for (size_t i = 0; i < elementCount; ++i)
-		{
-			destroyElement(&elements[i]);
-		}
-	}
-
-	allocator.deallocate(elements, maxCapacity * sizeof(Type));
+	deleteArray();
 }
 
 template <typename Type, typename AllocatorType>
@@ -144,6 +149,9 @@ void Array<Type, AllocatorType>::deleteArray()
 		allocator.deallocate(elements, maxCapacity * sizeof(Type));
 		elements = nullptr;
 	}
+	
+	elementCount = 0;
+	maxCapacity = 0;
 }
 
 template<typename Type, typename AllocatorType>
@@ -903,7 +911,6 @@ void Array<Type, AllocatorType>::growArray(size_t amount)
 	B_ASSERT(growCount);
 	size_t newCapacity = maxCapacity + (amount != 0 ? amount : growCount);
 	B_ASSERT(newCapacity);
-	
 	u8* newBuffer = (u8*)allocator.allocate(newCapacity * sizeof(Type));
 	Type* newArray = (Type*)newBuffer;
 

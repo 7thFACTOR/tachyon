@@ -24,6 +24,19 @@ String::String(char* str, size_t strLength)
 	memcpy((void*)c_str(), str, strLength);
 }
 
+String::String(String&& str)
+{
+	longStr = str.longStr;
+	strcpy(shortStr, str.shortStr);
+	bufferSize = str.bufferSize;
+	stringLength = str.stringLength;
+
+	str.longStr = nullptr;
+	str.shortStr[0] = 0;
+	str.bufferSize = 0;
+	str.stringLength = 0;
+}
+
 void String::resize(size_t length, char fillChar)
 {
 	reserve(length);
