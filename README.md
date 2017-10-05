@@ -1,4 +1,5 @@
-## **Tachyon** game engine source code. ##
-This is a C++ 11 based engine, currently supporting OpenGL as rendering back-end.
+## **Tachyon** game engine source code. ## (alpha)
+This is a small, free for personal use, modern C++ game engine.
 
-Support: support@7thfactor.com
+Website: http://tachyonengine.com
+Support: support@tachyonengine.com
