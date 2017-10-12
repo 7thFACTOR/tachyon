@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include <wchar.h>
 #include <string.h>
 #include "base/math/conversion.h"

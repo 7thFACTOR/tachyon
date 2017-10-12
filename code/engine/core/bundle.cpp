@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/file.h"
 #include "core/bundle.h"
 #include "core/globals.h"

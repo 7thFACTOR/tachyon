@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "logic/entity.h"
 #include "core/globals.h"
 #include "logic/logic.h"

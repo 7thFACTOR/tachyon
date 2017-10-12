@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #pragma once
 #include "base/platform.h"
 #include "base/string.h"

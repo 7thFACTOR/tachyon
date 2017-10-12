@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #pragma once
 #define AC_VERSION "0.1"
 #include "base/defines.h"

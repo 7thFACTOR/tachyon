@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "core/application.h"
 #include "graphics/graphics.h"
 #include "core/globals.h"

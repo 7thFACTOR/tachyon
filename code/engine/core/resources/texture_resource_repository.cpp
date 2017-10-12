@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "core/resources/texture_resource_repository.h"
 #include "base/defines.h"
 #include "base/assert.h"

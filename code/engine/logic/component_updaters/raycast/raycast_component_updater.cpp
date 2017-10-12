@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "logic/component_updaters/raycast/raycast_component_updater.h"
 #include "base/qsort.h"
 #include "core/globals.h"

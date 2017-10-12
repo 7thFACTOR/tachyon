@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "logic/logic.h"
 #include "logic/component_pool.h"
 #include "base/timer.h"

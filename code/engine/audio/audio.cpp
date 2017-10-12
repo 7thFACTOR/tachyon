@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "audio/audio.h"
 #include "SFML/Audio/Listener.hpp"
 #include "audio/types.h"

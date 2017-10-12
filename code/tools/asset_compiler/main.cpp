@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "asset_compiler.h"
 #include "base/stdio_logger.h"
 #include "base/logger.h"

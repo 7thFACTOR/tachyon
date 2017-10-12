@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "core/property.h"
 #include "logic/entity.h"
 #include "base/assert.h"

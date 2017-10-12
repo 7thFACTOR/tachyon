@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include <stdio.h>
 #include "base/stdio_logger.h"
 #include "base/thread.h"

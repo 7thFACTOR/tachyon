@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include <string.h>
 #include "base/misc/image_atlas.h"
 #include <3rdparty/binpack/Rect.h>

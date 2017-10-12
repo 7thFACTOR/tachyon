@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #pragma once
 #include "core/defines.h"
 #include "core/types.h"

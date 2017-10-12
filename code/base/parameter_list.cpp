@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/parameter_list.h"
 #include "base/platform.h"
 #include "base/assert.h"

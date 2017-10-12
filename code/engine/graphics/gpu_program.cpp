@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "core/globals.h"
 #include "core/resource.h"
 #include "core/resources/gpu_program_resource.h"

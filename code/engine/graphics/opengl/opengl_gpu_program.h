@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #pragma once
 #include "graphics/gpu_program.h"
 #include "graphics/opengl/opengl_gpu_buffer.h"

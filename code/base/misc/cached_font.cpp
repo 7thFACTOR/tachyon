@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/misc/cached_font.h"
 #include <ft2build.h>
 #include <freetype/freetype.h>

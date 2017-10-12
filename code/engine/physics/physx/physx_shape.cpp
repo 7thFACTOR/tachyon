@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "common.h"
 #include "physics/physx/physx_manager.h"
 #include "physics/space.h"

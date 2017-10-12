@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "core/globals.h"
 #include "core/resource_repository.h"
 #include "base/util.h"

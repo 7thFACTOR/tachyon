@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "physics/body.h"
 #include "core/globals.h"
 #include "base/assert.h"

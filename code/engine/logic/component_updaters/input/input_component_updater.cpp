@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include <string.h>
 #include "logic/component_updaters/input/input_component_updater.h"
 #include "logic/component_updaters/render/render_component_updater.h"

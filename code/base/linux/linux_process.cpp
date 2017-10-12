@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #ifdef _LINUX
 #include "base/process.h"
 #include "base/logger.h"

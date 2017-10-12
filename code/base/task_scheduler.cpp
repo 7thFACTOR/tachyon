@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/task_scheduler.h"
 #include "base/job.h"
 #include "base/util.h"

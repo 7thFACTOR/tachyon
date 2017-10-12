@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #pragma once
 #include "base/misc/cached_font.h"
 #include "core/resource.h"

@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "logic/component_updaters/audio/audio_component_updater.h"
 #include "audio/sound_source.h"
 #include "audio/audio.h"

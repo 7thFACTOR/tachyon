@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #pragma once
 #include "base/types.h"
 #include "base/math/vec3.h"

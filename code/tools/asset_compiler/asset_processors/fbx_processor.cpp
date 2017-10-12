@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "../common.h"
 #include "fbxsdk.h"
 #include "base/math/vec3.h"

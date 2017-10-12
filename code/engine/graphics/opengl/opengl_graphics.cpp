@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "opengl_globals.h"
 #include "graphics/opengl/opengl_graphics.h"
 #include "graphics/opengl/opengl_texture.h"

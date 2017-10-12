@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "common.h"
 #include "physx_body.h"
 #include "physx_shape.h"

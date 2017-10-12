@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/logger.h"
 #include "base/assert.h"
 #include "core/globals.h"

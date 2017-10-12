@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/math/color.h"
 #include "base/string.h"
 #include "base/util.h"

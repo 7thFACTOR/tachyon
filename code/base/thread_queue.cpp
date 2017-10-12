@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include <string.h>
 #include "base/thread_queue.h"
 #include "base/logger.h"

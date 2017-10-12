@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "material_processor.h"
 #include "base/logger.h"
 #include "base/platform.h"

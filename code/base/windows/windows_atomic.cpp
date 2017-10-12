@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #ifdef _WINDOWS
 #include "base/atomic.h"
 #include <windows.h>

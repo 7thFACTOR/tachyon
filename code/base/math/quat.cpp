@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/math/quat.h"
 #include "base/math/util.h"
 #include "base/math/conversion.h"

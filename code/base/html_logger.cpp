@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include <stdarg.h>
 #include <stdio.h>
 #include "base/html_logger.h"

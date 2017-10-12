@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/file_change_monitor.h"
 #include "base/thread.h"
 #include "base/logger.h"

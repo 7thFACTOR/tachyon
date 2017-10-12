@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "project.h"
 #include "base/file.h"
 #include "base/util.h"

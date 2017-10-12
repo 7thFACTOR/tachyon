@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include <stdlib.h>
 #include "base/math/util.h"
 #include "base/math/vec3.h"

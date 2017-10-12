@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/math/easing.h"
 #include "base/math/util.h"
 #include <math.h>

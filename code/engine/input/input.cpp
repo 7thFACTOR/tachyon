@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "input/input.h"
 #include "input/window.h"
 #include <SFML/Window/Keyboard.hpp>

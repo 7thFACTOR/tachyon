@@ -1,5 +1,5 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #pragma once
-
 
 namespace engine
 {

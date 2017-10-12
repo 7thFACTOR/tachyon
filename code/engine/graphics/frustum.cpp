@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "graphics/frustum.h"
 #include "base/math/matrix.h"
 #include "base/math/bbox.h"

@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "editor.h"
 #include "base/variant.h"
 #include "base/parameter_list.h"

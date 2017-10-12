@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/dynamic_library.h"
 #include "base/platform.h"
 #include "base/logger.h"

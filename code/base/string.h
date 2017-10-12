@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #pragma once
 #include "base/defines.h"
 #include "base/types.h"
@@ -5,7 +6,7 @@
 
 namespace base
 {
-//! An ASCII string
+//! An ASCII/UTF8 string
 class B_API String : public Streamable
 {
 public:

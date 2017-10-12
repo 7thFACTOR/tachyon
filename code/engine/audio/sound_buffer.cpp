@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "sound_buffer.h"
 #include "base/string.h"
 #include "base/assert.h"

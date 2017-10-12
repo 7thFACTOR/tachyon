@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/assert.h"
 #include "base/math/util.h"
 #include "base/timer.h"

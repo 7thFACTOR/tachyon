@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/string.h"
 #include "base/assert.h"
 #include "base/variant.h"

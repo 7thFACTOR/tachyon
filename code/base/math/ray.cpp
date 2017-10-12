@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include <math.h>
 #include "base/math/ray.h"
 #include "base/math/util.h"

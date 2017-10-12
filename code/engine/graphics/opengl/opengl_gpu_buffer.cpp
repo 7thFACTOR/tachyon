@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "opengl_globals.h"
 #ifdef _WINDOWS
 #include <windows.h>

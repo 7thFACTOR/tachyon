@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include <stdio.h>
 #include "base/logger.h"
 #include "base/mutex.h"

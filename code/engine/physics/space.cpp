@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "physics/space.h"
 #include "physics/body.h"
 #include "physics/joint.h"

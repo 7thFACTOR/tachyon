@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "sound_source.h"
 #include "sound_buffer.h"
 #include "SFML/Audio/SoundSource.hpp"

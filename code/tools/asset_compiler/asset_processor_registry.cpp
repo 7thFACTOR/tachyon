@@ -1,5 +1,5 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "asset_processor_registry.h"
-
 #include "asset_processors/texture_processor.h"
 #include "asset_processors/texture_atlas_processor.h"
 #include "asset_processors/gpu_program_processor.h"

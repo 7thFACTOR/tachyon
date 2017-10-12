@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include <string.h>
 #include "base/dictionary.h"
 #include "input/input_map.h"

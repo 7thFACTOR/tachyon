@@ -1,3 +1,4 @@
+// Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "graphics/mesh.h"
 #include "graphics/gpu_buffer.h"
 #include "graphics/graphics.h"
