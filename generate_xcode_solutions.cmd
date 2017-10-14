@@ -1,3 +1,3 @@
 cd code
-premake5 gmake
+premake5 xcode4
 cd ..
