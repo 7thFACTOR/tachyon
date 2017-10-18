@@ -9,7 +9,7 @@ namespace base
 class B_API HtmlLogger : public Logger
 {
 public:
-	HtmlLogger(const String& filename = "", bool append = false);
+	HtmlLogger(const String& filename = B_TEXT(""), bool append = false);
 	virtual ~HtmlLogger();
 
 	void write(u32 channelIndex, LogItemType type, const String& module, u32 codeLine, const String& message);

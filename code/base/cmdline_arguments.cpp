@@ -6,7 +6,7 @@ namespace base
 {
 #define ARGS_PARSER_ALLOW_SLASH_ARGS
 
-CommandLineArguments::CommandLineArguments(int argc, char** argv)
+CommandLineArguments::CommandLineArguments(int argc, String::CharType** argv)
 {
 	parse(argc, argv);
 }
@@ -22,16 +22,16 @@ CommandLineArguments::CommandLineArguments()
 void CommandLineArguments::parse(const String& cmdLine, bool hasExeFileName)
 {
 	const i32 maxArgsAllowed = 1024;
-	char* argsArray[maxArgsAllowed];
-	char** args = 0;
-	char* crtPos = (char*)cmdLine.c_str();
+	String::CharType* argsArray[maxArgsAllowed];
+	String::CharType** args = 0;
+	String::CharType* crtPos = cmdLine.begin();
 	bool inStr = false;
 	bool gotArg = false;
 	i32 numArgs = 0;
 		
 	while (*crtPos)
 	{
-		if (*crtPos <= ' ')
+		if (*crtPos <= B_TEXT(' '))
 		{
 			++crtPos;
 			gotArg = false;
@@ -60,7 +60,7 @@ void CommandLineArguments::parse(const String& cmdLine, bool hasExeFileName)
 	parse(numArgs, args);
 }
 
-void CommandLineArguments::parse(int argc, char** argv)
+void CommandLineArguments::parse(int argc, String::CharType** argv)
 {
 	String str, strName, strValue;
 
@@ -74,11 +74,11 @@ void CommandLineArguments::parse(int argc, char** argv)
 		if (str.length() > 1)
 		{
 #ifdef ARGS_PARSER_ALLOW_SLASH_ARGS
-	#define ARGS_PARSER_CHECK_SLASH str[0] == '/'||
+	#define ARGS_PARSER_CHECK_SLASH str[0] == B_TEXT('/')||
 #else
 	#define ARGS_PARSER_CHECK_SLASH
 #endif
-			if (ARGS_PARSER_CHECK_SLASH str[0] == '-')
+			if (ARGS_PARSER_CHECK_SLASH str[0] == B_TEXT('-'))
 			{
 				i32 pos = str.findChar('=');
 				i32 offset = (str[1] == '-') ? 2 : 0;
@@ -95,13 +95,13 @@ void CommandLineArguments::parse(int argc, char** argv)
 				else
 				{
 					strName = str.subString(offset, str.length() - offset);
-					strValue = "switch";
+					strValue = B_TEXT("switch");
 					arguments.append(KeyValuePair<String, String>(strName, strValue));
 				}
 			}
 			else
 			{
-				arguments.append(KeyValuePair<String, String>("*", str));
+				arguments.append(KeyValuePair<String, String>(B_TEXT("*"), str));
 			}
 		}
 	}
@@ -115,7 +115,7 @@ String CommandLineArguments::getFreeText(u32 freeTextIndex) const
 
 	while (iter != arguments.end())
 	{
-		if (iter->key == "*")
+		if (iter->key == B_TEXT("*"))
 		{
 			if (n == freeTextIndex)
 				return iter->value;
@@ -125,7 +125,7 @@ String CommandLineArguments::getFreeText(u32 freeTextIndex) const
 		++iter;
 	}
 
-	return "";
+	return B_TEXT("");
 }
 
 String CommandLineArguments::getArgValue(const String& name, const String& defaultValue) const
@@ -152,8 +152,8 @@ bool CommandLineArguments::hasSwitch(const String& name, bool enabled) const
 	while (iter != arguments.end())
 	{
 		if (iter->key == name 
-			&& iter->value == "switch"
-			|| iter->value == "")
+			&& iter->value == B_TEXT("switch")
+			|| iter->value == B_TEXT(""))
 		{
 			return true;
 		}
@@ -193,7 +193,7 @@ void CommandLineArguments::debug() const
 
 	while (iter != arguments.end())
 	{
-		B_LOG_INFO("'" << iter->key << "' is '" << iter->value << "'\n");
+		B_LOG_INFO(B_TEXT("'") << iter->key << "' is '" << iter->value << "'\n");
 		++iter;
 	}
 }

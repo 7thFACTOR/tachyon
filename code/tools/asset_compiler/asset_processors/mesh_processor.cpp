@@ -21,7 +21,7 @@ MeshProcessor::MeshProcessor()
 	Array<String> extensions;
 
 	extensions.append(".mesh");
-	supportedAssetType = SupportedAssetType(ResourceType::Mesh, extensions);
+	supportedAssetInfo = SupportedAssetInfo(ResourceType::Mesh, extensions);
 }
 
 MeshProcessor::~MeshProcessor()

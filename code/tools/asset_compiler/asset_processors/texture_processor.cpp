@@ -69,7 +69,7 @@ TextureProcessor::TextureProcessor()
 	extensions.append(".jpg");
 	extensions.append(".bmp");
 	extensions.append(".psd");
-	supportedAssetType = SupportedAssetType(ResourceType::Texture, extensions);
+	supportedAssetInfo = SupportedAssetInfo(ResourceType::Texture, extensions);
 }
 
 TextureProcessor::~TextureProcessor()

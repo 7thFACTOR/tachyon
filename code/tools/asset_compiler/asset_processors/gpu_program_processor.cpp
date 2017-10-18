@@ -168,7 +168,7 @@ GpuProgramProcessor::GpuProgramProcessor()
 	Array<String> extensions;
 
 	extensions.append(".gpu_program");
-	supportedAssetType = SupportedAssetType(ResourceType::GpuProgram, extensions);
+	supportedAssetInfo = SupportedAssetInfo(ResourceType::GpuProgram, extensions);
 	cgSetErrorHandler(CgErrorHandler, nullptr);
 	cgSetErrorCallback(CgErrorCallback);
 

@@ -1567,7 +1567,7 @@ void writeJsonObjectToText(String& jsonText, i32 indent, JsonObject* object, Jso
 
 bool JsonDocument::save(const String& jsonFilename, JsonSaveOptions* options)
 {
-	FILE* file = fopen(jsonFilename.c_str(), "wt");
+	FILE* file = utf8fopen(jsonFilename.c_str(), "wt");
 
 	if (!file)
 	{

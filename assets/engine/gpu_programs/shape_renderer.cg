@@ -171,6 +171,7 @@ float3 Diffuse( float3 DiffuseColor, float Roughness, float NoV, float NoL, floa
 
 float4 mainTexPS(VertexOUT IN) : COLOR
 {
+	//return float4(1,0,0,1);
 	float3 tex = tex2D(diffuseSampler, IN.uv.xy);
 	return float4(tex, 1);
 }

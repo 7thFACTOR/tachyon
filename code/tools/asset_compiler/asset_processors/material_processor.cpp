@@ -97,7 +97,7 @@ MaterialProcessor::MaterialProcessor()
 	Array<String> extensions;
 
 	extensions.append(".material");
-	supportedAssetType = SupportedAssetType(ResourceType::Material, extensions);
+	supportedAssetInfo = SupportedAssetInfo(ResourceType::Material, extensions);
 }
 
 MaterialProcessor::~MaterialProcessor()

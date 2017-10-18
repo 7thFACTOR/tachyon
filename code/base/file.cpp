@@ -109,7 +109,7 @@ bool File::open(const String& openFilename, FileOpenFlags openFlags)
 	if (!!(openFlags & FileOpenFlags::Text))
 		mode += "t";
 
-	fileHandle = fopen(filename.c_str(), mode.c_str());
+	fileHandle = utf8fopen(filename.c_str(), mode.c_str());
 
 	if (!!(openFlags & FileOpenFlags::Read))
 	{

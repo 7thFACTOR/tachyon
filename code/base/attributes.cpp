@@ -11,7 +11,7 @@ Attributes::~Attributes()
 {
 }
 
-void Attributes::setAttribute(const char* name, const char* value)
+void Attributes::setAttribute(const String& name, const String& value)
 {
 	auto iter = attributes.find(name);
 
@@ -24,7 +24,7 @@ void Attributes::setAttribute(const char* name, const char* value)
 	attributes[name] = value;
 }
 
-void Attributes::removeAttribute(const char* name)
+void Attributes::removeAttribute(const String& name)
 {
 	auto iter = attributes.find(name);
 
@@ -34,7 +34,7 @@ void Attributes::removeAttribute(const char* name)
 	}
 }
 
-const char* Attributes::getAttributeValue(const char* name)
+const String& Attributes::getAttributeValue(const String& name)
 {
 	auto iter = attributes.find(name);
 
@@ -43,7 +43,9 @@ const char* Attributes::getAttributeValue(const char* name)
 		return iter->value.c_str();
 	}
 
-	return "";
+	static String dummy;
+
+	return dummy;
 }
 
 void Attributes::deleteAttributes()
@@ -56,14 +58,14 @@ size_t Attributes::getAttributeCount() const
 	return attributes.size();
 }
 
-const char* Attributes::getAttributeNameAt(size_t index) const
+const String& Attributes::getAttributeNameAt(size_t index) const
 {
-	return attributes.keyAt(index).c_str();
+	return attributes.keyAt(index);
 }
 
-const char* Attributes::getAttributeValueAt(size_t index) const
+const String& Attributes::getAttributeValueAt(size_t index) const
 {
-	return attributes.valueAt(index).c_str();
+	return attributes.valueAt(index);
 }
 
 void Attributes::serialize(Stream& stream)
@@ -91,7 +93,7 @@ void Attributes::deserialize(Stream& stream)
 	{
 		stream.readString(name);
 		stream.readString(value);
-		setAttribute(name.c_str(), value.c_str());
+		setAttribute(name, value);
 	}
 }
 

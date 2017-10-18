@@ -9,7 +9,7 @@ namespace base
 class B_API DynamicLibrary
 {
 public:
-	DynamicLibrary(const String& filename = "");
+	DynamicLibrary(const String& filename = B_TEXT(""));
 	virtual ~DynamicLibrary();
 
 	const String& getFilename() const;

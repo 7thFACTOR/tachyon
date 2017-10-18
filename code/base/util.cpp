@@ -693,7 +693,7 @@ bool fitImageSizeToView(
 
 bool loadTextFile(const String& filename, String& outString)
 {
-	FILE* file = fopen(filename.c_str(), "rt");
+	FILE* file = utf8fopen(filename.c_str(), "rt");
 
 	if (!file)
 	{
@@ -711,6 +711,24 @@ bool loadTextFile(const String& filename, String& outString)
 	}
 
 	return true;
+}
+
+FILE* utf8fopen(const String& filename, const String& flags)
+{
+#ifdef _WINDOWS
+	wchar_t wfilename[MAX_PATH * 2] = { 0 };
+	wchar_t wflags[20] = { 0 };
+	utf8ToUtf16NoAlloc(filename.c_str(), wfilename, MAX_PATH * 2);
+	utf8ToUtf16NoAlloc(flags.c_str(), wflags, 20);
+	FILE* f = _wfopen(wfilename, wflags);
+
+	return f;
+#elif defined(_LINUX)
+	return fopen(filename.c_str(), flags.c_str());
+#else
+	B_ASSERT_NOT_IMPLEMENTED;
+	return nullptr;
+#endif
 }
 
 u128 generateUuid()

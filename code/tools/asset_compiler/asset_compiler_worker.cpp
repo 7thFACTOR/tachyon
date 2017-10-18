@@ -73,14 +73,14 @@ void AssetCompilerWorker::onRun()
 
 			for (size_t j = 0, jCount = processors.size(); j < jCount; ++j)
 			{
-				auto& supportedAssetType = processors[j]->getSupportedAssetType();
+				auto& supportedAssetInfo = processors[j]->getSupportedAssetInfo();
 
-				if (supportedAssetType.importerOnly)
+				if (supportedAssetInfo.importerOnly)
 				{
 					continue;
 				}
 
-				if (supportedAssetType.type == asset->type)
+				if (supportedAssetInfo.outputResourceType == asset->type)
 				{
 					B_LOG_INFO("Processing: '" << asset->name << "' to '" << asset->deployFilename << "'...");
 

@@ -205,7 +205,7 @@ public:
 	inline Stream& operator << (u128 value) { writeUint128(value); return *this; }
 	inline Stream& operator << (f32 value) { writeFloat(value); return *this; }
 	inline Stream& operator << (f64 value) { writeDouble(value); return *this; }
-	inline Stream& operator << (const char* str) { writeString(str); return *this; }
+	inline Stream& operator << (const String::CharType* str) { writeString(str); return *this; }
 	inline Stream& operator << (const Color& value) { writeColor(value); return *this; }
 	inline Stream& operator << (const Vec2& value) { writeVec2(value); return *this; }
 	inline Stream& operator << (const Vec3& value) { writeVec3(value); return *this; }

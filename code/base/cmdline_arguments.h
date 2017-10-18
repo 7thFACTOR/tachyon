@@ -19,18 +19,18 @@ typedef Array<KeyValuePair<String/*arg name*/, String/*arg value*/>> Arguments;
 class B_API CommandLineArguments
 {
 public:
-	CommandLineArguments(int argc, char** argv);
+	CommandLineArguments(int argc, String::CharType** argv);
 	CommandLineArguments(const String& cmdLine, bool hasExeFileName = false);
 	CommandLineArguments();
 	void parse(const String& cmdLine, bool hasExeFileName = false);
-	void parse(int argc, char** argv);
+	void parse(int argc, String::CharType** argv);
 	//! \return the Nth free text argument from command line, or "" if no free text argument found
 	//! \param freeTextIndex the index of the free text argument
 	String getFreeText(u32 freeTextIndex = 0) const;
 	//! \return switch value (Ex: /some=value (if ARGS_PARSER_ALLOW_SLASH_ARGS is defined) or -some=value or --some=value
 	//! \param name switch name
 	//! \param defaultValue the default string value to be returned if switch not found
-	String getArgValue(const String& name, const String& defaultValue = "") const;
+	String getArgValue(const String& name, const String& defaultValue = B_TEXT("")) const;
 	//! \return true if the switch is specified in the command line
 	//! \param name switch name (without / (if ARGS_PARSER_ALLOW_SLASH_ARGS is defined) ,- or -- in front)
 	//! \param enabled default value to return if not found

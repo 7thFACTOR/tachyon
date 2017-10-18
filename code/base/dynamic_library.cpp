@@ -9,7 +9,7 @@ namespace base
 DynamicLibrary::DynamicLibrary(const String& filename)
 {
 	handle = 0;
-	dllFilename = "";
+	dllFilename = B_TEXT("");
 
 	if (!filename.isEmpty())
 	{
@@ -46,7 +46,7 @@ bool DynamicLibrary::free()
 
 	if (!res)
 	{
-		B_LOG_ERROR("Error when releasing dynamic library: '" << dllFilename << "', error code: " << res);
+		B_LOG_ERROR(B_TEXT("Error when releasing dynamic library: '") << dllFilename << "', error code: " << res);
 
 		return false;
 	}

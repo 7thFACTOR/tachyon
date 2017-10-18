@@ -52,7 +52,7 @@ namespace LogChannelIndex
 class B_API Logger
 {
 public:
-	Logger(const String& filename = "", bool append = false);
+	Logger(const String& filename = B_TEXT(""), bool append = false);
 	virtual ~Logger();
 	virtual void write(u32 channelIndex, LogItemType type, const String& module, u32 codeLine, const String& message);
 	virtual bool open(const String& filename, bool append = false);
@@ -105,20 +105,25 @@ struct LoggerAutoIndent
 B_EXPORT Logger& getBaseLogger();
 B_EXPORT void writeToBaseLog(u32 channelIndex, LogItemType type, const String& module, u32 codeLine, const String& message);
 
-#define B_LOG_WRITE(type, msg) base::writeToBaseLog(base::LogChannelIndex::Main, type, __FUNCTION__, __LINE__, String() << msg)
-#define B_LOG_ERROR(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Error, __FUNCTION__, __LINE__, String() << msg)
-#define B_LOG_WARNING(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Warning, __FUNCTION__, __LINE__, String() << msg)
-#define B_LOG_INFO(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Info, __FUNCTION__, __LINE__, String() << msg)
-#define B_LOG_SUCCESS(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Success, __FUNCTION__, __LINE__, String() << msg)
-#define B_LOG_TEMP(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Debug, __FUNCTION__, __LINE__, String() << msg)
-#define B_LOG_HEADER(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Header, __FUNCTION__, __LINE__, String() << msg)
+#define B_WIDE2(x) L##x
+#define B_WIDE1(x) B_WIDE2(x)
+#define B_WFILE B_WIDE1(__FILE__)
+#define B_WFUNCTION B_WIDE1(__FUNCTION__)
+
+#define B_LOG_WRITE(type, msg) base::writeToBaseLog(base::LogChannelIndex::Main, type, B_WFUNCTION, __LINE__, String() << msg)
+#define B_LOG_ERROR(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Error, B_WFUNCTION, __LINE__, String() << msg)
+#define B_LOG_WARNING(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Warning, B_WFUNCTION, __LINE__, String() << msg)
+#define B_LOG_INFO(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Info, B_WFUNCTION, __LINE__, String() << msg)
+#define B_LOG_SUCCESS(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Success, B_WFUNCTION, __LINE__, String() << msg)
+#define B_LOG_TEMP(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Debug, B_WFUNCTION, __LINE__, String() << msg)
+#define B_LOG_HEADER(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Header, B_WFUNCTION, __LINE__, String() << msg)
 
 #define B_LOG_INDENT base::getBaseLogger().increaseIndent();
 #define B_LOG_UNINDENT base::getBaseLogger().decreaseIndent();
 #define B_LOG_AUTO_INDENT base::LoggerAutoIndent autoLogIndent(&getBaseLogger());
 
 #ifdef _DEBUG
-	#define B_LOG_DEBUG(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Debug, __FUNCTION__, __LINE__, String() << msg)
+	#define B_LOG_DEBUG(msg) base::writeToBaseLog(base::LogChannelIndex::Main, base::LogItemType::Debug, B_WFUNCTION, __LINE__, String() << msg)
 #else
 	#define B_LOG_DEBUG(msg)
 #endif

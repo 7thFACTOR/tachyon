@@ -114,7 +114,7 @@ bool HtmlLogger::open(const String& filename, bool append)
 	close();
 	String openMode = append ? "a+" : "wt";
 
-	fileHandle = fopen(filename.c_str(), openMode.c_str());
+	fileHandle = utf8fopen(filename.c_str(), openMode.c_str());
 
 	if (fileHandle)
 	{

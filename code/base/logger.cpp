@@ -119,7 +119,7 @@ bool Logger::open(const String& filename, bool append)
 	close();
 	String openMode = append ? String("a+") : String("wt");
 
-	fileHandle = fopen(filename.c_str(), openMode.c_str());
+	fileHandle = utf8fopen(filename.c_str(), openMode.c_str());
 
 	for (u32 i = 0; i < (u32)LogItemType::Count; ++i)
 	{

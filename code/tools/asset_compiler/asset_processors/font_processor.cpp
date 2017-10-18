@@ -24,7 +24,7 @@ FontProcessor::FontProcessor()
 
 	extensions.append(".ttf");
 	extensions.append(".otf");
-	supportedAssetType = SupportedAssetType(ResourceType::Font, extensions);
+	supportedAssetInfo = SupportedAssetInfo(ResourceType::Font, extensions);
 }
 
 FontProcessor::~FontProcessor()

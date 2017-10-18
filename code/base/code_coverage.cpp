@@ -22,7 +22,7 @@ bool CodeCoverage::beginRecording(
 	const String& markersFilename,
 	bool saveAllMarkers)
 {
-	mustHitMarkersFile = fopen(mustHitMarkersFilename.c_str(), "rt");
+	mustHitMarkersFile = utf8fopen(mustHitMarkersFilename.c_str(), "rt");
 	hitMarkerCount = 0;
 	hitMarkersFilename = markersFilename;
 	saveAllCodeMarkers = saveAllMarkers;
@@ -57,7 +57,7 @@ bool CodeCoverage::beginRecording(
 
 void CodeCoverage::saveResultsFile()
 {
-	hitMarkersFile = fopen(hitMarkersFilename.c_str(), "wt");
+	hitMarkersFile = utf8fopen(hitMarkersFilename.c_str(), "wt");
 
 	if (hitMarkersFile)
 	{

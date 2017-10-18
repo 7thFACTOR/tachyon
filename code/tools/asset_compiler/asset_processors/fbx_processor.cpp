@@ -24,9 +24,9 @@ FbxProcessor::FbxProcessor()
 	Array<String> extensions;
 
 	extensions.append(".fbx");
-	supportedAssetType = SupportedAssetType(ResourceType::None, extensions);
-	supportedAssetType.importerOnly = true;
-	supportedAssetType.autoImportWhenModified = true;
+	supportedAssetInfo = SupportedAssetInfo(ResourceType::None, extensions);
+	supportedAssetInfo.importerOnly = true;
+	supportedAssetInfo.autoImportWhenModified = true;
 }
 
 FbxProcessor::~FbxProcessor()

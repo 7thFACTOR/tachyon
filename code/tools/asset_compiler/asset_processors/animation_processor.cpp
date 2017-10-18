@@ -21,7 +21,7 @@ AnimationProcessor::AnimationProcessor()
 	Array<String> extensions;
 	
 	extensions.append(".animation");
-	supportedAssetType = SupportedAssetType(ResourceType::Animation, extensions);
+	supportedAssetInfo = SupportedAssetInfo(ResourceType::Animation, extensions);
 }
 
 AnimationProcessor::~AnimationProcessor()

@@ -31,15 +31,17 @@ AssetProcessorRegistry::AssetProcessorRegistry()
 }
 
 AssetProcessorRegistry::~AssetProcessorRegistry()
-{}
+{
+	freeProcessors();
+}
 
 ResourceType AssetProcessorRegistry::findResourceTypeByFileExtension(const String& ext)
 {
 	for (auto processor : processors)
 	{
-		if (processor->getSupportedAssetType().assetExtensions.find(ext) != processor->getSupportedAssetType().assetExtensions.end())
+		if (processor->getSupportedAssetInfo().assetExtensions.find(ext) != processor->getSupportedAssetInfo().assetExtensions.end())
 		{
-			return processor->getSupportedAssetType().type;
+			return processor->getSupportedAssetInfo().outputResourceType;
 		}
 	}
 
@@ -50,7 +52,7 @@ AssetProcessor* AssetProcessorRegistry::findProcessorByResourceType(ResourceType
 {
 	for (AssetProcessor* processor : processors)
 	{
-		if (processor->getSupportedAssetType().type == type)
+		if (processor->getSupportedAssetInfo().outputResourceType == type)
 		{
 			return processor;
 		}
@@ -63,7 +65,7 @@ AssetProcessor* AssetProcessorRegistry::findProcessorByImportFileExtension(const
 {
 	for (AssetProcessor* processor : processors)
 	{
-		if (processor->getSupportedAssetType().assetExtensions.find(ext) != processor->getSupportedAssetType().assetExtensions.end())
+		if (processor->getSupportedAssetInfo().assetExtensions.find(ext) != processor->getSupportedAssetInfo().assetExtensions.end())
 		{
 			return processor;
 		}
@@ -74,6 +76,17 @@ AssetProcessor* AssetProcessorRegistry::findProcessorByImportFileExtension(const
 
 void AssetProcessorRegistry::instantiateProcessors(Array<AssetProcessor*>& processors)
 {
+	// load all modules from folder
+	modules.loadModules("modules/asset_processors");
+
+	// instantiate the modules
+	for (auto& module : modules.getModules())
+	{
+		// modules must also inherit from AssetProcessor
+		processors.append((AssetProcessor*)module.value);
+	}
+
+	//TODO: check if they already loaded (overwrite)
 	processors.append(new FbxProcessor());
 	processors.append(new TextureProcessor());
 	processors.append(new TextureAtlasProcessor());
@@ -91,15 +104,28 @@ void AssetProcessorRegistry::instantiateProcessors(Array<AssetProcessor*>& proce
 	//processors.append(new WorldProcessor());
 }
 
+void AssetProcessorRegistry::freeProcessors()
+{
+	for (auto& processor : processors)
+	{
+		if (builtinProcessors.find(processor))
+		{
+			delete processor;
+		}
+	}
+
+	modules.unloadModules();
+}
+
 void AssetProcessorRegistry::debug()
 {
 	B_LOG_DEBUG("Available asset processors:");
 	for (auto& ap : processors)
 	{
-		B_LOG_DEBUG("\tType: " << (u32)ap->getSupportedAssetType().type
+		B_LOG_DEBUG("\tResource type: " << (u32)ap->getSupportedAssetType().type
 			<< " Imports extensions:");
 		B_LOG_INDENT
-		for (auto& ext : ap->getSupportedAssetType().assetExtensions)
+		for (auto& ext : ap->getSupportedAssetInfo().assetExtensions)
 		{
 			B_LOG_DEBUG(ext);
 		}

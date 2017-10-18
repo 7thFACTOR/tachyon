@@ -14,20 +14,24 @@ using namespace base;
 struct Project;
 struct Asset;
 
-struct SupportedAssetType
+struct SupportedAssetInfo
 {
+	//! supported asset extensions for importing/processing
 	Array<String> assetExtensions;
-	ResourceType type = ResourceType::None;
+	//! the resource type generated
+	ResourceType outputResourceType = ResourceType::None;
+	//! this is just an importer, does not process the data, it can emit one or more assets
 	bool importerOnly = false;
+	//! when source asset is modified, it will auto re-import and emit assets
 	bool autoImportWhenModified = false;
 
-	SupportedAssetType()
-		: type(ResourceType::None)
+	SupportedAssetInfo()
+		: outputResourceType(ResourceType::None)
 	{}
 
-	SupportedAssetType(ResourceType resType, const Array<String>& assetExts)
+	SupportedAssetInfo(ResourceType resType, const Array<String>& assetExts)
 		: assetExtensions(assetExts)
-		, type(resType)
+		, outputResourceType(resType)
 	{}
 };
 
@@ -39,14 +43,14 @@ public:
 	virtual bool import(const String& importFilename, JsonDocument& assetCfg) { return false; }
 	virtual bool process(Asset& asset, JsonDocument& assetCfg) = 0;
 	virtual bool isModified(Asset& asset) { return false; };
-	const SupportedAssetType& getSupportedAssetType() const { return supportedAssetType; }
+	const SupportedAssetInfo& getSupportedAssetInfo() const { return supportedAssetInfo; }
 	virtual u32 getVersion() const { return 1; }
 
 public:
 	Array<String> emittedAssets;
 
 protected:
-	SupportedAssetType supportedAssetType;
+	SupportedAssetInfo supportedAssetInfo;
 };
 
 }

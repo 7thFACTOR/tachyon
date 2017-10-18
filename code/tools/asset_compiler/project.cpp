@@ -181,7 +181,7 @@ void Project::importAssets(BundleInfo* bundle, bool forceImport, bool noCompile,
 
 	for (auto processor : AssetProcessorRegistry::getInstance().processors)
 	{
-		for (auto& ext : processor->getSupportedAssetType().assetExtensions)
+		for (auto& ext : processor->getSupportedAssetInfo().assetExtensions)
 		{
 			scanFileSystem(absBundlePath, "*" + ext, files, true);
 		}
@@ -277,9 +277,9 @@ void Project::importAsset(const String& importFilename, BundleInfo* bundle, bool
 		asset.uuid = generateUuid();
 		asset.deployFilename = mergePathName(destFolder, toString(asset.resId));
 		asset.lastWriteTime = dt.toUnixTime();
-		asset.type = processor->getSupportedAssetType().type;
+		asset.type = processor->getSupportedAssetInfo().outputResourceType;
 		asset.bundle = bundle;
-		asset.intermediateAsset = processor->getSupportedAssetType().importerOnly;
+		asset.intermediateAsset = processor->getSupportedAssetInfo().importerOnly;
 
 		bundle->assets.add(asset.resId, asset);
 
@@ -318,7 +318,7 @@ void Project::importAsset(const String& importFilename, BundleInfo* bundle, bool
 		B_LOG_DEBUG("Added asset to database: " << assetFilename << " from " << importFilename);
 
 		// process the asset if this asset's processor is not an importer only
-		if (!processor->getSupportedAssetType().importerOnly
+		if (!processor->getSupportedAssetInfo().importerOnly
 			&& !noCompile)
 		{
 			processor->process(asset, assetCfg);

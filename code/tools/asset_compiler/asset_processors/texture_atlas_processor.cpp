@@ -33,7 +33,7 @@ TextureAtlasProcessor::TextureAtlasProcessor()
 	Array<String> extensions;
 
 	extensions.append(".atlas");
-	supportedAssetType = SupportedAssetType(ResourceType::TextureAtlas, extensions);
+	supportedAssetInfo = SupportedAssetInfo(ResourceType::TextureAtlas, extensions);
 }
 
 TextureAtlasProcessor::~TextureAtlasProcessor()

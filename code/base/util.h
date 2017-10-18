@@ -1,5 +1,6 @@
 // Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #pragma once
+#include <stdio.h>
 #include "base/defines.h"
 #include "base/math/vec2.h"
 #include "base/math/vec3.h"
@@ -105,6 +106,8 @@ inline u32 closestPowerOf2(u32 value)
 }
 
 B_EXPORT bool loadTextFile(const String& filename, String& outString);
+B_EXPORT FILE* utf8fopen(const String& filename, const String& flags);
+
 B_EXPORT u128 generateUuid();
 B_EXPORT u64 hashString(const String& str);
 

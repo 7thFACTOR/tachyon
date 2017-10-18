@@ -9,6 +9,7 @@
 #include "base/json.h"
 #include "base/cmdline_arguments.h"
 #include "core/types.h"
+#include "core/module.h"
 
 namespace ac
 {
@@ -28,9 +29,12 @@ struct AssetProcessorRegistry
 	AssetProcessor* findProcessorByResourceType(ResourceType type);
 	AssetProcessor* findProcessorByImportFileExtension(const String& ext);
 	void instantiateProcessors(Array<AssetProcessor*>& processors);
+	void freeProcessors();
 	void debug();
 
+	ModuleLoader modules;
 	Array<AssetProcessor*> processors;
+	Array<AssetProcessor*> builtinProcessors;
 };
 
 }

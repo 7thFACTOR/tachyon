@@ -17,13 +17,13 @@ public:
 	Attributes();
 	virtual ~Attributes();
 
-	void setAttribute(const char* name, const char* value);
-	void removeAttribute(const char* name);
-	const char* getAttributeValue(const char* name);
+	void setAttribute(const String& name, const String& value);
+	void removeAttribute(const String& name);
+	const String& getAttributeValue(const String& name);
 	void deleteAttributes();
 	size_t getAttributeCount() const;
-	const char* getAttributeNameAt(size_t index) const;
-	const char* getAttributeValueAt(size_t index) const;
+	const String& getAttributeNameAt(size_t index) const;
+	const String& getAttributeValueAt(size_t index) const;
 	void serialize(Stream& stream) override;
 	void deserialize(Stream& stream) override;
 
