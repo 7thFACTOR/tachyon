@@ -81,7 +81,7 @@ public:
 	}
 
 	void streamData(class Stream& stream) override;
-
+	//! \return the length of the string (of the unicode codepoints)
 	inline size_t length() const { return stringLength; }
 	inline bool isEmpty() const { return stringLength == 0; }
 	inline bool notEmpty() const { return stringLength != 0; }
@@ -94,6 +94,7 @@ public:
 	String& assign(const Utf8Byte* other);
 	String& append(const String& other);
 	String& append(const Utf8Byte* other);
+	String& append(const Utf8Byte* other, size_t count);
 	String& appendRange(const String& other, size_t count);
 	String subString(size_t startIndex, size_t count) const;
 	size_t find(const String& substr, size_t startIndex = 0) const;
@@ -148,7 +149,7 @@ public:
 	
 	static inline FloatDecimals floatDecimals(u32 decimals) { return { decimals }; }
 	static inline IntZeroPadding intDecimals(u32 decimals) { return { decimals }; }
-	Utf32Codepoint& operator [](size_t index);
+	Utf8Byte& operator [](size_t index); // we can modify individual utf8 bytes, but not codepoints
 	Utf32Codepoint operator [](size_t index) const;
 
 	int asInt() const;
@@ -158,13 +159,17 @@ public:
 
 protected:
 	void computeLength();
+	size_t computeIndexAtAddress(Utf8Byte* addr);
+	inline Utf8Byte* getCurrentBuffer() const { return (Utf8Byte*)c_str(); }
 
 	static const u32 shortStringMaxLength = 25;
+	static const u32 shortStringMaxByteSize = shortStringMaxLength * 4; //! mul by 4 (max bytes per codepoint)
 	
 	Utf8Byte* longStr = nullptr;
-	Utf8Byte shortStr[shortStringMaxLength * 4]; // mul by 4 (max bytes per code point)
+	Utf8Byte shortStr[shortStringMaxByteSize]; 
 	size_t stringLength = 0; // string length in code points
-	size_t bufferSize = 0; // string size in bytes
+	size_t stringByteSize = 0; // string size in bytes
+	size_t bufferSize = 0; // max capacity in bytes
 };
 
 }

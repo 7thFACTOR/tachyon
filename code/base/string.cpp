@@ -22,9 +22,7 @@ String::String(Utf8Byte* str, size_t strLength)
 	, bufferSize(0)
 	, stringLength(0)
 {
-	resize(strLength);
-
-	memcpy((void*)c_str(), str, strLength);
+	append(str, strLength);
 }
 
 String::String(String&& str)
@@ -150,9 +148,9 @@ String& String::assign(const String& other)
 	return assign(other.c_str());
 }
 
-String& String::assign(const CharType* other)
+String& String::assign(const Utf8Byte* other)
 {
-	size_t length = wcslen(other);
+	size_t sizeInBytes = strlen(other);
 	
 	if (!other)
 	{
@@ -160,7 +158,7 @@ String& String::assign(const CharType* other)
 		bufferSize = 0;
 		shortStr[0] = 0;
 	}
-	else if (!longStr && length < shortStringMaxLength)
+	else if (!longStr && sizeInBytes < shortStringMaxLength * 4)
 	{
 		memcpy(shortStr, other, length * sizeof(CharType));
 		shortStr[length] = 0;
@@ -191,40 +189,50 @@ String& String::append(const String& other)
 	return appendRange(other, other.stringLength);
 }
 
-String& String::append(const CharType* other)
+String& String::append(const Utf8Byte* other)
 {
 	// warning, when appending itself!
 	B_ASSERT(other != c_str());
 	return appendRange(other, wcslen(other));
 }
 
+String& String::append(const Utf8Byte* other, size_t count)
+{
+	// warning, when appending itself!
+	B_ASSERT(other != c_str());
+	return appendRange(other, count);
+}
+
 String& String::appendRange(const String& other, size_t count)
 {
 	if (count > 0)
 	{
-		size_t newLength = stringLength + count;
+		auto rangeByteSize = other.computeRangeByteSize(0, count);
+		size_t newByteSize = stringByteSize + rangeByteSize;
 
-		if (!longStr && (newLength < shortStringMaxLength))
+		if (!longStr && (newByteSize < shortStringMaxLength * 4))
 		{
-			memcpy(shortStr + stringLength, other.c_str(), count * sizeof(CharType));
-			shortStr[newLength] = 0;
+			memcpy(shortStr + stringByteSize, other.c_str(), rangeByteSize);
+			shortStr[newByteSize] = 0;
 		}
-		else if (newLength < bufferSize && longStr)
+		else if (newByteSize < bufferSize && longStr)
 		{
-			memcpy(longStr + stringLength, other.c_str(), count * sizeof(CharType));
-			longStr[newLength] = 0;
+			memcpy(longStr + stringByteSize, other.c_str(), rangeByteSize);
+			longStr[newByteSize] = 0;
 		}
 		else
 		{
 			String oldStr = *this;
-			reserve(newLength + newLength / 2);
-			CharType* str = (CharType*)c_str();
-			memcpy(str, oldStr.c_str(), oldStr.length() * sizeof(CharType));
-			memcpy(str + oldStr.length(), other.c_str(), count * sizeof(CharType));
-			str[newLength] = 0;
+			reserveBytes(newByteSize + newByteSize / 2);
+			char* str = (char*)c_str();
+			// copy to new buffer, the old string
+			memcpy(str, oldStr.c_str(), oldStr.stringByteSize);
+			// copy the incoming string
+			memcpy(str + oldStr.stringByteSize, other.c_str(), rangeByteSize);
+			str[newByteSize] = 0;
 		}
 		
-		stringLength = newLength;
+		computeLength();
 	}
 
 	return *this;
@@ -248,7 +256,7 @@ size_t String::find(const String& substr, size_t startIndex) const
 		return noIndex;
 	}
 
-	const CharType* foundStr = wcsstr((const CharType*)(c_str() + startIndex), substr.c_str());
+	const Utf8Byte* foundStr = strstr((const Utf8Byte*)(c_str() + startIndex), substr.c_str());
 
 	if (!foundStr)
 	{
@@ -260,11 +268,17 @@ size_t String::find(const String& substr, size_t startIndex) const
 	return index;
 }
 
-size_t String::findChar(CharType chr, size_t startIndex) const
+size_t String::findChar(Utf32Codepoint chr, size_t startIndex) const
 {	
+	Utf8Byte* it = (Utf8Byte*)c_str();
+
+	utf8::advance(it, startIndex, end());
+
 	for (size_t i = startIndex; i < stringLength; i++)
 	{
-		if (chr == c_str()[i])
+		auto c = utf8::next(it, end());
+		
+		if (chr == c)
 		{
 			return i;
 		}
@@ -275,23 +289,25 @@ size_t String::findChar(CharType chr, size_t startIndex) const
 
 void String::replace(const String& what, const String& with, size_t offset, bool all)
 {
-	const CharType* str = c_str() + offset;
+	auto crtBuffer = getCurrentBuffer();
+	utf8::advance(crtBuffer, offset, end());
+	const Utf8Byte* str = crtBuffer;
 	size_t whatStrLen = what.length();
 	size_t withStrLen = with.length();
 	String dest;
-	const CharType* occur = nullptr;
+	const Utf8Byte* occur = nullptr;
 
 	if (what.isEmpty())
 	{
 		return;
 	}
 
-	if (!wcsstr(str, what.c_str()))
+	if (!strstr(str, what.c_str()))
 	{
 		return;
 	}
 
-	while (nullptr != (occur = wcsstr(str, what.c_str())))
+	while (nullptr != (occur = strstr(str, what.c_str())))
 	{
 		dest.appendRange(str, size_t(occur - str));
 
@@ -469,13 +485,16 @@ void String::insert(size_t index, const String& str)
 	stringLength = origStr.length() + lenStr;
 }
 
-size_t String::parseUntil(size_t startIndex, const CharType* stopChars, String& outParsedString)
+size_t String::parseUntil(size_t startIndex, const Utf8Byte* stopChars, String& outParsedString)
 {
 	while (startIndex < length())
 	{
-		CharType chr = c_str()[startIndex];
+		Utf32Codepoint chr = (*this)[startIndex];
+		Utf8Byte chr8[4] = { 0 };
 
-		if (wcschr(stopChars, chr))
+		utf8::utf32to8(&chr, &chr + 1, chr8);
+
+		if (strstr(stopChars, chr8))
 		{
 			return startIndex;
 		}
@@ -487,13 +506,12 @@ size_t String::parseUntil(size_t startIndex, const CharType* stopChars, String& 
 	return startIndex;
 }
 
-
 void String::operator = (const String& str)
 {
 	assign(str);
 }
 
-void String::operator = (const CharType* str)
+void String::operator = (const Utf8Byte* str)
 {
 	assign(str);
 }
@@ -503,14 +521,14 @@ String& String::operator += (const String& other)
 	return append(other.c_str());
 }
 
-String& String::operator += (const CharType* other)
+String& String::operator += (const Utf8Byte* other)
 {
 	return append(other);
 }
 
-String& String::operator += (CharType chr)
+String& String::operator += (char chr)
 {
-	CharType c[2] = { chr, 0 };
+	Utf8Byte c[2] = { chr, 0 };
 	return append(c);
 }
 
@@ -532,9 +550,9 @@ String operator + (const String& str1, const String::CharType* str2)
 	return s;
 }
 
-String operator + (const String& str1, const String::CharType chr)
+String operator + (const String& str1, const Utf32Codepoint chr)
 {
-	String::CharType c[2] = { chr, 0 };
+	Utf8Byte c[2] = { chr, 0 };
 	String s = str1;
 	
 	s.append(c);
@@ -544,47 +562,47 @@ String operator + (const String& str1, const String::CharType chr)
 
 bool operator == (const String& str1, const String& str2)
 {
-	return !wcscmp(str1.c_str(), str2.c_str());
+	return !strcmp(str1.c_str(), str2.c_str());
 }
 
-bool operator == (const String& str1, const String::CharType* str2)
+bool operator == (const String& str1, const Utf8Byte* str2)
 {
-	return !wcscmp(str1.c_str(), str2);
+	return !strcmp(str1.c_str(), str2);
 }
 
-bool operator == (const String::CharType* str1, const String& str2)
+bool operator == (const Utf8Byte* str1, const String& str2)
 {
-	return !wcscmp(str1, str2.c_str());
+	return !strcmp(str1, str2.c_str());
 }
 
 bool operator != (const String& str1, const String& str2)
 {
-	return 0 != wcscmp(str1.c_str(), str2.c_str());
+	return 0 != strcmp(str1.c_str(), str2.c_str());
 }
 
-bool operator != (const String& str1, const String::CharType* str2)
+bool operator != (const String& str1, const Utf8Byte* str2)
 {
-	return 0 != wcscmp(str1.c_str(), str2);
+	return 0 != strcmp(str1.c_str(), str2);
 }
 
 bool operator < (const String& str1, const String& str2)
 {
-	return wcscmp(str1.c_str(), str2.c_str()) < 0;
+	return strcmp(str1.c_str(), str2.c_str()) < 0;
 }
 
 bool operator > (const String& str1, const String& str2)
 {
-	return wcscmp(str1.c_str(), str2.c_str()) > 0;
+	return strcmp(str1.c_str(), str2.c_str()) > 0;
 }
 
 bool operator <= (const String& str1, const String& str2)
 {
-	return wcscmp(str1.c_str(), str2.c_str()) <= 0;
+	return strcmp(str1.c_str(), str2.c_str()) <= 0;
 }
 
 bool operator >= (const String& str1, const String& str2)
 {
-	return wcscmp(str1.c_str(), str2.c_str()) >= 0;
+	return strcmp(str1.c_str(), str2.c_str()) >= 0;
 }
 
 String& String::operator << (const String& val)
@@ -593,7 +611,7 @@ String& String::operator << (const String& val)
 	return *this;
 }
 
-String& String::operator << (const CharType* val)
+String& String::operator << (const Utf8Byte* val)
 {
 	*this += val;
 	return *this;
@@ -685,45 +703,66 @@ String& String::operator << (const IntZeroPadding& val)
 	return *this;
 }
 
-String::CharType& String::operator [](size_t index)
+Utf8Byte& String::operator [](size_t index)
 {
 	B_ASSERT(B_INBOUNDS(index, 0, stringLength));
-	return longStr ? longStr[index] : shortStr[index];
+	
+	auto crtBuffer = getCurrentBuffer();
+
+	return crtBuffer[index];
 }
 
-String::CharType String::operator [](size_t index) const
+Utf32Codepoint String::operator [](size_t index) const
 {
 	B_ASSERT(B_INBOUNDS(index, 0, stringLength));
-	return longStr ? longStr[index] : shortStr[index];
+
+	auto crtBuffer = getCurrentBuffer();
+	utf8::advance(crtBuffer, index, end());
+
+	return utf8::peek_next(crtBuffer, end());
 }
 
 int String::asInt() const
 {
-	return _wtoi(c_str());
+	return atoi(c_str());
 }
 
 f32 String::asF32() const
 {
-	return (f32)_wtof(c_str());
+	return (f32)atof(c_str());
 }
 
 f64 String::asF64() const
 {
-	return _wtof(c_str());
+	return atof(c_str());
 }
 
 bool String::asBool() const
 {
-	if (*this == B_TEXT("true"))
+	if (*this == "true")
 	{
 		return true;
 	}
-	else if (*this == B_TEXT("false"))
+	else if (*this == "false")
 	{
 		return false;
 	}
 
-	return (bool)_wtoi(c_str());
+	return (bool)atoi(c_str());
+}
+
+void String::computeLength()
+{
+	auto startAddr = getCurrentBuffer();
+
+	stringLength = utf8::distance(startAddr, end());
+}
+
+size_t String::computeIndexAtAddress(Utf8Byte* addr)
+{
+	auto startAddr = getCurrentBuffer();
+
+	return utf8::distance(startAddr, addr);
 }
 
 }
