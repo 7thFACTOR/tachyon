@@ -3,6 +3,7 @@
 #include "base/process.h"
 #include "base/logger.h"
 #include "base/defines.h"
+#include "base/util.h"
 #include <windows.h>
 
 namespace base
@@ -13,7 +14,7 @@ Process::Process()
 Process::Process(const String& filename, const String& args, ProcessFlags flags)
 {
 	PROCESS_INFORMATION pinfo;
-	STARTUPINFO sinfo;
+	STARTUPINFOW sinfo;
 
 	memset(&pinfo, 0, sizeof(pinfo));
 	memset(&sinfo, 0, sizeof(sinfo));
@@ -22,9 +23,9 @@ Process::Process(const String& filename, const String& args, ProcessFlags flags)
 	sinfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 
 	//TODO: why cant it work with app name and I have to give it as appname+args ??
-	if (!CreateProcess(
+	if (!CreateProcessW(
 		NULL,
-		(LPSTR)(filename + " " + args).c_str(),
+		stringToUtf16(filename + String(" ") + args).data(),
 		NULL, NULL, FALSE,
 		0, NULL, NULL,
 		&sinfo, &pinfo))

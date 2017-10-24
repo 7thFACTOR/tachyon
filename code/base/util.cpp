@@ -14,6 +14,7 @@
 #include "base/math/util.h"
 #include "base/logger.h"
 #include "base/platform.h"
+#include "3rdparty/utf8/source/utf8.h"
 
 #ifdef _WINDOWS
 #include <windows.h>
@@ -23,34 +24,40 @@ namespace base
 {
 void toLowerCase(String& str)
 {
-	char* strPtr = (char*)str.c_str();
+	String lower;
+
+	Utf8Byte* strPtr = (Utf8Byte*)str.c_str();
 
 	if (strPtr)
 	{
-		char c;
-		char* ptr = (char*) strPtr;
+		Utf32Codepoint c = utf8::next(strPtr, str.end());
 		
-		while (c = *ptr)
+		while (c)
 		{
-			*ptr++ = tolower(c);
+			lower += (Utf32Codepoint)tolower(c);
 		}
 	}
+
+	str = lower;
 }
 
 void toUpperCase(String& str)
 {
-	char* strPtr = (char*)str.c_str();
+	String upper;
+
+	Utf8Byte* strPtr = (Utf8Byte*)str.c_str();
 
 	if (strPtr)
 	{
-		char c;
-		char* ptr = (char*) strPtr;
+		Utf32Codepoint c = utf8::next(strPtr, str.end());
 
-		while (c = *ptr)
+		while (c)
 		{
-			*ptr++ = toupper(c);
+			upper += (Utf32Codepoint)tolower(c);
 		}
 	}
+
+	str = upper;
 }
 
 size_t explodeString(const String& str, Array<String>& tokens, const String& separator)
@@ -134,7 +141,8 @@ String trimLeft(const String& str)
 		}
 	}
 	
-	String trimmedString(&(str.c_str()[thisIndex]));
+
+	String trimmedString(str.c_str() + str.computeByteCount(0, thisIndex));
 
 	return trimmedString;
 }
@@ -170,9 +178,7 @@ String trimRight(const String& str)
 		}
 	}
 
-	String trimmedString;
-	trimmedString.set(str.c_str(), thisIndex + 1);
-	return trimmedString;
+	return str.subString(0, thisIndex);
 }
 
 String trim(const String& str)
@@ -199,51 +205,59 @@ String toHexString(int n, bool lowercase)
 
 bool wildcardCompare(const String& wildcard, const String& text, bool caseSensitive)
 {
-	const char *cp = nullptr, *mp = nullptr;
-	const char* textPtr = text.c_str();
-	const char* wildcardPtr = wildcard.c_str();
+	Utf8Byte* cp = nullptr;
+	Utf8Byte* mp = nullptr;
+	Utf8Byte* textPtr = (Utf8Byte*)text.c_str();
+	Utf8Byte* wildcardPtr = (Utf8Byte*)wildcard.c_str();
 
 	#define B_WILDCARD_COMPARE_CHAR(chr) (caseSensitive ? chr : tolower(chr))
 
-	while ((*textPtr) && (*wildcardPtr != '*'))
+	auto chrText = utf8::next(textPtr, text.end());
+	auto chrWildcard = utf8::next(wildcardPtr, wildcard.end());
+
+	while (chrText && (chrWildcard != '*'))
 	{
-		if ((B_WILDCARD_COMPARE_CHAR(*wildcardPtr)
-			!= B_WILDCARD_COMPARE_CHAR(*textPtr))
-			&& (*wildcardPtr != '?'))
+		if (B_WILDCARD_COMPARE_CHAR(chrWildcard) != B_WILDCARD_COMPARE_CHAR(chrText)
+			&& (chrWildcard != '?'))
 		{
 			return false;
 		}
 
-		++wildcardPtr;
-		++textPtr;
+		chrText = utf8::next(textPtr, text.end());
+		chrWildcard = utf8::next(wildcardPtr, wildcard.end());
 	}
 
-	while (*textPtr)
+	while (chrText)
 	{
-		if (*wildcardPtr == '*')
+		if (chrWildcard == '*')
 		{
-			if (!*++wildcardPtr)
+			chrWildcard = utf8::next(wildcardPtr, wildcard.end());
+
+			if (!chrWildcard)
 			{
 				return true;
 			}
+
 			mp = wildcardPtr;
 			cp = textPtr + 1;
 		}
-		else if ((B_WILDCARD_COMPARE_CHAR(*wildcardPtr)
-				== B_WILDCARD_COMPARE_CHAR(*textPtr))
-				|| (*wildcardPtr == '?'))
+		else if ((B_WILDCARD_COMPARE_CHAR(chrWildcard)
+				== B_WILDCARD_COMPARE_CHAR(chrText))
+				|| (chrWildcard == '?'))
 		{
-			++wildcardPtr;
-			++textPtr;
+			chrText = utf8::next(textPtr, text.end());
+			chrWildcard = utf8::next(wildcardPtr, wildcard.end());
 		}
 		else
 		{
 			wildcardPtr = mp;
 			textPtr = cp++;
+			chrText = utf8::next(textPtr, text.end());
+			chrWildcard = utf8::next(wildcardPtr, wildcard.end());
 		}
 	}
 
-	while (*wildcardPtr == '*')
+	while (chrWildcard == '*')
 	{
 		++wildcardPtr;
 	}
@@ -405,22 +419,18 @@ BBox toBBox(const String& str)
 
 static const int maxNumberToStringBufferSize = 21;
 
-String charToString(char value)
+String charToString(Utf32Codepoint value)
 {
-	char str[maxNumberToStringBufferSize] = { 0 };
+	String str;
 
-	snprintf(str, maxNumberToStringBufferSize, "%c", value);
+	str += value;
 
 	return str;
 }
 
 String toString(bool value)
 {
-	char str[maxNumberToStringBufferSize] = { 0 };
-
-	snprintf(str, maxNumberToStringBufferSize, "%s", value ? "true" : "false");
-
-	return str;
+	return value ? "true" : "false";
 }
 
 String toUuidString(u128 value)
@@ -651,7 +661,7 @@ String toString(const BBox& value)
 		value.getMaxCorner().x << ";" << value.getMaxCorner().y << ";" << value.getMaxCorner().z;
 }
 
-bool fitImageSizeToView(
+bool fitRectToView(
 	f32 imageWidth, f32 imageHeight,
 	f32 viewWidth, f32 viewHeight,
 	f32& newImageWidth, f32& newImageHeight,
@@ -693,7 +703,7 @@ bool fitImageSizeToView(
 
 bool loadTextFile(const String& filename, String& outString)
 {
-	FILE* file = utf8fopen(filename.c_str(), "rt");
+	FILE* file = utf8fopen(filename, "r");
 
 	if (!file)
 	{
@@ -702,13 +712,13 @@ bool loadTextFile(const String& filename, String& outString)
 	}
 
 	outString = "";
-	char line[1024] = { 0 };
 
-	while (!feof(file))
-	{
-		fgets(line, 1024, file);
-		outString += line;
-	}
+	fseek(file, 0, SEEK_END);
+	auto fsize = ftell(file);
+	fseek(file, 0, SEEK_SET);
+
+	outString.resizeBytes(fsize + 1);
+	fread((void*)outString.c_str(), fsize, 1, file);
 
 	return true;
 }
@@ -716,11 +726,9 @@ bool loadTextFile(const String& filename, String& outString)
 FILE* utf8fopen(const String& filename, const String& flags)
 {
 #ifdef _WINDOWS
-	wchar_t wfilename[MAX_PATH * 2] = { 0 };
-	wchar_t wflags[20] = { 0 };
-	utf8ToUtf16NoAlloc(filename.c_str(), wfilename, MAX_PATH * 2);
-	utf8ToUtf16NoAlloc(flags.c_str(), wflags, 20);
-	FILE* f = _wfopen(wfilename, wflags);
+	FILE* f = _wfopen(
+		(wchar_t*)stringToUtf16(filename).data(),
+		(wchar_t*)stringToUtf16(flags).data());
 
 	return f;
 #elif defined(_LINUX)
@@ -767,69 +775,71 @@ u64 hashString(const String& str)
 {
 	JenkinsLookup3Hash64 hasher;
 
-	hasher.add(str.c_str(), str.length());
+	hasher.add(str.c_str(), str.getByteSize());
 
 	return hasher.getHash64();
 }
 
-static std::wstring asciiToWide(const std::string& str)
+void utf8ToUtf16NoAlloc(Utf8StringBuffer text, Utf16StringBuffer outText, size_t maxOutTextByteSize)
 {
-	using convert_typeX = std::codecvt_utf8<wchar_t>;
-	std::wstring_convert<convert_typeX, wchar_t> converterX;
-
-	return converterX.from_bytes(str);
+	utf8::utf8to16(text, text + strlen((char*)text) + 1, outText);
 }
 
-static std::string wideToAscii(const std::wstring& wstr)
+void utf8ToUtf32NoAlloc(Utf8StringBuffer text, Utf32StringBuffer outText, size_t maxOutTextByteSize)
 {
-	using convert_typeX = std::codecvt_utf8<wchar_t>;
-	std::wstring_convert<convert_typeX, wchar_t> converterX;
-
-	return converterX.to_bytes(wstr);
+	utf8::utf8to32(text, text + strlen((char*)text) + 1, outText);
 }
 
-bool utf8ToUtf16NoAlloc(Utf8String text, wchar_t* outText, size_t maxOutTextByteSize)
+void stringToUtf16(const String& text, Utf16CodeUnitArray& outText)
 {
-	auto wstr = asciiToWide(text);
-	auto maxCharCount = maxOutTextByteSize / sizeof(wchar_t);
+	outText.resize(text.length() + 1);
+	outText.fill(0, outText.size(), 0);
 
-	for (int i = 0; i < B_MIN(wstr.size(), maxCharCount); i++)
-	{
-		outText[i] = wstr.at(i);
-	}
-
-	return wstr.size() < maxCharCount;
+	wchar_t* end = (wchar_t*)utf8::utf8to16((Utf8Byte*)text.c_str(), text.end(), (u16*)outText.data());
+	size_t numChars = end - outText.begin();
+	Utf16CodeUnitArray newText(outText, 0, numChars);
+	outText = newText;
 }
 
-bool stringToUtf16(const String& text, Array<Utf16Char> outChars)
+Utf16CodeUnitArray stringToUtf16(const String& text)
 {
-	auto wstr = asciiToWide(text.c_str());
-	
-	for (int i = 0; i < wstr.size(); i++)
-	{
-		outChars.append(wstr.at(i));
-	}
+	Utf16CodeUnitArray arr;
 
-	return true;
+	stringToUtf16(text, arr);
+
+	return arr;
 }
 
-bool utf16ToUtf8NoAlloc(const wchar_t* text, Utf8StringBuffer outText, size_t maxOutTextByteSize)
+void utf16ToUtf8NoAlloc(const Utf16StringBuffer text, Utf8StringBuffer outText, size_t maxOutTextByteSize)
 {
-	auto cstr = wideToAscii(text);
-	auto maxCharCount = maxOutTextByteSize / sizeof(char);
-
-	for (int i = 0; i < B_MIN(cstr.length(), maxCharCount); i++)
-	{
-		outText[i] = cstr[i];
-	}
-
-	return cstr.length() < maxCharCount;
+	utf8::utf16to8(text, text + wcslen((wchar_t*)text) + 1, outText);
 }
 
 String stringFromUtf16(Utf16StringBuffer text)
 {
-	auto cstr = wideToAscii(text);
-	return cstr.c_str();
+	Array<Utf8Byte> str;
+
+	str.resize(wcslen((wchar_t*)text) * 4 + 1); // enough room, plus \0
+	auto end = utf8::utf16to8(text, text + wcslen((wchar_t*)text) + 1, str.data());
+
+	return String(str.data(), (size_t)(end - str.begin()));
+}
+
+void utf32ToUtf8NoAlloc(const Utf32StringBuffer text, const Utf32StringBuffer textEnd, Utf8StringBuffer outText, size_t maxOutTextByteSize)
+{
+	utf8::utf32to8(text, textEnd, outText);
+}
+
+String stringFromUtf32(const Utf32StringBuffer text, const Utf32StringBuffer textEnd)
+{
+	size_t numChars = textEnd - text;
+	Array<Utf8Byte> chars;
+	
+	chars.resize(numChars * 4 + 1); // enough room, plus \0
+
+	utf32ToUtf8NoAlloc(text, textEnd, chars.data(), chars.size());
+
+	return chars.data();
 }
 
 #define asciilower(c) ((u8)tolower((char)(c)))

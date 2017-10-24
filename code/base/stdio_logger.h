@@ -24,7 +24,7 @@ protected:
 #ifdef _WINDOWS
 	HANDLE hConsole;
 	CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
-	WORD saved_attributes;
+	WORD savedAttributes;
 #endif
 };
 

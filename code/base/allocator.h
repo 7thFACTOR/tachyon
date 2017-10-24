@@ -73,7 +73,7 @@ inline const char* Allocator::getName() const
 inline void Allocator::setName(const char* newName)
 {
 #if B_ENABLE_ALLOCATOR_NAME
-	strcpy_s(name, maxNameSize, newName);
+	strcpy(name, newName);
 #endif
 }
 
@@ -81,7 +81,7 @@ inline void* Allocator::allocate(size_t n, int flags)
 {
 	//TODO: use name to log
 	// if DLL then use an internal function, because new might be overridden
-	return ::new char[n];
+	return new char[n];
 }
 
 inline void* Allocator::allocate(size_t n, size_t alignment, size_t offset, int flags)

@@ -51,6 +51,7 @@ public:
 	ImageAtlasItem* getItem(const String& name);
 	void resize(u32 width, u32 height);
 	inline const Dictionary<String, ImageAtlasItem*>& getItems() { return items; }
+
 protected:
 	Array<u32> pixels;
 	u32 atlasWidth, atlasHeight;

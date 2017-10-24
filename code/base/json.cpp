@@ -10,6 +10,7 @@
 #include "base/util.h"
 #include "base/defines.h"
 #include "base/types.h"
+#include "3rdparty/utf8/source/utf8.h"
 
 namespace base
 {
@@ -18,9 +19,9 @@ static JsonObject dummyObject;
 static JsonArray dummyArray;
 static String dummyString;
 
-#define JSON_LOG_ERROR(json, expecting) setError(json, __LINE__, expecting)
+#define JSON_LOG_ERROR(json, end, expecting) setError(json, end, __LINE__, expecting)
 
-bool jsonIsIdentifierChar(char chr)
+bool jsonIsIdentifierChar(Utf32Codepoint chr)
 {
 	return ((chr >= 'A' && chr <= 'Z')
 		|| (chr >= 'a' && chr <= 'z')
@@ -31,7 +32,7 @@ bool jsonIsIdentifierChar(char chr)
 		|| chr == '$');
 }
 
-bool jsonIsWhiteSpace(char chr, bool eolIsWhitespace = true)
+bool jsonIsWhiteSpace(Utf32Codepoint chr, bool eolIsWhitespace = true)
 {
 	if (!eolIsWhitespace)
 	{
@@ -41,48 +42,52 @@ bool jsonIsWhiteSpace(char chr, bool eolIsWhitespace = true)
 	return chr == ' ' || chr == '\t' || chr == '\n' || chr == '\r';
 }
 
-char* jsonSkipWhitespace(char* text, u32& crtLine, bool eolIsWhitespace = true)
+Utf8Byte* jsonSkipWhitespace(Utf8Byte* text, Utf8Byte* end, u32& crtLine, bool eolIsWhitespace = true)
 {
 	if (!text)
 	{
 		return nullptr;
 	}
 
-	while (*text && jsonIsWhiteSpace(*text, eolIsWhitespace))
+	Utf32Codepoint chr = utf8::next(text, end);
+
+	while (chr && jsonIsWhiteSpace(chr, eolIsWhitespace))
 	{
-		if (*text == '\n')
+		if (chr == '\n')
 		{
 			++crtLine;
 		}
 
-		++text;
+		chr = utf8::next(text, end);
 	}
 
 	return text;
 }
 
-char* jsonSkipToNextLine(char* text, u32& crtLine)
+Utf8Byte* jsonSkipToNextLine(Utf8Byte* text, Utf8Byte* end, u32& crtLine)
 {
 	if (!text)
 	{
 		return nullptr;
 	}
 
-	while (*text)
+	auto chr = utf8::next(text, end);
+
+	while (chr)
 	{
-		if (*text == '\n')
+		if (chr == '\n')
 		{
 			++crtLine;
 			return text;
 		}
 
-		++text;
+		chr = utf8::next(text, end);
 	}
 
 	return text;
 }
 
-char* jsonReadIdentifier(char* text, String& token)
+Utf8Byte* jsonReadIdentifier(Utf8Byte* text, Utf8Byte* end, String& token)
 {
 	if (!text)
 	{
@@ -91,16 +96,18 @@ char* jsonReadIdentifier(char* text, String& token)
 
 	token = "";
 
-	while (*text && jsonIsIdentifierChar(*text))
+	auto chr = utf8::next(text, end);
+
+	while (chr && jsonIsIdentifierChar(chr))
 	{
-		token += *text;
-		++text;
+		token += chr;
+		chr = utf8::next(text, end);
 	}
 
 	return text;
 }
 
-char* jsonReadNonStringValue(char* text, String& token)
+Utf8Byte* jsonReadNonStringValue(Utf8Byte* text, Utf8Byte* end, String& token)
 {
 	if (!text)
 	{
@@ -109,18 +116,20 @@ char* jsonReadNonStringValue(char* text, String& token)
 
 	token = "";
 
-	while (*text
-		&& !jsonIsWhiteSpace(*text)
-		&& *text != ',')
+	auto chr = utf8::next(text, end);
+
+	while (chr
+		&& !jsonIsWhiteSpace(chr)
+		&& chr != ',')
 	{
-		token += *text;
-		++text;
+		token += chr;
+		chr = utf8::next(text, end);
 	}
 
 	return text;
 }
 
-char* jsonReadNumber(char* text, String& token, bool& isFloat, bool& error)
+Utf8Byte* jsonReadNumber(Utf8Byte* text, Utf8Byte* end, String& token, bool& isFloat, bool& error)
 {
 	if (!text)
 	{
@@ -129,30 +138,31 @@ char* jsonReadNumber(char* text, String& token, bool& isFloat, bool& error)
 
 	isFloat = false;
 	error = false;
-	char* head = text;
+	Utf8Byte* head = text;
+	auto chr = utf8::next(text, end);
 
-	while (*text 
-		&& !jsonIsWhiteSpace(*text)
-		&& (isdigit(*text) || *text == '-' || *text == '.' || *text == 'e' || *text == 'E'))
+	while (chr
+		&& !jsonIsWhiteSpace(chr)
+		&& (isdigit(chr) || chr == '-' || chr == '.' || chr == 'e' || chr == 'E'))
 	{
-		if (*text == '-' && text != head)
+		if (chr == '-' && text != head)
 		{
 			error = true;
 			return text;
 		}
 
-		if (*text == '.' && !isFloat)
+		if (chr == '.' && !isFloat)
 		{
 			isFloat = true;
 		}
 
-		token += *text;
-		++text;
+		token += chr;
+		chr = utf8::next(text, end);
 	}
 
-	if (!*text)
+	if (!chr)
 	{
-		if (!jsonIsWhiteSpace(*text))
+		if (!jsonIsWhiteSpace(chr))
 		{
 			error = true;
 		}
@@ -161,7 +171,7 @@ char* jsonReadNumber(char* text, String& token, bool& isFloat, bool& error)
 	return text;
 }
 
-bool jsonIsIntStr(char* text)
+bool jsonIsIntStr(Utf8Byte* text, Utf8Byte* end)
 {
 	if (!text)
 	{
@@ -173,28 +183,29 @@ bool jsonIsIntStr(char* text)
 		return false;
 	}
 
-	char* head = text;
+	Utf8Byte* head = text;
+	auto chr = utf8::next(text, end);
 
-	while (*text 
-		&& !jsonIsWhiteSpace(*text)
-		&& (isdigit(*text) || *text == '-'  || *text == '.'))
+	while (chr 
+		&& !jsonIsWhiteSpace(chr)
+		&& (isdigit(chr) || chr == '-'  || chr == '.'))
 	{
-		if (*text == '-' && text != head)
+		if (chr == '-' && text != head)
 		{
 			return false;
 		}
 
-		if (*text == '.')
+		if (chr == '.')
 		{
 			return false;
 		}
 
-		++text;
+		chr = utf8::next(text, end);
 	}
 
-	if (*text)
+	if (chr)
 	{
-		if (!jsonIsWhiteSpace(*text))
+		if (!jsonIsWhiteSpace(chr))
 		{
 			return false;
 		}
@@ -203,7 +214,7 @@ bool jsonIsIntStr(char* text)
 	return true;
 }
 
-bool jsonIsFloatStr(char* text)
+bool jsonIsFloatStr(Utf8Byte* text, Utf8Byte* end)
 {
 	if (!text)
 	{
@@ -215,18 +226,19 @@ bool jsonIsFloatStr(char* text)
 		return false;
 	}
 
-	char* head = text;
+	Utf8Byte* head = text;
+	auto chr = utf8::next(text, end);
 
-	while (*text 
-		&& !jsonIsWhiteSpace(*text)
-		&& (isdigit(*text) || *text == '-'  || *text == '.' || *text == 'e' || *text == 'E'))
+	while (chr 
+		&& !jsonIsWhiteSpace(chr)
+		&& (isdigit(chr) || chr == '-'  || chr == '.' || chr == 'e' || chr == 'E'))
 	{
-		++text;
+		chr = utf8::next(text, end);
 	}
 
-	if (*text)
+	if (chr)
 	{
-		if (!jsonIsWhiteSpace(*text))
+		if (!jsonIsWhiteSpace(chr))
 		{
 			return false;
 		}
@@ -235,7 +247,7 @@ bool jsonIsFloatStr(char* text)
 	return true;
 }
 
-char* jsonReadString(char* text, String& token)
+Utf8Byte* jsonReadString(Utf8Byte* text, Utf8Byte* end, String& token)
 {
 	if (!text)
 	{	
@@ -244,26 +256,30 @@ char* jsonReadString(char* text, String& token)
 
 	token = "";
 
-	while (*text
-		&& *text != '"')
+	auto chr = utf8::next(text, end);
+
+	while (chr
+		&& chr != '"')
 	{
 		// special case of \"
-		if (*text == '\\')
+		if (chr == '\\')
 		{
-			if (*(text + 1) == '"')
+			auto chrNext = utf8::peek_next(text, end);
+
+			if (chrNext == '"')
 			{
 				// skip it
-				++text;
+				chr = utf8::next(text, end);
 			}
 		}
 
-		token += *text;
-		++text;
+		token += chr;
+		chr = utf8::next(text, end);
 	}
 
-	if (*text == '"')
+	if (chr == '"')
 	{
-		++text;
+		chr = utf8::next(text, end);
 	}
 
 	return text;
@@ -954,55 +970,61 @@ bool JsonDocument::parse()
 		return true;
 	}
 
-	char* str = (char*)json.c_str();
+	Utf8Byte* str = (Utf8Byte*)json.c_str();
+	Utf8Byte* end = (Utf8Byte*)json.end();
 
 	// skip spaces
-	str = jsonSkipWhitespace(str, currentLine);
+	str = jsonSkipWhitespace(str, end, currentLine);
 	
 	if (!*str)
 	{
 		return true;
 	}
 
-	char expectEndChar = 0;
+	Utf32Codepoint expectEndChar = 0;
+	
+	auto chr = utf8::next(str, end);
 
 	// so we start an object ?
-	if (*str == '{'
-		|| *str == '"'
-		|| jsonIsIdentifierChar(*str))
+	if (chr == '{'
+		|| chr == '"'
+		|| jsonIsIdentifierChar(chr))
 	{
-		if (*str == '{')
+		if (chr == '{')
 		{
-			++str;
+			chr = utf8::next(str, end);
 			// expect closing bracket only if started
 			expectEndChar = '}';
 		}
 
-		str = parseObject(str, &root);
+		str = parseObject(str, end, &root);
 	}
 	else
 	{
-		JSON_LOG_ERROR(str, "'{', or key name");
+		JSON_LOG_ERROR(str, end, "'{', or key name");
 		return false;
 	}
 
+	chr = utf8::next(str, end);
+
 	if (expectEndChar)
 	{
-		if (expectEndChar != *str)
+		if (expectEndChar != chr)
 		{
-			JSON_LOG_ERROR(str, expectEndChar);
+			JSON_LOG_ERROR(str, end, expectEndChar);
 			return false;
 		}
 
-		++str;
+		chr = utf8::next(str, end);
 	}
 
 	// skip spaces till end of file
-	str = jsonSkipWhitespace(str, currentLine);
+	str = jsonSkipWhitespace(str, end, currentLine);
+	chr = utf8::next(str, end);
 
-	if (*str)
+	if (chr)
 	{
-		JSON_LOG_ERROR(str, "single root element");
+		JSON_LOG_ERROR(str, end, "single root element");
 		return false;
 	}
 
@@ -1014,105 +1036,110 @@ void JsonDocument::free()
 	root.free();
 }
 
-char* JsonDocument::parseObject(char* str, JsonObject* parent)
+Utf8Byte* JsonDocument::parseObject(Utf8Byte* str, Utf8Byte* end, JsonObject* parent)
 {
 	String name;
 	String value;
 
-	while (*str && !gotErrors)
+	auto chr = utf8::next(str, end);
+
+	while (chr && !gotErrors)
 	{
 		// skip spaces
-		str = jsonSkipWhitespace(str, currentLine);
+		str = jsonSkipWhitespace(str, end, currentLine);
+		chr = utf8::next(str, end);
 
-		if (!*str)
+		if (!chr)
 		{
 			break;
 		}
 
 		// we got a comment
-		if (*str == '#')
+		if (chr == '#')
 		{
-			str = jsonSkipToNextLine(str, currentLine);
+			str = jsonSkipToNextLine(str, end, currentLine);
 		}
 
-		str = jsonSkipWhitespace(str, currentLine);
+		str = jsonSkipWhitespace(str, end, currentLine);
+		chr = utf8::next(str, end);
 
 		// we got a value name as: "name"
-		if (*str == '"')
+		if (chr == '"')
 		{
-			++str;
+			//chr = utf8::next(str, end);
 			// read name
-			str = jsonReadString(str, name);
+			str = jsonReadString(str, end, name);
 
 			if (name.isEmpty())
 			{
-				JSON_LOG_ERROR(str, "not empty value name");
+				JSON_LOG_ERROR(str, end, "not empty value name");
 				return str;
 			}
 		}
 		// we got a value name as: name
-		else if (jsonIsIdentifierChar(*str))
+		else if (jsonIsIdentifierChar(chr))
 		{
 			// read name
-			str = jsonReadIdentifier(str, name);
+			str = jsonReadIdentifier(str, end, name);
 		}
 
 		// now skip until : or = or CR or { or [
-		str = jsonSkipWhitespace(str, currentLine, false);
+		str = jsonSkipWhitespace(str, end, currentLine, false);
+		chr = utf8::next(str, end);
 
 		// next, read value
-		if (*str == ':' 
-			|| *str == '=' 
-			|| *str == '{' 
-			|| *str == '[' 
-			|| *str == '\n' 
-			|| *str == '\r')
+		if (chr == ':'
+			|| chr == '='
+			|| chr == '{'
+			|| chr == '['
+			|| chr == '\n'
+			|| chr == '\r')
 		{
-			if (*str != '{' && *str != '[')
+			if (chr != '{' && chr != '[')
 			{
-				++str;
-				str = jsonSkipWhitespace(str, currentLine);
+				chr = utf8::next(str, end);
+				str = jsonSkipWhitespace(str, end, currentLine);
 			}
 
 			JsonValue* pVal = new JsonValue();
 
-			str = parseValue(str, pVal);
+			str = parseValue(str, end, pVal);
 			parent->setValue(name, pVal);
 		}
-		else if (*str && *str != '}')
+		else if (chr && chr != '}')
 		{
-			JSON_LOG_ERROR(str, "':' or '=' or <EOL>");
+			JSON_LOG_ERROR(str, end, "':' or '=' or <EOL>");
 			return str;
 		}
 
 		// skip white spaces
-		str = jsonSkipWhitespace(str, currentLine);
+		str = jsonSkipWhitespace(str, end, currentLine);
 
 		// ended ?
-		if (!*str)
+		if (!chr)
 		{
 			return str;
 		}
 
 		// ended object ?
-		if (*str == '}')
+		if (chr == '}')
 		{
 			return str;
 		}
 		// other value next ?
-		else if (*str == ',')
+		else if (chr == ',')
 		{
-			++str;
+			chr = utf8::next(str, end);
 			continue;
 		}
 		// other value next ?
-		else if (*str == '"' || jsonIsIdentifierChar(*str))
+		else if (chr == '"' || jsonIsIdentifierChar(chr))
 		{
 			continue;
 		}
-		else if (*str)
+		else if (chr)
 		{
-			JSON_LOG_ERROR(str, "'}', ',', '\"' or identifier name");
+			JSON_LOG_ERROR(str, end, "'}', ',', '\"' or identifier name");
 			return str;
 		}
 	}
@@ -1120,14 +1147,15 @@ char* JsonDocument::parseObject(char* str, JsonObject* parent)
 	return str;
 }
 
-char* JsonDocument::parseValue(char* str, JsonValue* value)
+Utf8Byte* JsonDocument::parseValue(Utf8Byte* str, Utf8Byte* end, JsonValue* value)
 {
 	String strValue;
+	auto chr = utf8::peek_next(str, end);
 
-	if (*str && !gotErrors)
+	if (chr && !gotErrors)
 	{
 		// skip spaces
-		str = jsonSkipWhitespace(str, currentLine);
+		str = jsonSkipWhitespace(str, end, currentLine);
 
 		if (!*str)
 		{
@@ -1137,19 +1165,19 @@ char* JsonDocument::parseValue(char* str, JsonValue* value)
 		// we got a comment
 		if (*str == '#')
 		{
-			str = jsonSkipToNextLine(str, currentLine);
+			str = jsonSkipToNextLine(str, end, currentLine);
 		}
 
-		str = jsonSkipWhitespace(str, currentLine);
+		str = jsonSkipWhitespace(str, end, currentLine);
 
-		char expectEndChar = 0;
+		Utf32Codepoint expectEndChar = 0;
 
 		// we got a string value as: "some value"
 		if (*str == '"')
 		{
-			++str;
+			chr = utf8::next(str, end);
 			// read all value string
-			str = jsonReadString(str, strValue);
+			str = jsonReadString(str, end, strValue);
 			value->setValue(strValue);
 		}
 		// we have an object value, create object
@@ -1159,7 +1187,7 @@ char* JsonDocument::parseValue(char* str, JsonValue* value)
 			JsonObject* pObject = new JsonObject();
 
 			value->setValue(pObject);
-			str = parseObject(str, pObject);
+			str = parseObject(str, end, pObject);
 			expectEndChar = '}';
 		}
 		// we have an array value
@@ -1169,12 +1197,12 @@ char* JsonDocument::parseValue(char* str, JsonValue* value)
 			JsonArray* jsonArray = new JsonArray();
 
 			value->setValue(jsonArray);
-			str = parseArray(str, jsonArray);
+			str = parseArray(str, end, jsonArray);
 			expectEndChar = ']';
 		}
 		else
 		{
-			str = jsonReadNonStringValue(str, strValue);
+			str = jsonReadNonStringValue(str, end, strValue);
 
 			if (strValue == "true" || strValue == "false")
 			{
@@ -1182,11 +1210,11 @@ char* JsonDocument::parseValue(char* str, JsonValue* value)
 			}
 			else
 			{
-				if (jsonIsFloatStr((char*)strValue.c_str()))
+				if (jsonIsFloatStr((Utf8Byte*)strValue.c_str(), strValue.end()))
 				{
 					value->setValue((f64)atof(strValue.c_str()));
 				}
-				else if (jsonIsIntStr((char*)strValue.c_str()))
+				else if (jsonIsIntStr((Utf8Byte*)strValue.c_str(), strValue.end()))
 				{
 					u64 n = strtoull(strValue.c_str(), nullptr, 10);
 
@@ -1201,13 +1229,13 @@ char* JsonDocument::parseValue(char* str, JsonValue* value)
 			return str;
 		}
 
-		str = jsonSkipWhitespace(str, currentLine);
+		str = jsonSkipWhitespace(str, end, currentLine);
 
 		if (expectEndChar)
 		{
 			if (expectEndChar != *str)
 			{
-				JSON_LOG_ERROR(str, expectEndChar);
+				JSON_LOG_ERROR(str, end, expectEndChar);
 			}
 
 			++str;
@@ -1217,12 +1245,12 @@ char* JsonDocument::parseValue(char* str, JsonValue* value)
 	return str;
 }
 
-char* JsonDocument::parseArray(char* str, JsonArray* array)
+Utf8Byte* JsonDocument::parseArray(Utf8Byte* str, Utf8Byte* end, JsonArray* arr)
 {
 	while (*str && !gotErrors)
 	{
 		// skip spaces
-		str = jsonSkipWhitespace(str, currentLine);
+		str = jsonSkipWhitespace(str, end, currentLine);
 
 		if (!*str)
 		{
@@ -1232,12 +1260,12 @@ char* JsonDocument::parseArray(char* str, JsonArray* array)
 		// we got a comment
 		if (*str == '#')
 		{
-			str = jsonSkipToNextLine(str, currentLine);
+			str = jsonSkipToNextLine(str, end, currentLine);
 		}
 
-		str = jsonSkipWhitespace(str, currentLine);
+		str = jsonSkipWhitespace(str, end, currentLine);
 
-		char expectEndChar = 0;
+		Utf32Codepoint expectEndChar = 0;
 
 		// we have an object value
 		if (*str == '{')
@@ -1246,8 +1274,8 @@ char* JsonDocument::parseArray(char* str, JsonArray* array)
 			JsonObject* object = new JsonObject();
 			JsonValue* val = new JsonValue();
 			val->setValue(object);
-			array->append(val);
-			str = parseObject(str, object);
+			arr->append(val);
+			str = parseObject(str, end, object);
 			expectEndChar = '}';
 		}
 		// we have a nested array value
@@ -1257,8 +1285,8 @@ char* JsonDocument::parseArray(char* str, JsonArray* array)
 			JsonArray* newArray = new JsonArray();
 			JsonValue* val = new JsonValue();
 			val->setValue(newArray);
-			array->append(val);
-			str = parseArray(str, newArray);
+			arr->append(val);
+			str = parseArray(str, end, newArray);
 			expectEndChar = ']';
 		}
 		// we have a free value
@@ -1268,8 +1296,8 @@ char* JsonDocument::parseArray(char* str, JsonArray* array)
 			|| *str == '-')
 		{
 			JsonValue* val = new JsonValue();
-			str = parseValue(str, val);
-			array->append(val);
+			str = parseValue(str, end, val);
+			arr->append(val);
 		}
 		// skip comma
 		else if (*str == ',')
@@ -1277,7 +1305,7 @@ char* JsonDocument::parseArray(char* str, JsonArray* array)
 			str++;
 		}
 
-		str = jsonSkipWhitespace(str, currentLine);
+		str = jsonSkipWhitespace(str, end, currentLine);
 
 		if (!*str)
 		{
@@ -1292,12 +1320,12 @@ char* JsonDocument::parseArray(char* str, JsonArray* array)
 			}
 			else
 			{
-				JSON_LOG_ERROR(str, expectEndChar);
+				JSON_LOG_ERROR(str, end, expectEndChar);
 				return str;
 			}
 		}
 
-		str = jsonSkipWhitespace(str, currentLine);
+		str = jsonSkipWhitespace(str, end, currentLine);
 
 		if (!*str)
 		{
@@ -1316,9 +1344,9 @@ char* JsonDocument::parseArray(char* str, JsonArray* array)
 
 void writeJsonObjectToText(String& jsonText, i32 indent, JsonObject* object, JsonSaveOptions* options, bool rootSecondIndent);
 
-void writeJsonArrayToText(String& jsonText, i32 indent, JsonArray* array, JsonSaveOptions* options, bool rootSecondIndent)
+void writeJsonArrayToText(String& jsonText, i32 indent, JsonArray* arr, JsonSaveOptions* options, bool rootSecondIndent)
 {
-	if (!array)
+	if (!arr)
 	{
 		return;
 	}
@@ -1333,8 +1361,8 @@ void writeJsonArrayToText(String& jsonText, i32 indent, JsonArray* array, JsonSa
 	String indentStr;
 	String tmp;
 
-	indentStr.resize(indent, '\t');
-	size_t i = array->size();
+	indentStr.repeat("\t", indent);
+	size_t i = arr->size();
 
 	bool addScope = true;
 	String localIndentTab = "\t";
@@ -1367,9 +1395,9 @@ void writeJsonArrayToText(String& jsonText, i32 indent, JsonArray* array, JsonSa
 		jsonText += indentStr + "[\n";
 	}
 
-	for (size_t i = 0; i < array->size(); ++i)
+	for (size_t i = 0; i < arr->size(); ++i)
 	{
-		JsonValue& val = *array->at(i);
+		JsonValue& val = *arr->at(i);
 
 		if (val.isSimpleType())
 		{
@@ -1400,7 +1428,7 @@ void writeJsonArrayToText(String& jsonText, i32 indent, JsonArray* array, JsonSa
 			}
 		}
 
-		if (i < array->size() - 1)
+		if (i < arr->size() - 1)
 		{
 			if (options->commaAfterValue)
 			{
@@ -1440,7 +1468,7 @@ void writeJsonObjectToText(String& jsonText, i32 indent, JsonObject* object, Jso
 	String indentStr;
 	String tmp;
 
-	indentStr.resize(indent, '\t');
+	indentStr.repeat("\t", indent);
 	size_t i = object->getMembers().size();
 
 	bool addScope = true;
@@ -1567,7 +1595,7 @@ void writeJsonObjectToText(String& jsonText, i32 indent, JsonObject* object, Jso
 
 bool JsonDocument::save(const String& jsonFilename, JsonSaveOptions* options)
 {
-	FILE* file = utf8fopen(jsonFilename.c_str(), "wt");
+	FILE* file = utf8fopen(jsonFilename, "w");
 
 	if (!file)
 	{
@@ -1578,7 +1606,7 @@ bool JsonDocument::save(const String& jsonFilename, JsonSaveOptions* options)
 	String strJson;
 
 	saveToText(strJson, options);
-	fwrite(strJson.c_str(), strJson.length(), 1, file);
+	fwrite(strJson.c_str(), strJson.getByteSize(), 1, file);
 	fclose(file);
 
 	return true;
@@ -1815,18 +1843,22 @@ const String& JsonDocument::getErrorMessage() const
 	return errorText;
 }
 
-void JsonDocument::setError(char* str, u32 cppLine, const String& expecting)
+void JsonDocument::setError(Utf8Byte* str, Utf8Byte* end, u32 cppLine, const String& expecting)
 {
+	auto chr = utf8::peek_next(str, end);
+
 	errorText = "";
-	errorText << "JSON: Expecting " << expecting << ", but got char '" << (char)*str << "' at line #" << currentLine;
+	errorText << "JSON: Expecting " << expecting << ", but got U" << chr << " at line #" << currentLine;
 	gotErrors = true;
 	B_LOG_ERROR(errorText);
 }
 
-void JsonDocument::setError(char* str, u32 cppLine, char expecting)
+void JsonDocument::setError(Utf8Byte* str, Utf8Byte* end, u32 cppLine, Utf32Codepoint expecting)
 {
+	auto chr = utf8::peek_next(str, end);
+
 	errorText = "";
-	errorText << "JSON: Expecting '" << expecting << "', but got char '" << (char)*str << "' at line #" << currentLine;
+	errorText << "JSON: Expecting U" << expecting << ", but got U" << chr << " at line #" << currentLine;
 	gotErrors = true;
 	B_LOG_ERROR(errorText);
 }
@@ -2109,7 +2141,7 @@ void debugJsonValue(JsonValue* val, i32 indent)
 {
 	String spacing, str;
 	
-	spacing.resize(indent * 4, ' ');
+	spacing.repeat(" ", indent * 4);
 
 	if (val->isSimpleType())
 	{

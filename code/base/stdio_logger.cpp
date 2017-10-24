@@ -83,11 +83,11 @@ void StdioLogger::write(u32 channelIndex, LogItemType type, const String& module
 
 	String indent;
 
-	indent.resize(currentIndent * 4, ' ');
+	indent.repeat(" ", currentIndent * 4);
 
 #ifdef _WINDOWS
 	SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
-	printf("%s %s", lineNumber.c_str(), datetime.c_str());
+	wprintf(L"%s %s", stringToUtf16(lineNumber).data(), stringToUtf16(datetime).data());
 
 	DWORD attrs = 0;
 
@@ -119,14 +119,15 @@ void StdioLogger::write(u32 channelIndex, LogItemType type, const String& module
 	}
 
 	SetConsoleTextAttribute(hConsole, attrs);
-	printf("%s", typeName.c_str());
-	printf( "%s %s ", indent.c_str(), message.c_str());
+	wprintf(L"%s", stringToUtf16(typeName).data());
+	wprintf(L"%s %s ", stringToUtf16(indent).data(), stringToUtf16(message).data());
 	
 	SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_RED);
-	printf("%s %s\n", moduleStr.c_str(), threadId.c_str());
+	wprintf(L"%s %s\n", stringToUtf16(moduleStr).data(), stringToUtf16(threadId).data());
+	
 	if (IsDebuggerPresent())
 	{
-		OutputDebugString((String() + lineNumber + " " + datetime + " " + typeName + " " + indent + " " + message + " " + moduleStr + threadId + "\n").c_str());
+		OutputDebugStringW(stringToUtf16((String() + lineNumber + " " + datetime + " " + typeName + " " + indent + " " + message + " " + moduleStr + threadId + "\n")).data());
 	}
 #else
 	printf("%s %s %s %s %s %s\n", lineNumber.c_str(), datetime.c_str(), typeName.c_str(),

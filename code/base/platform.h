@@ -204,7 +204,7 @@ B_EXPORT ThreadHandle createThread(
 	void* userData,
 	ThreadPriority priority = ThreadPriority::Normal,
 	u64 stackSize = 0,
-	const String& name = B_TEXT("BaseThread"));
+	const String& name = "BaseThread");
 
 B_EXPORT ThreadId getCurrentThreadId();
 B_EXPORT ThreadHandle getCurrentThreadHandle();

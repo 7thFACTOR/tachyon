@@ -122,7 +122,7 @@ void AssetProcessorRegistry::debug()
 	B_LOG_DEBUG("Available asset processors:");
 	for (auto& ap : processors)
 	{
-		B_LOG_DEBUG("\tResource type: " << (u32)ap->getSupportedAssetType().type
+		B_LOG_DEBUG("\tResource type: " << (u32)ap->getSupportedAssetInfo().outputResourceType
 			<< " Imports extensions:");
 		B_LOG_INDENT
 		for (auto& ext : ap->getSupportedAssetInfo().assetExtensions)

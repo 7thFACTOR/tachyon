@@ -435,7 +435,7 @@ static void writePerfProfilerSection(ProfilerSection* section, u32 level = 0)
 	B_ASSERT(globals);
 	String indent, percent;
 
-	indent.resize(level * 4, ' ');
+	indent.repeat(" ", level * 4);
 
 	if (section->parent)
 	{

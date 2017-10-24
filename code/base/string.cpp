@@ -17,111 +17,71 @@ void String::streamData(class Stream& stream)
 	stream | *this;
 }
 
-String::String(Utf8Byte* str, size_t strLength)
+String::String(const Utf8Byte* str, size_t strLength)
 	: longStr(nullptr)
-	, bufferSize(0)
+	, longStrSize(0)
 	, stringLength(0)
 {
-	append(str, strLength);
+	appendRange(String(str), strLength);
 }
 
 String::String(String&& str)
 {
 	longStr = str.longStr;
-	wcscpy(shortStr, str.shortStr);
-	bufferSize = str.bufferSize;
+	strcpy(shortStr, str.shortStr);
+	longStrSize = str.longStrSize;
 	stringLength = str.stringLength;
+	stringByteSize = str.stringByteSize;
 
 	str.longStr = nullptr;
 	str.shortStr[0] = 0;
-	str.bufferSize = 0;
+	str.longStrSize = 0;
 	str.stringLength = 0;
-}
-
-void String::resize(size_t length, CharType fillChar)
-{
-	reserve(length);
-	stringLength = length;
-
-	CharType* str = (CharType*)c_str();
-
-	if (fillChar)
-	{
-		memset(str, fillChar, stringLength * sizeof(CharType));
-	}
-
-	str[stringLength] = 0;
+	str.stringByteSize = 0;
 }
 
 void String::reserve(size_t maxLength)
 {
-	const size_t maxSize = maxLength * 4 + 1 /*ending \0*/;
+	reserveBytes(maxLength * 4);
+}
 
-	if (maxSize <= shortStringMaxLength * 4)
+void String::reserveBytes(size_t maxByteSize)
+{
+	if (maxByteSize <= shortStringMaxByteSize)
 	{
 		B_SAFE_DELETE_ARRAY(longStr);
-		bufferSize = 0;
-		memset(shortStr, 0, shortStringMaxLength * 4);
+		longStrSize = 0;
+		memset(shortStr, 0, shortStringMaxByteSize);
 	}
-	else if (maxSize > bufferSize)
+	else if (maxByteSize > longStrSize)
 	{
 		B_SAFE_DELETE_ARRAY(longStr);
-		longStr = new CharType[maxSize];
+		longStr = new Utf8Byte[maxByteSize];
 		B_ASSERT(longStr);
-		bufferSize = maxSize;
-		memset(longStr, 0, bufferSize * sizeof(CharType));
+		longStrSize = maxByteSize;
+		memset(longStr, 0, longStrSize);
 	}
-	else if (maxSize <= bufferSize)
+	else if (maxByteSize <= longStrSize)
 	{
 		if (!longStr)
 		{
-			longStr = new CharType[maxSize];
+			longStr = new Utf8Byte[maxByteSize];
 			B_ASSERT(longStr);
-			bufferSize = maxSize;
+			longStrSize = maxByteSize;
 		}
 
-		memset(longStr, 0, maxSize * sizeof(CharType));
+		memset(longStr, 0, maxByteSize);
 	}
 
 	stringLength = 0;
+	stringByteSize = 0;
 }
 
-void String::set(const CharType* str, size_t count)
+void String::resizeBytes(size_t maxByteSize)
 {
-	if (!str)
-	{
-		B_SAFE_DELETE_ARRAY(longStr);
-		memset(shortStr, 0, shortStringMaxLength * sizeof(CharType));
-		stringLength = 0;
-		bufferSize = 0;
-	}
-	else if ((nullptr == longStr) && (count < shortStringMaxLength))
-	{
-		B_SAFE_DELETE_ARRAY(longStr);
-		bufferSize = 0;
-		memcpy(shortStr, str, count * sizeof(CharType));
-		shortStr[count] = 0;
-	}
-	else if (longStr != nullptr && count < bufferSize)
-	{
-		memcpy(longStr, str, count * sizeof(CharType));
-		longStr[count] = 0;
-		memset(shortStr, 0, shortStringMaxLength * sizeof(CharType));
-	}
-	else
-	{
-		// need to allocate bigger heap buffer
-		reserve(count + 1); //+ \0
-
-		if (longStr != nullptr)
-		{
-			memcpy(longStr, str, count * sizeof(CharType));
-			longStr[count] = 0;
-			memset(shortStr, 0, shortStringMaxLength * sizeof(CharType));
-		}
-	}
-
-	stringLength = count;
+	reserveBytes(maxByteSize);
+	stringLength = 0;
+	stringByteSize = maxByteSize;
 }
 
 void String::clear()
@@ -135,7 +95,15 @@ void String::clear()
 		shortStr[0] = 0;
 	}
 	
-	stringLength = bufferSize = 0;
+	stringLength = stringByteSize = longStrSize = 0;
+}
+
+void String::repeat(const String& str, size_t count)
+{
+	for (size_t i = 0; i < count; i++)
+	{
+		(*this) += str;
+	}
 }
 
 String& String::assign(const String& other)
@@ -150,34 +118,37 @@ String& String::assign(const String& other)
 
 String& String::assign(const Utf8Byte* other)
 {
-	size_t sizeInBytes = strlen(other);
+	size_t sizeInBytes = strlen(other) + 1; // \0 at end
 	
 	if (!other)
 	{
 		B_SAFE_DELETE_ARRAY(longStr);
-		bufferSize = 0;
+		longStrSize = 0;
+		stringLength = 0;
+		stringByteSize = 0;
 		shortStr[0] = 0;
 	}
-	else if (!longStr && sizeInBytes < shortStringMaxLength * 4)
+	else if (!longStr && sizeInBytes < shortStringMaxByteSize)
 	{
-		memcpy(shortStr, other, length * sizeof(CharType));
-		shortStr[length] = 0;
+		memcpy(shortStr, other, sizeInBytes);
+		shortStr[sizeInBytes] = 0;
 	}
-	else if (length < bufferSize && longStr && bufferSize)
+	else if (sizeInBytes < longStrSize && longStr && longStrSize)
 	{
-		memcpy(longStr, other, length * sizeof(CharType));
-		longStr[length] = 0;
+		memcpy(longStr, other, sizeInBytes);
+		longStr[sizeInBytes] = 0;
 		shortStr[0] = 0;
 	}
 	else
 	{
-		reserve(length + 1);
-		memcpy(longStr, other, length * sizeof(CharType));
-		longStr[length] = 0;
+		reserveBytes(sizeInBytes);
+		memcpy(longStr, other, sizeInBytes);
+		longStr[sizeInBytes] = 0;
 		shortStr[0] = 0;
 	}
 
-	stringLength = length;
+	stringByteSize = sizeInBytes - 1;
+	computeLength();
 	
 	return *this;
 }
@@ -193,46 +164,48 @@ String& String::append(const Utf8Byte* other)
 {
 	// warning, when appending itself!
 	B_ASSERT(other != c_str());
-	return appendRange(other, wcslen(other));
-}
-
-String& String::append(const Utf8Byte* other, size_t count)
-{
-	// warning, when appending itself!
-	B_ASSERT(other != c_str());
-	return appendRange(other, count);
+	return appendBytes(other, strlen(other));
 }
 
 String& String::appendRange(const String& other, size_t count)
 {
-	if (count > 0)
+	// warning, when appending itself!
+	B_ASSERT(other != c_str());
+	auto byteCount = other.computeByteCount(0, count);
+	
+	return appendBytes(other.c_str(), byteCount);
+}
+
+String& String::appendBytes(const Utf8Byte* other, size_t byteCount)
+{
+	if (byteCount > 0)
 	{
-		auto rangeByteSize = other.computeRangeByteSize(0, count);
-		size_t newByteSize = stringByteSize + rangeByteSize;
+		size_t newByteSize = stringByteSize + byteCount;
 
 		if (!longStr && (newByteSize < shortStringMaxLength * 4))
 		{
-			memcpy(shortStr + stringByteSize, other.c_str(), rangeByteSize);
+			memcpy(shortStr + stringByteSize, other, byteCount);
 			shortStr[newByteSize] = 0;
 		}
-		else if (newByteSize < bufferSize && longStr)
+		else if (newByteSize < longStrSize && longStr)
 		{
-			memcpy(longStr + stringByteSize, other.c_str(), rangeByteSize);
+			memcpy(longStr + stringByteSize, other, byteCount);
 			longStr[newByteSize] = 0;
 		}
 		else
 		{
 			String oldStr = *this;
 			reserveBytes(newByteSize + newByteSize / 2);
-			char* str = (char*)c_str();
+			Utf8Byte* str = getCurrentBuffer();
 			// copy to new buffer, the old string
 			memcpy(str, oldStr.c_str(), oldStr.stringByteSize);
 			// copy the incoming string
-			memcpy(str + oldStr.stringByteSize, other.c_str(), rangeByteSize);
+			memcpy(str + oldStr.stringByteSize, other, byteCount);
 			str[newByteSize] = 0;
 		}
 		
 		computeLength();
+		stringByteSize += byteCount;
 	}
 
 	return *this;
@@ -249,23 +222,19 @@ String String::subString(size_t startIndex, size_t count) const
 
 size_t String::find(const String& substr, size_t startIndex) const
 {
-	size_t index;
-
 	if (startIndex >= stringLength)
 	{
 		return noIndex;
 	}
 
-	const Utf8Byte* foundStr = strstr((const Utf8Byte*)(c_str() + startIndex), substr.c_str());
+	auto foundStr = strstr((const Utf8Byte*)(c_str() + startIndex), substr.c_str());
 
 	if (!foundStr)
 	{
 		return noIndex;
 	}
 
-	index = foundStr - c_str();
-	
-	return index;
+	return computeIndexAtAddress((Utf8Byte*)(foundStr - c_str()));
 }
 
 size_t String::findChar(Utf32Codepoint chr, size_t startIndex) const
@@ -309,7 +278,7 @@ void String::replace(const String& what, const String& with, size_t offset, bool
 
 	while (nullptr != (occur = strstr(str, what.c_str())))
 	{
-		dest.appendRange(str, size_t(occur - str));
+		dest.appendBytes(str, size_t(occur - str));
 
 		if (withStrLen)
 		{
@@ -336,156 +305,57 @@ String& String::erase(size_t start, size_t count)
 {
 	B_ASSERT(start + count < stringLength);
 
+	auto buffer = getCurrentBuffer();
+
+	auto startBytes = computeByteCount(0, start);
+	auto countBytes = computeByteCount(start, count);
+
 	if (longStr)
 	{
-		CharType* dst = longStr + start;
-		CharType* src = dst + count;
-		CharType* end = longStr + stringLength;
+		Utf8Byte* dst = longStr + startBytes;
+		Utf8Byte* src = dst + countBytes;
+		Utf8Byte* end = longStr + stringByteSize;
 		size_t moveAmount = end - src + 1; // add \0
-		memcpy(dst, src, moveAmount * sizeof(CharType));
+
+		memcpy(dst, src, moveAmount);
 	}
 	else
 	{
-		CharType* dst = shortStr + start;
-		CharType* src = dst + count;
-		CharType* end = shortStr + stringLength;
+		Utf8Byte* dst = shortStr + startBytes;
+		Utf8Byte* src = dst + countBytes;
+		Utf8Byte* end = shortStr + stringByteSize;
 		size_t moveAmount = end - src + 1; // add \0
-		memcpy(dst, src, moveAmount * sizeof(CharType));
+		
+		memcpy(dst, src, moveAmount);
 	}
 
 	stringLength -= count;
+	stringByteSize -= countBytes;
 
 	return *this;
 }
 
-void String::erase(Iterator iter)
+Utf32Codepoint String::front() const
 {
-	if (longStr)
-	{
-		size_t tip = (size_t)longStr + (size_t)stringLength * sizeof(CharType);
-		memcpy(iter, iter + 1, tip - (size_t)(iter + 1));
-	}
-	else
-	{
-		size_t tip = (size_t)shortStr + (size_t)stringLength * sizeof(CharType);
-		memcpy(iter, iter + 1, tip - (size_t)(iter + 1));
-	}
-
-	--stringLength;
+	return (*this)[0];
 }
 
-void String::erase(Iterator first, Iterator last)
+Utf32Codepoint String::back() const
 {
-	if (longStr)
-	{
-		CharType* dst = first;
-		CharType* src = last;
-		CharType* end = longStr + stringLength;
-		size_t moveAmount = end - src;
-		memcpy(dst, src, moveAmount * sizeof(CharType));
-	}
-	else
-	{
-		CharType* dst = first;
-		CharType* src = last;
-		CharType* end = shortStr + stringLength;
-		size_t moveAmount = end - src;
-		memcpy(dst, src, moveAmount * sizeof(CharType));
-	}
-
-	stringLength -= last - first;
-}
-
-String::CharType& String::front() const
-{
-	B_ASSERT(stringLength);
-	B_ASSERT(c_str());
-	return ((CharType*)c_str())[0];
-}
-
-String::CharType& String::back() const
-{
-	B_ASSERT(stringLength);
-	B_ASSERT(c_str());
-	return ((CharType*)c_str())[stringLength - 1];
+	return (*this)[length() - 1];
 }
 
 String::Iterator String::begin() const
 {
-	return (CharType*)c_str();
+	return (Utf8Byte*)c_str();
 }
 
 String::Iterator String::end() const
 {
-	return (CharType*)c_str() + stringLength;
+	return (Utf8Byte*)c_str() + stringByteSize;
 }
 
-void String::insert(size_t index, CharType chr)
-{
-	String oldStr = *this;
-
-	if (longStr)
-	{
-		if (stringLength + 1 >= bufferSize)
-		{
-			reserve(stringLength + 1);
-		}
-	}
-	else
-	{
-		if (stringLength + 1 >= shortStringMaxLength)
-		{
-			reserve(stringLength + 1);
-		}
-	}
-
-	CharType* thisPtr = (CharType*)c_str();
-
-	if (index)
-	{
-		memcpy(thisPtr, oldStr.c_str(), index * sizeof(CharType));
-	}
-
-	thisPtr[index] = chr;
-
-	if (!oldStr.isEmpty())
-	{
-		memcpy(thisPtr + index + 1, oldStr.c_str() + index, (oldStr.length() - index) * sizeof(CharType));
-	}
-
-	thisPtr[oldStr.length() + 1] = 0;
-	stringLength = oldStr.length() + 1;
-}
-
-void String::insert(size_t index, const String& str)
-{
-	size_t lenStr = str.length();
-	String origStr = *this;
-	
-	if (longStr)
-	{
-		if (stringLength + lenStr >= bufferSize)
-		{
-			reserve(stringLength + lenStr);
-		}
-	}
-	else
-	{
-		if (stringLength + lenStr >= shortStringMaxLength)
-		{
-			reserve(stringLength + lenStr);
-		}
-	}
-
-	CharType* thisPtr = (CharType*)c_str();
-
-	memcpy(thisPtr, origStr.c_str(), index * sizeof(CharType));
-	memcpy(thisPtr + index, str.c_str(), lenStr * sizeof(CharType));
-	memcpy(thisPtr + index + lenStr, origStr.c_str() + index, (origStr.length() - index) * sizeof(CharType));
-	stringLength = origStr.length() + lenStr;
-}
-
-size_t String::parseUntil(size_t startIndex, const Utf8Byte* stopChars, String& outParsedString)
+size_t String::parseUntil(size_t startIndex, const String& stopCodepoints, String& outParsedString)
 {
 	while (startIndex < length())
 	{
@@ -494,7 +364,7 @@ size_t String::parseUntil(size_t startIndex, const Utf8Byte* stopChars, String& 
 
 		utf8::utf32to8(&chr, &chr + 1, chr8);
 
-		if (strstr(stopChars, chr8))
+		if (strstr(stopCodepoints.c_str(), chr8))
 		{
 			return startIndex;
 		}
@@ -529,7 +399,13 @@ String& String::operator += (const Utf8Byte* other)
 String& String::operator += (char chr)
 {
 	Utf8Byte c[2] = { chr, 0 };
+
 	return append(c);
+}
+
+String& String::operator += (Utf32Codepoint codepoint)
+{
+	return append(codepoint);
 }
 
 String operator + (const String& str1, const String& str2)
@@ -541,7 +417,7 @@ String operator + (const String& str1, const String& str2)
 	return s;
 }
 
-String operator + (const String& str1, const String::CharType* str2)
+String operator + (const String& str1, const Utf8Byte* str2)
 {
 	String s = str1;
 	
@@ -550,13 +426,23 @@ String operator + (const String& str1, const String::CharType* str2)
 	return s;
 }
 
-String operator + (const String& str1, const Utf32Codepoint chr)
+String operator + (const String& str1, char chr)
 {
 	Utf8Byte c[2] = { chr, 0 };
 	String s = str1;
 	
 	s.append(c);
 	
+	return s;
+}
+
+
+String operator + (const String& str1, const Utf32Codepoint chr)
+{
+	String s = str1;
+
+	s.append(chr);
+
 	return s;
 }
 
@@ -703,15 +589,6 @@ String& String::operator << (const IntZeroPadding& val)
 	return *this;
 }
 
-Utf8Byte& String::operator [](size_t index)
-{
-	B_ASSERT(B_INBOUNDS(index, 0, stringLength));
-	
-	auto crtBuffer = getCurrentBuffer();
-
-	return crtBuffer[index];
-}
-
 Utf32Codepoint String::operator [](size_t index) const
 {
 	B_ASSERT(B_INBOUNDS(index, 0, stringLength));
@@ -753,16 +630,25 @@ bool String::asBool() const
 
 void String::computeLength()
 {
-	auto startAddr = getCurrentBuffer();
-
-	stringLength = utf8::distance(startAddr, end());
+	stringLength = utf8::distance(getCurrentBuffer(), end());
 }
 
-size_t String::computeIndexAtAddress(Utf8Byte* addr)
+size_t String::computeIndexAtAddress(Utf8Byte* addr) const
 {
 	auto startAddr = getCurrentBuffer();
 
-	return utf8::distance(startAddr, addr);
+	return utf8::distance(startAddr, (Utf8Byte*)addr);
+}
+
+size_t String::computeByteCount(size_t startIndex, size_t count) const
+{
+	auto addrStart = getCurrentBuffer();
+
+	utf8::advance(addrStart, startIndex, end());
+	auto addrEnd = addrStart;
+	utf8::advance(addrEnd, count, end());
+
+	return addrEnd - addrStart;
 }
 
 }

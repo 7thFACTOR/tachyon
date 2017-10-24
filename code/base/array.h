@@ -19,6 +19,7 @@ public:
 	
 	Array();
 	Array(const Array& other);
+	Array(const Array& other, size_t startIndex, size_t count);
 	Array(Array&& other);
 	Array(size_t size);
 	~Array();
@@ -96,6 +97,20 @@ Array<Type, AllocatorType>::Array()
 {
 	B_ASSERT(growCount);
 }
+
+template <typename Type, typename AllocatorType>
+Array<Type, AllocatorType>::Array(const Array& other, size_t startIndex, size_t count)
+	: growCount(defaultGrowSize)
+	, elementCount(0)
+	, maxCapacity(0)
+	, elements(nullptr)
+{
+	for (size_t i = startIndex; i < startIndex + count; i++)
+	{
+		append(other[i]);
+	}
+}
+
 
 template <typename Type, typename AllocatorType>
 Array<Type, AllocatorType>::Array(const Array& other)

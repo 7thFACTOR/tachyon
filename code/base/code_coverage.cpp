@@ -22,7 +22,7 @@ bool CodeCoverage::beginRecording(
 	const String& markersFilename,
 	bool saveAllMarkers)
 {
-	mustHitMarkersFile = utf8fopen(mustHitMarkersFilename.c_str(), "rt");
+	mustHitMarkersFile = utf8fopen(mustHitMarkersFilename, "rt");
 	hitMarkerCount = 0;
 	hitMarkersFilename = markersFilename;
 	saveAllCodeMarkers = saveAllMarkers;
@@ -30,7 +30,7 @@ bool CodeCoverage::beginRecording(
 	if (mustHitMarkersFile)
 	{
 		String markerName;
-		const u32 maxLineCharCount = 1000;
+		const u32 maxLineCharCount = 1024;
 		char line[maxLineCharCount];
 
 		fgets(line, maxLineCharCount, mustHitMarkersFile);
@@ -57,7 +57,7 @@ bool CodeCoverage::beginRecording(
 
 void CodeCoverage::saveResultsFile()
 {
-	hitMarkersFile = utf8fopen(hitMarkersFilename.c_str(), "wt");
+	hitMarkersFile = utf8fopen(hitMarkersFilename, "wt");
 
 	if (hitMarkersFile)
 	{

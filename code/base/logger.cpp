@@ -94,15 +94,15 @@ void Logger::write(u32 channelIndex, LogItemType type, const String& module, u32
 			threadId << "[" << (u64)getCurrentThreadId() << "]";
 		}
 
-		indent.resize(currentIndent * 4, ' ');
-		fprintf(fileHandle, "%s%s%s%s%s%s%s\n",
-			lineNumber.c_str(),
-			dateTime.c_str(),
-			typeName.c_str(),
-			indent.c_str(),
-			message.c_str(),
-			moduleStr.c_str(),
-			threadId.c_str());
+		indent.repeat(" ", currentIndent * 4);
+		fwrite(lineNumber.c_str(), lineNumber.getByteSize(), 1, fileHandle);
+		fwrite(dateTime.c_str(), dateTime.getByteSize(), 1, fileHandle);
+		fwrite(typeName.c_str(), typeName.getByteSize(), 1, fileHandle);
+		fwrite(indent.c_str(), indent.getByteSize(), 1, fileHandle);
+		fwrite(message.c_str(), message.getByteSize(), 1, fileHandle);
+		fwrite(moduleStr.c_str(), moduleStr.getByteSize(), 1, fileHandle);
+		fwrite(threadId.c_str(), threadId.getByteSize(), 1, fileHandle);
+		fwrite("\n", 1, 1, fileHandle);
 		fflush(fileHandle);
 	}
 
@@ -117,9 +117,9 @@ void Logger::write(u32 channelIndex, LogItemType type, const String& module, u32
 bool Logger::open(const String& filename, bool append)
 {
 	close();
-	String openMode = append ? String("a+") : String("wt");
+	String openMode = append ? String("a+") : String("w");
 
-	fileHandle = utf8fopen(filename.c_str(), openMode.c_str());
+	fileHandle = utf8fopen(filename, openMode);
 
 	for (u32 i = 0; i < (u32)LogItemType::Count; ++i)
 	{
@@ -183,7 +183,7 @@ void Logger::decreaseIndent()
 	--currentIndent;
 }
 
-#ifndef B_EXCLUDE_LOGGER
+#ifndef B_NO_LOGGER
 Logger baseLogger;
 
 Logger& getBaseLogger()

@@ -53,13 +53,15 @@ FILETIME engineTimeFromWinFileTime(const DateTime& fileTime)
 void showFatalMessageBox(const String& message)
 {
 	ShowCursor(TRUE);
-	MessageBox(0, message.c_str(), "Fatal Error", MB_OK | MB_ICONERROR | MB_TOPMOST);
+
+	MessageBoxW(0, stringToUtf16(message).data(), L"Fatal Error", MB_OK | MB_ICONERROR | MB_TOPMOST);
 }
 
 void showErrorMessageBox(const String& message)
 {
 	ShowCursor(TRUE);
-	MessageBox(nullptr, message.c_str(), "Engine Error", MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_TOPMOST);
+
+	MessageBoxW(nullptr, stringToUtf16(message).data(), L"Engine Error", MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_TOPMOST);
 }
 
 MessageBoxResult showMessageBox(MessageBoxFlags flags, const String& message)
@@ -92,7 +94,7 @@ MessageBoxResult showMessageBox(MessageBoxFlags flags, const String& message)
 
 	ShowCursor(TRUE);
 
-	int retval = MessageBox(0, message.c_str(), "Message", flagsWin32);
+	int retval = MessageBoxW(0, stringToUtf16(message).data(), L"Message", flagsWin32);
 
 	if (retval == IDOK)
 		return MessageBoxResult::Ok;
@@ -115,7 +117,11 @@ void copyTextToClipboard(const String& text)
 
 	EmptyClipboard();
 
-	HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, text.length() + 1);
+	Utf16CodeUnitArray wtext;
+
+	stringToUtf16(text, wtext);
+
+	HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, wtext.size() * sizeof(wchar_t) + 2);
 
 	if (hglbCopy == nullptr)
 	{
@@ -123,15 +129,15 @@ void copyTextToClipboard(const String& text)
 		return;
 	}
 
-	LPSTR lptstrCopy = (LPSTR)GlobalLock(hglbCopy);
+	LPWSTR lptstrCopy = (LPWSTR)GlobalLock(hglbCopy);
 
 	if (lptstrCopy)
 	{
-		memcpy(lptstrCopy, text.c_str(), text.length() + 1);
+		memcpy(lptstrCopy, wtext.data(), wtext.size() * sizeof(wchar_t) + 2);
 	}
 
 	GlobalUnlock(hglbCopy);
-	SetClipboardData(CF_TEXT, hglbCopy);
+	SetClipboardData(CF_UNICODETEXT, hglbCopy);
 	CloseClipboard();
 }
 
@@ -139,7 +145,7 @@ String pasteTextFromClipboard()
 {
 	String text = "";
 
-	if (!IsClipboardFormatAvailable(CF_TEXT))
+	if (!IsClipboardFormatAvailable(CF_UNICODETEXT))
 		return "";
 
 	if (!OpenClipboard(0))
@@ -147,15 +153,15 @@ String pasteTextFromClipboard()
 		return "";
 	}
 
-	HGLOBAL hglb = GetClipboardData(CF_TEXT);
+	HGLOBAL hglb = GetClipboardData(CF_UNICODETEXT);
 
 	if (hglb != nullptr)
 	{
-		LPSTR lptstr = (LPSTR)GlobalLock(hglb);
+		LPWSTR lptstr = (LPWSTR)GlobalLock(hglb);
 
 		if (lptstr != nullptr)
 		{
-			text = lptstr;
+			text = stringFromUtf16(lptstr);
 			GlobalUnlock(hglb);
 		}
 	}
@@ -167,27 +173,27 @@ String pasteTextFromClipboard()
 
 bool fileExists(const String& filename)
 {
-	return FALSE != PathFileExists(filename.c_str());
+	return FALSE != PathFileExistsW(stringToUtf16(filename).data());
 }
 
 bool isPathValid(const String& path)
 {
-	return FALSE != PathIsDirectory(path.c_str());
+	return FALSE != PathIsDirectoryW(stringToUtf16(path).data());
 }
 
 bool deleteFile(const String& filename)
 {
-	return FALSE != DeleteFile(filename.c_str());
+	return FALSE != DeleteFileW(stringToUtf16(filename).data());
 }
 
 bool copyFile(const String& srcFilename, const String& destFilename, bool overwrite)
 {
-	return FALSE != CopyFile(srcFilename.c_str(), destFilename.c_str(), !overwrite);
+	return FALSE != CopyFileW(stringToUtf16(srcFilename).data(), stringToUtf16(destFilename).data(), !overwrite);
 }
 
 u64 computeFileSize(const String& filename)
 {
-	HANDLE hnd = CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	HANDLE hnd = CreateFileW(stringToUtf16(filename).data(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 	LARGE_INTEGER li;
 	
 	li.QuadPart = 0;
@@ -199,7 +205,7 @@ u64 computeFileSize(const String& filename)
 
 FileAttributeFlags getFileAttributes(const String& filename)
 {
-	DWORD attrs = GetFileAttributes(filename.c_str());
+	DWORD attrs = GetFileAttributesW(stringToUtf16(filename).data());
 	FileAttributeFlags fa = FileAttributeFlags::None;
 
 	fa |= (FILE_ATTRIBUTE_TEMPORARY & attrs) ? FileAttributeFlags::Temporary : FileAttributeFlags::None;
@@ -214,7 +220,7 @@ FileAttributeFlags getFileAttributes(const String& filename)
 
 void setFileAttributes(const String& filename, FileAttributeFlags attrs)
 {
-	SetFileAttributes(filename.c_str(),
+	SetFileAttributesW(stringToUtf16(filename).data(),
 		(!!(attrs & FileAttributeFlags::Temporary) ? FILE_ATTRIBUTE_TEMPORARY : 0)
 		| (!!(attrs & FileAttributeFlags::Hidden) ?  FILE_ATTRIBUTE_HIDDEN : 0)
 		| (!!(attrs & FileAttributeFlags::Normal) ? FILE_ATTRIBUTE_NORMAL : 0)
@@ -225,7 +231,7 @@ void setFileAttributes(const String& filename, FileAttributeFlags attrs)
 
 bool getFileDateTime(const String& filename, DateTime* creationTime, DateTime* lastAccess, DateTime* lastWrite)
 {
-	HANDLE hnd = CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	HANDLE hnd = CreateFileW(stringToUtf16(filename).data(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 
 	if (hnd != INVALID_HANDLE_VALUE)
 	{
@@ -258,8 +264,8 @@ bool setFileDateTime(
 	DateTime* lastAccess,
 	DateTime* lastWrite)
 {
-	HANDLE hnd = CreateFile(
-		filename.c_str(),
+	HANDLE hnd = CreateFileW(
+		stringToUtf16(filename).data(),
 		GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_ALWAYS, FILE_FLAG_SEQUENTIAL_SCAN, 0);
 
 	if (hnd != INVALID_HANDLE_VALUE)
@@ -297,29 +303,40 @@ bool setFileDateTime(
 
 void deleteFolder(const String& path)
 {
-	SHFILEOPSTRUCT del;
-
+	SHFILEOPSTRUCTW del;
+	auto wpath = stringToUtf16(path);
 	ZeroMemory(&del, sizeof(del));
 	del.hwnd = 0;
 	del.wFunc = FO_DELETE;
-	del.pFrom = path.c_str();
+	del.pFrom = wpath.data();
 	del.fFlags = FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_NO_UI | FOF_SILENT;
-	SHFileOperation(&del);
+	SHFileOperationW(&del);
 }
 
 bool createFolder(const String& path)
 {
-	return FALSE != CreateDirectory(path.c_str(), nullptr);
+	return FALSE != CreateDirectoryW(stringToUtf16(path).data(), nullptr);
 }
 
 FindFileHandle findFirstFile(const String& path, const String& filenameMask, FoundFileInfo& fileInfo)
 {
+	Utf16CodeUnitArray wpath;
+	Utf16CodeUnitArray wfilenameMask;
+
+	stringToUtf16(path, wpath);
+	stringToUtf16(filenameMask, wfilenameMask);
+
 	FindFileHandle hFind = 0;
-	WIN32_FIND_DATA findData;
+	WIN32_FIND_DATAW findData;
 	String filename;
 
 	filename = mergePathName(path, filenameMask);
-	hFind = FindFirstFile(filename.c_str(), &findData);
+
+	Utf16CodeUnitArray wfilename;
+
+	stringToUtf16(filename, wfilename);
+
+	hFind = FindFirstFileW(wfilename.data(), &findData);
 
 	if (INVALID_HANDLE_VALUE == hFind)
 		return nullptr;
@@ -334,15 +351,15 @@ FindFileHandle findFirstFile(const String& path, const String& filenameMask, Fou
 	fileInfo.lastAccessTime = winFileTimeToEngineTime(findData.ftLastAccessTime);
 	fileInfo.lastWriteTime = winFileTimeToEngineTime(findData.ftLastWriteTime);
 	fileInfo.fileSize = ((u64)findData.nFileSizeHigh * ((u64)MAXDWORD + 1)) + (u64)findData.nFileSizeLow;
-	fileInfo.filename = findData.cFileName;
+	fileInfo.filename = stringFromUtf16(findData.cFileName);
 
 	return hFind;
 }
 
 bool findNextFile(FindFileHandle findHandle, FoundFileInfo& fileInfo)
 {
-	WIN32_FIND_DATA findData;
-	i32 result = FindNextFile(findHandle, &findData);
+	WIN32_FIND_DATAW findData;
+	i32 result = FindNextFileW(findHandle, &findData);
 
 	if (result)
 	{
@@ -356,7 +373,7 @@ bool findNextFile(FindFileHandle findHandle, FoundFileInfo& fileInfo)
 		fileInfo.lastAccessTime = winFileTimeToEngineTime(findData.ftLastAccessTime);
 		fileInfo.lastWriteTime = winFileTimeToEngineTime(findData.ftLastWriteTime);
 		fileInfo.fileSize = ((u64)findData.nFileSizeHigh * ((u64)MAXDWORD + 1)) + (u64)findData.nFileSizeLow;
-		fileInfo.filename = findData.cFileName;
+		fileInfo.filename = stringFromUtf16(findData.cFileName);
 
 		return true;
 	}
@@ -368,46 +385,45 @@ bool findNextFile(FindFileHandle findHandle, FoundFileInfo& fileInfo)
 
 String getCurrentWorkingPath()
 {
-	char path[MAX_PATH] = { 0 };
+	WCHAR path[MAX_PATH] = { 0 };
 
-	GetCurrentDirectory(MAX_PATH, path);
+	GetCurrentDirectoryW(MAX_PATH, path);
 
-	return path;
+	return stringFromUtf16(path);
 }
 
 void setCurrentWorkingPath(const String& path)
 {
-	if (SetCurrentDirectory(path.c_str()))
+	if (SetCurrentDirectoryW(stringToUtf16(path).data()))
 	{
-		B_LOG_ERROR((String("Cannot set current path to ") << path).c_str());
+		B_LOG_ERROR("Cannot set current path to " << path);
 	}
 }
 
 String getApplicationPath()
 {
-	//TODO: utf8-WCHAR
-	char szAppPath[MAX_PATH] = "";
-	char szAppDirectory[MAX_PATH] = "";
+	WCHAR szAppPath[MAX_PATH] = L"";
+	WCHAR szAppDirectory[MAX_PATH] = L"";
 
-	::GetModuleFileName(0, szAppPath, sizeof(szAppPath) - 1);
-	strncpy_s(szAppDirectory, MAX_PATH, szAppPath, strrchr(szAppPath, '\\') - szAppPath);
-	szAppDirectory[strlen(szAppDirectory)] = '\0';
+	::GetModuleFileNameW(0, szAppPath, sizeof(szAppPath) - 1);
+	wcsncpy_s(szAppDirectory, MAX_PATH, szAppPath, wcsrchr(szAppPath, '\\') - szAppPath);
+	szAppDirectory[wcslen(szAppDirectory)] = '\0';
 
-	return szAppDirectory;
+	return stringFromUtf16(szAppDirectory);
 }
 
 String getApplicationFilename()
 {
-	char appPath[MAX_PATH] = { 0 };
+	WCHAR appPath[MAX_PATH] = { 0 };
 
-	::GetModuleFileName(0, appPath, sizeof(appPath) - 1);
+	::GetModuleFileNameW(0, appPath, sizeof(appPath) - 1);
 
-	return appPath;
+	return stringFromUtf16(appPath);
 }
 
 LibraryHandle loadDynamicLibrary(const String& filename)
 {
-	return (LibraryHandle) LoadLibrary(filename.c_str());
+	return (LibraryHandle) LoadLibraryW(stringToUtf16(filename).data());
 }
 
 bool freeDynamicLibrary(LibraryHandle libHandle)

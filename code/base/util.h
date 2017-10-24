@@ -14,15 +14,11 @@
 
 namespace base
 {
-typedef char Utf8Char;
-typedef const char* Utf8String;
-typedef char* Utf8StringBuffer;
-typedef wchar_t Utf16Char;
-typedef const wchar_t* Utf16String;
-typedef wchar_t* Utf16StringBuffer;
-typedef u32 Utf32Char;
-typedef const u32* Utf32String;
-typedef u32* Utf32StringBuffer;
+typedef Utf8Byte* Utf8StringBuffer;
+typedef wchar_t Utf16CodeUnit;
+typedef Utf16CodeUnit* Utf16StringBuffer;
+typedef Utf32Codepoint* Utf32StringBuffer;
+typedef Array<Utf16CodeUnit> Utf16CodeUnitArray;
 
 enum class MemoryUnit
 {
@@ -48,7 +44,7 @@ B_EXPORT bool wildcardCompare(const String& wildcard, const String& text, bool c
 B_EXPORT f32 convertBytesTo(MemoryUnit unit, size_t byteCount);
 B_EXPORT String convertBytesToText(size_t byteCount);
 
-B_EXPORT String charToString(char value);
+B_EXPORT String charToString(Utf32Codepoint value);
 B_EXPORT String toHexString(int n, bool lowercase = true);
 B_EXPORT String toString(bool value);
 B_EXPORT String toString(i8 value, int decimals = 0);
@@ -88,8 +84,8 @@ B_EXPORT Color toColor(const String& str);
 B_EXPORT Matrix toMatrix(const String& str);
 //! convert a string to Box, must be formatted as min/max corners, 6 f32 values separated by ";"
 B_EXPORT BBox toBBox(const String& str);
-//TODO: maybe add position also, if image is too small, rename to Rect not image
-B_EXPORT bool fitImageSizeToView(
+
+B_EXPORT bool fitRectToView(
 	f32 imageWidth, f32 imageHeight,
 	f32 viewWidth, f32 viewHeight,
 	f32& newImageWidth, f32& newImageHeight,
@@ -112,16 +108,16 @@ B_EXPORT u128 generateUuid();
 B_EXPORT u64 hashString(const String& str);
 
 //! convert from UTF8 to UTF16
-B_EXPORT bool utf8ToUtf16NoAlloc(Utf8String text, wchar_t* outText, size_t maxOutTextByteSize);
-B_EXPORT bool utf8ToUtf32NoAlloc(Utf8String text, Utf32StringBuffer outText, size_t maxOutTextByteSize);
-B_EXPORT bool stringToUtf16(const String& text, Array<Utf16Char> outChars);
+B_EXPORT void utf8ToUtf16NoAlloc(const Utf8StringBuffer text, Utf16StringBuffer outText, size_t maxOutTextByteSize);
+B_EXPORT void utf8ToUtf32NoAlloc(const Utf8StringBuffer text, Utf32StringBuffer outText, size_t maxOutTextByteSize);
+B_EXPORT void stringToUtf16(const String& text, Utf16CodeUnitArray& outText);
+B_EXPORT Utf16CodeUnitArray stringToUtf16(const String& text);
 
-B_EXPORT bool utf16ToUtf8NoAlloc(const wchar_t* text, Utf8StringBuffer outText, size_t maxOutTextByteSize);
-B_EXPORT bool utf16ToUtf32NoAlloc(const wchar_t* text, Utf32StringBuffer outText, size_t maxOutTextByteSize);
-B_EXPORT String stringFromUtf16(Utf16StringBuffer text);
+B_EXPORT void utf16ToUtf8NoAlloc(const Utf16StringBuffer text, Utf8StringBuffer outText, size_t maxOutTextByteSize);
+B_EXPORT String stringFromUtf16(const Utf16StringBuffer text);
 
-B_EXPORT bool utf32ToUtf8NoAlloc(Utf32String text, Utf8String* outText, size_t maxOutTextByteSize);
-B_EXPORT bool utf32ToUtf16NoAlloc(Utf32String text, wchar_t* outText, size_t maxOutTextByteSize);
+B_EXPORT void utf32ToUtf8NoAlloc(const Utf32StringBuffer text, const Utf32StringBuffer textEnd, Utf8StringBuffer outText, size_t maxOutTextByteSize);
+B_EXPORT String stringFromUtf32(const Utf32StringBuffer text, const Utf32StringBuffer textEnd);
 
 class B_API JenkinsLookup3Hash64
 {

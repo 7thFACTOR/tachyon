@@ -99,7 +99,7 @@ void HtmlLogger::write(u32 channelIndex, LogItemType type, const String& module,
 		all << "<tr>"
 			<< lineNumber << dateTime << typeName << threadId
 			<< "<td class='" << msgColor << "'>" << msg << "</td>" << moduleStr << "</tr>\n";
-		fprintf((FILE*)fileHandle, "%s", all.c_str());
+		fwrite(all.c_str(), all.getByteSize(), 1, (FILE*)fileHandle);
 		fflush((FILE*)fileHandle);
 	}
 
@@ -112,15 +112,13 @@ void HtmlLogger::write(u32 channelIndex, LogItemType type, const String& module,
 bool HtmlLogger::open(const String& filename, bool append)
 {
 	close();
-	String openMode = append ? "a+" : "wt";
+	String openMode = append ? "a+" : "w";
 
-	fileHandle = utf8fopen(filename.c_str(), openMode.c_str());
+	fileHandle = utf8fopen(filename, openMode);
 
 	if (fileHandle)
 	{
-		fprintf(
-			(FILE*)fileHandle,
-			"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">"
+		String txt = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">"
 			"<html>"
 			"<head>"
 			"<title>Engine Log</title>"
@@ -204,7 +202,9 @@ bool HtmlLogger::open(const String& filename, bool append)
 			"</head>"
 			"<body>"
 			"<div style='font-size: 25px; font-family: arial narrow'>Engine Log</div>"
-			"<table cellspacing=1 cellpadding=2>");
+			"<table cellspacing=1 cellpadding=2>";
+
+		fwrite(txt.c_str(), txt.getByteSize(), 1, (FILE*)fileHandle);
 
 		String cols;
 
@@ -235,7 +235,7 @@ bool HtmlLogger::open(const String& filename, bool append)
 			cols += "<th>Module</th>";
 		}
 
-		fprintf((FILE*)fileHandle, cols.c_str());
+		fwrite(cols.c_str(), cols.getByteSize(), 1, (FILE*)fileHandle);
 	}
 
 	return (fileHandle != nullptr);
@@ -245,7 +245,8 @@ bool HtmlLogger::close()
 {
 	if (fileHandle)
 	{
-		fprintf((FILE*)fileHandle, "</table></body></html>");
+		String txt = "</table></body></html>";
+		fwrite(txt.c_str(), txt.getByteSize(), 1, (FILE*)fileHandle);
 		fclose((FILE*)fileHandle);
 	}
 

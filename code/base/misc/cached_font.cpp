@@ -74,6 +74,7 @@ void CachedFont::load(const String& fontFilename, u32 facePointSize, u32 atlasSi
 	faceSize = facePointSize;
 	ftFaceRef = new FT_Face();
 
+	//TODO: is Freetype supporting utf8 ?
 	// load the font from the file
 	if (FT_New_Face(s_freeTypeLib, fontFilename.c_str(), 0, (FT_Face*)&ftFaceRef))
 	{
@@ -171,7 +172,7 @@ void CachedFont::precacheLatinAlphabetGlyphs()
 
 	for (auto code : latinAlphabet)
 	{
-		cacheGlyph((u8)code);
+		cacheGlyph(code);
 	}
 
 	cacheGlyph(0x2122);
@@ -302,6 +303,13 @@ FontTextSize CachedFont::computeTextSize(const String& text)
 	fsize.height = maxY - minY;
 
 	return fsize;
+}
+
+FontTextSize CachedFont::computeTextSize(const Utf32StringBuffer text, u32 size)
+{
+	String str = stringFromUtf32(text, text + size);
+
+	return computeTextSize(str);
 }
 
 FontTextSize CachedFont::computeTextSizeForAllGlyphs()

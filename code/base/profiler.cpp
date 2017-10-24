@@ -7,7 +7,7 @@
 
 namespace base
 {
-const u32 maxGraphTimingsBufferSize = 500;
+const u32 maxGraphTimingsBufferSize = 512;
 
 Profiler::Profiler()
 {

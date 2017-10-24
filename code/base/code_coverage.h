@@ -9,7 +9,7 @@ namespace base
 {
 struct CodeCoverageMarker
 {
-	CodeCoverageMarker(const String& markerName = B_TEXT(""))
+	CodeCoverageMarker(const String& markerName = "")
 		: name(markerName)
 		, hitCount(0)
 		, tracked(false)
@@ -28,15 +28,15 @@ public:
 		, mustHitMarkerCount(0)
 		, mustHitMarkersFile(nullptr)
 		, hitMarkersFile(nullptr)
-		, hitMarkersFilename(B_TEXT("cc_results.txt"))
+		, hitMarkersFilename("cc_results.txt")
 		, saveAllCodeMarkers(false)
 	{}
 
 	~CodeCoverage();
 
 	bool beginRecording(
-		const String& mustHitMarkersFilename = B_TEXT("cc_markers.txt"),
-		const String& hitMarkersFilename = B_TEXT("cc_results.txt"),
+		const String& mustHitMarkersFilename = "cc_markers.txt",
+		const String& hitMarkersFilename = "cc_results.txt",
 		bool saveAllMarkers = false);
 	void saveResultsFile();
 	f32 getCompletionProgress();

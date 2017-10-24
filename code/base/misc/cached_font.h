@@ -4,6 +4,7 @@
 #include "base/array.h"
 #include "base/dictionary.h"
 #include "base/misc/image_atlas.h"
+#include "base/util.h"
 
 namespace base
 {
@@ -63,7 +64,7 @@ public:
 	void precacheLatinAlphabetGlyphs();
 	ImageAtlasItem* getGlyphImage(u32 glyphCode);
 	FontTextSize computeTextSize(const String& text);
-	FontTextSize computeTextSize(const u32* text, u32 size);
+	FontTextSize computeTextSize(const Utf32StringBuffer text, u32 size);
 	const FontTextSize& getTextSizeForAllGlyphs() const { return allGlyphsSize; }
 	ImageAtlas& getAtlas() { return atlas; }
 

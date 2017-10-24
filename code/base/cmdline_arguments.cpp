@@ -1,12 +1,13 @@
 // Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/cmdline_arguments.h"
 #include "base/logger.h"
+#include "3rdparty/utf8/source/utf8.h"
 
 namespace base
 {
 #define ARGS_PARSER_ALLOW_SLASH_ARGS
 
-CommandLineArguments::CommandLineArguments(int argc, String::CharType** argv)
+CommandLineArguments::CommandLineArguments(int argc, Utf8Byte** argv)
 {
 	parse(argc, argv);
 }
@@ -21,30 +22,35 @@ CommandLineArguments::CommandLineArguments()
 
 void CommandLineArguments::parse(const String& cmdLine, bool hasExeFileName)
 {
-	const i32 maxArgsAllowed = 1024;
-	String::CharType* argsArray[maxArgsAllowed];
-	String::CharType** args = 0;
-	String::CharType* crtPos = cmdLine.begin();
+	const u32 maxArgsAllowed = 1024;
+	Utf8Byte* argsArray[maxArgsAllowed];
+	Utf8Byte** args = 0;
+	Utf32Codepoint crtChar = cmdLine.front();
 	bool inStr = false;
 	bool gotArg = false;
 	i32 numArgs = 0;
-		
-	while (*crtPos)
+	u32 chrPos = 0;
+
+	while (crtChar)
 	{
-		if (*crtPos <= B_TEXT(' '))
+		if (crtChar <= ' ')
 		{
-			++crtPos;
+			++chrPos;
 			gotArg = false;
+			crtChar = cmdLine[chrPos];
 			continue;
 		}
 			
 		if (!gotArg)
 		{
 			gotArg = true;
-			argsArray[numArgs++] = crtPos;
+
+			utf8::append(crtChar, argsArray[numArgs]);
+			numArgs++;
 		}
 
-		++crtPos;
+		++chrPos;
+		crtChar = cmdLine[chrPos];
 	}
 
 	if (hasExeFileName)
@@ -60,7 +66,7 @@ void CommandLineArguments::parse(const String& cmdLine, bool hasExeFileName)
 	parse(numArgs, args);
 }
 
-void CommandLineArguments::parse(int argc, String::CharType** argv)
+void CommandLineArguments::parse(int argc, Utf8Byte** argv)
 {
 	String str, strName, strValue;
 
@@ -74,11 +80,11 @@ void CommandLineArguments::parse(int argc, String::CharType** argv)
 		if (str.length() > 1)
 		{
 #ifdef ARGS_PARSER_ALLOW_SLASH_ARGS
-	#define ARGS_PARSER_CHECK_SLASH str[0] == B_TEXT('/')||
+	#define ARGS_PARSER_CHECK_SLASH str[0] == '/'||
 #else
 	#define ARGS_PARSER_CHECK_SLASH
 #endif
-			if (ARGS_PARSER_CHECK_SLASH str[0] == B_TEXT('-'))
+			if (ARGS_PARSER_CHECK_SLASH str[0] == '-')
 			{
 				i32 pos = str.findChar('=');
 				i32 offset = (str[1] == '-') ? 2 : 0;
@@ -95,13 +101,13 @@ void CommandLineArguments::parse(int argc, String::CharType** argv)
 				else
 				{
 					strName = str.subString(offset, str.length() - offset);
-					strValue = B_TEXT("switch");
+					strValue = "switch";
 					arguments.append(KeyValuePair<String, String>(strName, strValue));
 				}
 			}
 			else
 			{
-				arguments.append(KeyValuePair<String, String>(B_TEXT("*"), str));
+				arguments.append(KeyValuePair<String, String>("*", str));
 			}
 		}
 	}
@@ -115,7 +121,7 @@ String CommandLineArguments::getFreeText(u32 freeTextIndex) const
 
 	while (iter != arguments.end())
 	{
-		if (iter->key == B_TEXT("*"))
+		if (iter->key == "*")
 		{
 			if (n == freeTextIndex)
 				return iter->value;
@@ -125,7 +131,7 @@ String CommandLineArguments::getFreeText(u32 freeTextIndex) const
 		++iter;
 	}
 
-	return B_TEXT("");
+	return "";
 }
 
 String CommandLineArguments::getArgValue(const String& name, const String& defaultValue) const
@@ -152,8 +158,8 @@ bool CommandLineArguments::hasSwitch(const String& name, bool enabled) const
 	while (iter != arguments.end())
 	{
 		if (iter->key == name 
-			&& iter->value == B_TEXT("switch")
-			|| iter->value == B_TEXT(""))
+			&& iter->value == "switch"
+			|| iter->value == "")
 		{
 			return true;
 		}
@@ -187,13 +193,12 @@ bool CommandLineArguments::hasArgs() const
 }
 
 void CommandLineArguments::debug() const
-
 {
 	auto iter = arguments.begin();
 
 	while (iter != arguments.end())
 	{
-		B_LOG_INFO(B_TEXT("'") << iter->key << "' is '" << iter->value << "'\n");
+		B_LOG_INFO("'" << iter->key << "' is '" << iter->value << "'\n");
 		++iter;
 	}
 }

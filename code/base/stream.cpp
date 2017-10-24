@@ -23,24 +23,23 @@ Stream::~Stream()
 
 bool Stream::readString(String& str)
 {
-	u32 len = 0;
+	u32 byteSize = 0;
 
-	readUint32(len);
-	str.resize(len);
+	readUint32(byteSize);
+	str.resizeBytes(byteSize + 1);
 
-	if (!len)
+	if (!byteSize)
 	{
 		return true;
 	}
 
-	return read((void*)str.c_str(), len);
+	bool ok = read((void*)str.c_str(), byteSize);
+
+	str.computeLength();
 }
 
 bool Stream::readLine(String& line)
 {
-	char chr;
-	i32 i = 0;
-
 	line = "";
 
 	if (isEndOfStream())
@@ -48,17 +47,30 @@ bool Stream::readLine(String& line)
 		return false;
 	}
 
+	char chr;
+	u32 i = 0;
+	const u32 maxLineSize = 1024;
+	char buffer[maxLineSize] = { 0 };
+
 	do
 	{
 		read(&chr, 1);
 
 		if (chr)
 		{
-			line += chr;
-		}
+			buffer[i] = chr;
+		};
 
 		++i;
-	} while (chr && chr != '\r' && chr != '\n' && chr != 0xFF && (!isEndOfStream()));
+
+	} while (chr
+		&& chr != '\r'
+		&& chr != '\n'
+		&& chr != 0xFF
+		&& (!isEndOfStream())
+		&& i < maxLineSize);
+
+	line = buffer;
 
 	return true;
 }
@@ -153,8 +165,8 @@ void Stream::skip(u64 byteCount)
 
 bool Stream::writeString(const String& str)
 {
-	writeUint32(str.length());
-	write((void*)str.c_str(), str.length());
+	writeUint32(str.getByteSize() - 1); // we do not write the \0
+	write((void*)str.c_str(), str.getByteSize() - 1);
 
 	return true;
 }
@@ -318,7 +330,7 @@ bool Stream::writeQuat(const Quat& value)
 
 bool Stream::writeMatrix(const Matrix& value)
 {
-	return write((void*)value.m, sizeof(f32) * 16);
+	return write((void*)value.m, sizeof(Matrix));
 }
 
 bool Stream::writeBox(const BBox& value)

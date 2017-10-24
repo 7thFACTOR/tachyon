@@ -15,8 +15,8 @@ class WatchFolderThread : public Thread
 public:
 	void onRun() override
 	{
-		hDir = CreateFile(
-			pathToWatch.c_str(),
+		hDir = CreateFileW(
+			stringToUtf16(pathToWatch).data(),
 			FILE_LIST_DIRECTORY,
 			FILE_SHARE_WRITE | FILE_SHARE_READ | FILE_SHARE_DELETE,
 			NULL,
@@ -29,8 +29,8 @@ public:
 			return;
 		}
 
-		char dataBuffer[1024] = { 0 };
-		char* buffer = dataBuffer;
+		u8 dataBuffer[1024] = { 0 };
+		u8* buffer = dataBuffer;
 		DWORD BytesReturned = 0;
 
 		while (ReadDirectoryChangesW(

@@ -394,8 +394,7 @@ String beautifyPath(const String& path, bool addSlashIfNone)
 			if (str[str.length() - 1] == '/'
 				|| str[str.length() - 1] == '\\')
 			{
-				str[str.length() - 1] = 0;
-				String str2 = str;
+				String str2 = str.subString(0, str.length() - 1);
 				str = str2;
 			}
 		}

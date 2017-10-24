@@ -54,7 +54,7 @@ String pasteTextFromClipboard()
 bool fileExists(const String& filename)
 {
 	struct stat  buffer;
-	return (stat (filename.c_str(), &buffer) == 0);
+	return (stat(filename.c_str(), &buffer) == 0);
 }
 
 bool isPathValid(const String& path)
@@ -115,7 +115,7 @@ bool getFileDateTime(const String& filename, DateTime* creationTime, DateTime* l
 
 	stat(filename.c_str(), &st);
 
-	auto putTime = [](DateTime* time, time_t& stime)
+	auto getTimeFor = [](DateTime* time, time_t& stime)
 	{
 		if (time)
 		{
@@ -129,9 +129,9 @@ bool getFileDateTime(const String& filename, DateTime* creationTime, DateTime* l
 		}
 	};
 
-	putTime(creationTime, st.st_ctime);
-	putTime(lastAccess, st.st_atime);
-	putTime(lastWrite, st.st_mtime);
+	getTimeFor(creationTime, st.st_ctime);
+	getTimeFor(lastAccess, st.st_atime);
+	getTimeFor(lastWrite, st.st_mtime);
 
 	return true;
 }

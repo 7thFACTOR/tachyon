@@ -1,7 +1,6 @@
 // Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include <string.h>
 #include <stdio.h>
-#include <wchar.h>
 #include <assert.h>
 #include "base/file.h"
 #include "base/util.h"
@@ -109,7 +108,7 @@ bool File::open(const String& openFilename, FileOpenFlags openFlags)
 	if (!!(openFlags & FileOpenFlags::Text))
 		mode += "t";
 
-	fileHandle = utf8fopen(filename.c_str(), mode.c_str());
+	fileHandle = utf8fopen(filename, mode);
 
 	if (!!(openFlags & FileOpenFlags::Read))
 	{

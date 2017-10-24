@@ -21,7 +21,7 @@ bool assertMessage(
 
 	if (MessageBoxResult::Yes == 
 		showMessageBox(MessageBoxFlags::YesNo | MessageBoxFlags::Error,
-		String(B_TEXT("Assertion failed in file: '")) << filename << "'\n\nFunction: '" << function << "'\nCode line: "<< line << "\n\nUnsatisfied condition: " << expression << "\n\n" << (message.length() ? str : B_TEXT("")) << "Click 'Yes' to debug the code, or 'No' to continue."))
+		String("Assertion failed in file: '") << filename << "'\n\nFunction: '" << function << "'\nCode line: "<< line << "\n\nUnsatisfied condition: " << expression << "\n\n" << (message.length() ? str : "") << "Click 'Yes' to debug the code, or 'No' to continue."))
 	{
 		return true;
 	}

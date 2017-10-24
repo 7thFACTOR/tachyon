@@ -214,11 +214,11 @@ public:
 #endif
 
 protected:
-	char* parseObject(char* pStr, JsonObject* pParent);
-	char* parseValue(char* pStr, JsonValue* pValue);
-	char* parseArray(char* pStr, JsonArray* pArray);
-	void setError(char* pStr, u32 cppLine, const String& expectingChar);
-	void setError(char* pStr, u32 cppLine, const char expectingChar);
+	Utf8Byte* parseObject(Utf8Byte* str, Utf8Byte* end, JsonObject* parent);
+	Utf8Byte* parseValue(Utf8Byte* str, Utf8Byte* end, JsonValue* value);
+	Utf8Byte* parseArray(Utf8Byte* str, Utf8Byte* end, JsonArray* arr);
+	void setError(Utf8Byte* str, Utf8Byte* end, u32 cppLine, const String& expectingChar);
+	void setError(Utf8Byte* str, Utf8Byte* end, u32 cppLine, const Utf32Codepoint expectingChar);
 	
 	String json;
 	JsonObject root;
@@ -227,11 +227,12 @@ protected:
 	bool gotErrors = false;
 	JsonObject* currentWriteObject = nullptr;
 	JsonArray* currentWriteArray = nullptr;
-	JsonValue m_currentWriteValue;
+	JsonValue currentWriteValue;
 	Array<void*> writeStack;
 	Array<JsonValueType> writeTypeStack;
 	Array<String> writeKeyStack;
 	JsonValueType currentWriteValueType = JsonValueType::Null;
 	String errorText;
 };
+
 }

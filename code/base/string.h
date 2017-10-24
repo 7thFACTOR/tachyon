@@ -38,7 +38,7 @@ public:
 
 	String()
 		: longStr(nullptr)
-		, bufferSize(0)
+		, longStrSize(0)
 		, stringLength(0)
 	{
 		shortStr[0] = 0;
@@ -46,7 +46,7 @@ public:
 
 	String(const Utf8Byte* str)
 		: longStr(nullptr)
-		, bufferSize(0)
+		, longStrSize(0)
 		, stringLength(0)
 	{
 		shortStr[0] = 0;
@@ -55,7 +55,7 @@ public:
 	
 	String(const String& str)
 		: longStr(nullptr)
-		, bufferSize(0)
+		, longStrSize(0)
 		, stringLength(0)
 	{
 		shortStr[0] = 0;
@@ -66,14 +66,14 @@ public:
 
 	String(size_t maxLength)
 		: longStr(nullptr)
-		, bufferSize(0)
+		, longStrSize(0)
 		, stringLength(0)
 	{
 		shortStr[0] = 0;
 		reserve(maxLength);
 	}
 
-	String(Utf8Byte* str, size_t strByteSize);
+	String(const Utf8Byte* str, size_t strLength);
 
 	~String()
 	{
@@ -86,40 +86,41 @@ public:
 	inline bool isEmpty() const { return stringLength == 0; }
 	inline bool notEmpty() const { return stringLength != 0; }
 	inline const Utf8Byte* c_str() const { return longStr != nullptr ? longStr : shortStr; }
-	void set(const Utf8Byte* str, size_t byteCount);
 	void clear();
 	void repeat(const String& str, size_t count);
 	void reserve(size_t maxLength);
+	void reserveBytes(size_t maxByteSize);
+	void resizeBytes(size_t maxByteSize);
 	String& assign(const String& other);
 	String& assign(const Utf8Byte* other);
 	String& append(const String& other);
 	String& append(const Utf8Byte* other);
-	String& append(const Utf8Byte* other, size_t count);
 	String& appendRange(const String& other, size_t count);
+	String& appendBytes(const Utf8Byte* other, size_t byteCount);
 	String subString(size_t startIndex, size_t count) const;
 	size_t find(const String& substr, size_t startIndex = 0) const;
 	size_t findChar(Utf32Codepoint chr, size_t startIndex = 0) const;
 	void replace(const String& what, const String& with, size_t offset = 0, bool bAll = true);
 	void replace(size_t offset, size_t count, const String& with);
 	String& erase(size_t start, size_t count);
-	void erase(Iterator iter);
-	void erase(Iterator first, Iterator last);
-	u32& front() const;
-	u32& back() const;
+	Utf32Codepoint front() const;
+	Utf32Codepoint back() const;
 	Iterator begin() const;
 	Iterator end() const;
-	void insert(size_t index, u32 chr);
+	void insert(size_t index, Utf32Codepoint chr);
 	void insert(size_t index, const String& str);
-	size_t parseUntil(size_t startIndex, const Utf8Byte* stopChars, String& outParsedString);
+	size_t parseUntil(size_t startIndex, const String& stopCodepoints, String& outParsedString);
 
 	void operator = (const String& str);
 	void operator = (const Utf8Byte* str);
 	String& operator += (const String& other);
 	String& operator += (const Utf8Byte* other);
-	String& operator += (Utf32Codepoint chr);
+	String& operator += (char chr);
+	String& operator += (Utf32Codepoint codepoint);
 	friend B_API String operator + (const String& str1, const String& str2);
 	friend B_API String operator + (const String& str1, const Utf8Byte* str2);
-	friend B_API String operator + (const String& str1, const Utf32Codepoint chr);
+	friend B_API String operator + (const String& str1, const char chr);
+	friend B_API String operator + (const String& str1, const Utf32Codepoint codepoint);
 	friend B_API bool operator == (const String& str1, const String& str2);
 	friend B_API bool operator == (const String& str1, const Utf8Byte* str2);
 	friend B_API bool operator == (const Utf8Byte* str1, const String& str2);
@@ -149,17 +150,18 @@ public:
 	
 	static inline FloatDecimals floatDecimals(u32 decimals) { return { decimals }; }
 	static inline IntZeroPadding intDecimals(u32 decimals) { return { decimals }; }
-	Utf8Byte& operator [](size_t index); // we can modify individual utf8 bytes, but not codepoints
 	Utf32Codepoint operator [](size_t index) const;
 
 	int asInt() const;
 	f32 asF32() const;
 	f64 asF64() const;
 	bool asBool() const;
+	void computeLength();
+	inline size_t getByteSize() const { return stringByteSize; }
+	size_t computeByteCount(size_t startIndex, size_t count) const;
 
 protected:
-	void computeLength();
-	size_t computeIndexAtAddress(Utf8Byte* addr);
+	size_t computeIndexAtAddress(Utf8Byte* addr) const;
 	inline Utf8Byte* getCurrentBuffer() const { return (Utf8Byte*)c_str(); }
 
 	static const u32 shortStringMaxLength = 25;
@@ -167,9 +169,9 @@ protected:
 	
 	Utf8Byte* longStr = nullptr;
 	Utf8Byte shortStr[shortStringMaxByteSize]; 
-	size_t stringLength = 0; // string length in code points
-	size_t stringByteSize = 0; // string size in bytes
-	size_t bufferSize = 0; // max capacity in bytes
+	size_t stringLength = 0; //! string length in code points
+	size_t stringByteSize = 0; //! string size in bytes
+	size_t longStrSize = 0; //! max capacity in bytes
 };
 
 }
