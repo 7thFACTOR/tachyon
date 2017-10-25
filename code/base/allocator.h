@@ -73,7 +73,7 @@ inline const char* Allocator::getName() const
 inline void Allocator::setName(const char* newName)
 {
 #if B_ENABLE_ALLOCATOR_NAME
-	strcpy(name, newName);
+	strcpy_s(name, maxNameSize, other.name);
 #endif
 }
 
@@ -107,7 +107,7 @@ inline void* Allocator::allocate(size_t n, size_t alignment, size_t offset, int 
 inline void Allocator::deallocate(void* p, size_t)
 {
 	//TODO: deal with alignment and stored ptr when in DLL (internal alloc/dealloc)
-	delete[](char*)p;
+	delete [](char*)p;
 }
 
 inline bool operator == (const Allocator&, const Allocator&)

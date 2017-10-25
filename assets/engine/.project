@@ -1,47 +1,45 @@
-version: 1
-title: "System Assets"
-description: "Engine specific assets"
-
-assetCompiler
 {
-	defaultBuildConfig: "win64_development"
-	
-	buildConfigs
+	"version": 1,
+	"title": "System Assets",
+	"description": "Engine specific assets",
+	"assetCompiler":
 	{
-		win64_development
+		"defaultBuildConfig": "win64_development",
+		"buildConfigs":
 		{
-			platform: "win64"
-			buildType: "development"
-			outputPath: "../data"
-			deployPath: "../data"
-			processorConfigs
+			"win64_development":
 			{
-				texture
+				"platform": "win64",
+				"buildType": "development",
+				"outputPath": "../data",
+				"deployPath": "../data",
+				"processorConfigs":
 				{
-					format="rgba8"
+					"texture":
+					{
+						"format": "rgba8"
+					}
 				}
+			},
+			"win64_shipping":
+			{
+				"platform": "win64",
+				"buildType": "shipping",
+				"outputPath": "../data",
+				"deployPath": "../data"
 			}
-		}
-		win64_shipping
-		{
-			platform: "win64"
-			buildType: "shipping"
-			outputPath: "../data"
-			deployPath: "../data"
-		}
-	}
-	
-	bundles:
-	{
-		"engine":
-		{
-			"path": ""
 		},
-		"textures":
+		"bundles":
 		{
-			"path": "textures"
-		}
+			"engine":
+			{
+				"path": ""
+			},
+			"textures":
+			{
+				"path": "textures"
+			}
+		},
+		"defaultBundleName": "engine"
 	}
-	
-	defaultBundleName: "engine"
 }

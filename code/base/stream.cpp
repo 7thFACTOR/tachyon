@@ -165,8 +165,8 @@ void Stream::skip(u64 byteCount)
 
 bool Stream::writeString(const String& str)
 {
-	writeUint32(str.getByteSize() - 1); // we do not write the \0
-	write((void*)str.c_str(), str.getByteSize() - 1);
+	writeUint32(str.getByteSize()); // we do not write the \0
+	write((void*)str.c_str(), str.getByteSize());
 
 	return true;
 }

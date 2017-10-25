@@ -48,6 +48,7 @@ public:
 		: longStr(nullptr)
 		, longStrSize(0)
 		, stringLength(0)
+		, stringByteSize(0)
 	{
 		shortStr[0] = 0;
 		assign(str);
@@ -57,6 +58,7 @@ public:
 		: longStr(nullptr)
 		, longStrSize(0)
 		, stringLength(0)
+		, stringByteSize(0)
 	{
 		shortStr[0] = 0;
 		assign(str);
@@ -64,13 +66,13 @@ public:
 
 	String(String&& str);
 
-	String(size_t maxLength)
+	String(Utf32Codepoint cp)
 		: longStr(nullptr)
 		, longStrSize(0)
 		, stringLength(0)
+		, stringByteSize(0)
 	{
-		shortStr[0] = 0;
-		reserve(maxLength);
+		appendCodepoint(cp);
 	}
 
 	String(const Utf8Byte* str, size_t strLength);
@@ -95,6 +97,7 @@ public:
 	String& assign(const Utf8Byte* other);
 	String& append(const String& other);
 	String& append(const Utf8Byte* other);
+	String& appendCodepoint(Utf32Codepoint cp);
 	String& appendRange(const String& other, size_t count);
 	String& appendBytes(const Utf8Byte* other, size_t byteCount);
 	String subString(size_t startIndex, size_t count) const;
@@ -165,12 +168,12 @@ protected:
 	inline Utf8Byte* getCurrentBuffer() const { return (Utf8Byte*)c_str(); }
 
 	static const u32 shortStringMaxLength = 25;
-	static const u32 shortStringMaxByteSize = shortStringMaxLength * 4; //! mul by 4 (max bytes per codepoint)
+	static const u32 shortStringMaxByteSize = shortStringMaxLength * 4 + 1; //! mul by 4 (max bytes per codepoint) plus zero
 	
 	Utf8Byte* longStr = nullptr;
 	Utf8Byte shortStr[shortStringMaxByteSize]; 
 	size_t stringLength = 0; //! string length in code points
-	size_t stringByteSize = 0; //! string size in bytes
+	size_t stringByteSize = 0; //! string size in bytes, ending zero excluded
 	size_t longStrSize = 0; //! max capacity in bytes
 };
 

@@ -22,10 +22,12 @@ Process::Process(const String& filename, const String& args, ProcessFlags flags)
 	sinfo.wShowWindow = !!(flags & ProcessFlags::Hidden) ? SW_HIDE : SW_SHOWNORMAL;
 	sinfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 
+	auto wfilename = stringToUtf16(filename + String(" ") + args);
+
 	//TODO: why cant it work with app name and I have to give it as appname+args ??
 	if (!CreateProcessW(
 		NULL,
-		stringToUtf16(filename + String(" ") + args).data(),
+		wfilename.data(),
 		NULL, NULL, FALSE,
 		0, NULL, NULL,
 		&sinfo, &pinfo))

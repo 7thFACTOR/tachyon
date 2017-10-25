@@ -1,20 +1,21 @@
-version = 1
-source = "shape_renderer.cg"
-vertexMain = "mainTexVS"
-pixelMain = "mainTexPS"
-
-constants
 {
-	mtxWorldViewProjection { type = "worldViewProjection" }
-	mtxWorld { type = "world" }
-	mtxViewInverse { type = "viewInverse" }
-	diffuseSampler { type = "texture" }
-	diffuseColor { type = "color" value = "1,1,1,1" }
-	ambientColor { type = "color" value = "0.1,.1,.1,1" }
-	specularColor { type = "color" value = ".5,.5,.5,1" }
-	roughness { type = "float" value = 0.5 }
-	uvDiffuseRepeat { type = "vec2" value = "1,1" }
-	uvDiffuseOffset { type = "vec2" value = "0,0" }
-	sunDirection { type = "vec3" value = "1,-.5,0" }
-	useLight { type = "int" value = 1 }
+	"version": 1,
+	"source": "shape_renderer.cg",
+	"vertexMain": "mainTexVS",
+	"pixelMain": "mainTexPS",
+	"constants":
+	{
+		"mtxWorldViewProjection": { "type": "worldViewProjection" },
+		"mtxWorld": { "type": "world" },
+		"mtxViewInverse": { "type": "viewInverse" },
+		"diffuseSampler": { "type": "texture" },
+		"diffuseColor": { "type": "color", "value": "1,1,1,1" }
+		"ambientColor": { "type": "color", "value": "0.1,.1,.1,1" }
+		"specularColor": { "type": "color", "value": ".5,.5,.5,1" }
+		"roughness": { "type": "float", "value": 0.5 }
+		"uvDiffuseRepeat": { "type": "vec2", "value": "1,1" }
+		"uvDiffuseOffset": { "type": "vec2", "value": "0,0" }
+		"sunDirection": { "type:": "vec3", "value": "1,-.5,0" }
+		"useLight": { "type": "int", "value": 1 }
+	}
 }

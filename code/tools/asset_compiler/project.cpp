@@ -44,7 +44,7 @@ bool Project::load(const String& projectFilename)
 		B_LOG_ERROR("Project JSON has errors: " << projectJsonDoc.getErrorMessage());
 		return false;
 	}
-	
+
 	title = projectJsonDoc.getString("title");
 	description = projectJsonDoc.getString("description");
 	rootPath = getFilenamePath(projectFilename);

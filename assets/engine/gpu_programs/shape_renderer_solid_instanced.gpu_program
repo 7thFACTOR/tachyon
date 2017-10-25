@@ -1,17 +1,18 @@
-version = 1
-source = "shape_renderer.cg"
-vertexMain = "mainVS_instanced"
-pixelMain = "mainPS"
-
-constants
 {
-	mtxWorldViewProjection { type = "worldViewProjection" }
-	mtxViewProjection { type = "viewProjection" }
-	mtxWorld { type = "world" }
-	diffuseColor { type = "color" value = "1,1,1,1" }
-	ambientColor { type = "color" value = "1,1,1,1" }
-	specularColor { type = "color" value = "1,1,1,1" }
-	shininess { type = "float" value = 1 }
-	sunDirection { type = "vec3" value = "0,1,0" }
-	useLight { type = "int" value = 1 }
+	"version": 1,
+	"source": "shape_renderer.cg",
+	"vertexMain": "mainVS_instanced",
+	"pixelMain": "mainPS",
+	"constants":
+	{
+		"mtxWorldViewProjection": { "type": "worldViewProjection" },
+		"mtxViewProjection": { "type": "viewProjection" },
+		"mtxWorld": { "type": "world" },
+		"diffuseColor": { "type": "color", "value": "1,1,1,1" },
+		"ambientColor": { "type": "color", "value": "1,1,1,1" },
+		"specularColor": { "type": "color", "value": "1,1,1,1" },
+		"shininess": { "type": "float", "value": 1.0 },
+		"sunDirection": { "type": "vec3", "value": "0,1,0" },
+		"useLight": { "type": "int", "value": 1 }
+	}
 }

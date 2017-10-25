@@ -30,11 +30,17 @@ void toLowerCase(String& str)
 
 	if (strPtr)
 	{
-		Utf32Codepoint c = utf8::next(strPtr, str.end());
+		Utf32Codepoint c = utf8::peek_next(strPtr, str.end());
 		
 		while (c)
 		{
 			lower += (Utf32Codepoint)tolower(c);
+			utf8::next(strPtr, str.end());
+			
+			if (strPtr == str.end())
+				break;
+
+			c = utf8::peek_next(strPtr, str.end());
 		}
 	}
 
@@ -44,16 +50,21 @@ void toLowerCase(String& str)
 void toUpperCase(String& str)
 {
 	String upper;
-
 	Utf8Byte* strPtr = (Utf8Byte*)str.c_str();
 
 	if (strPtr)
 	{
-		Utf32Codepoint c = utf8::next(strPtr, str.end());
+		Utf32Codepoint c = utf8::peek_next(strPtr, str.end());
 
 		while (c)
 		{
-			upper += (Utf32Codepoint)tolower(c);
+			upper += (Utf32Codepoint)toupper(c);
+			utf8::next(strPtr, str.end());
+
+			if (strPtr == str.end())
+				break;
+
+			c = utf8::peek_next(strPtr, str.end());
 		}
 	}
 
@@ -212,8 +223,8 @@ bool wildcardCompare(const String& wildcard, const String& text, bool caseSensit
 
 	#define B_WILDCARD_COMPARE_CHAR(chr) (caseSensitive ? chr : tolower(chr))
 
-	auto chrText = utf8::next(textPtr, text.end());
-	auto chrWildcard = utf8::next(wildcardPtr, wildcard.end());
+	auto chrText = utf8::peek_next(textPtr, text.end());
+	auto chrWildcard = utf8::peek_next(wildcardPtr, wildcard.end());
 
 	while (chrText && (chrWildcard != '*'))
 	{
@@ -223,43 +234,82 @@ bool wildcardCompare(const String& wildcard, const String& text, bool caseSensit
 			return false;
 		}
 
-		chrText = utf8::next(textPtr, text.end());
-		chrWildcard = utf8::next(wildcardPtr, wildcard.end());
+		utf8::next(textPtr, text.end());
+		utf8::next(wildcardPtr, wildcard.end());
+
+		if (textPtr == text.end())
+			break;
+
+		if (wildcardPtr == wildcard.end())
+			break;
+
+		chrText = utf8::peek_next(textPtr, text.end());
+		chrWildcard = utf8::peek_next(wildcardPtr, wildcard.end());
 	}
 
 	while (chrText)
 	{
 		if (chrWildcard == '*')
 		{
-			chrWildcard = utf8::next(wildcardPtr, wildcard.end());
+			utf8::next(wildcardPtr, wildcard.end());
 
-			if (!chrWildcard)
+			if (wildcardPtr == wildcard.end())
+			{
+				return true;
+			}
+
+			chrWildcard = utf8::peek_next(wildcardPtr, wildcard.end());
+
+			if (!chrWildcard || wildcardPtr == wildcard.end())
 			{
 				return true;
 			}
 
 			mp = wildcardPtr;
-			cp = textPtr + 1;
+			cp = textPtr;
+			utf8::next(cp, text.end());
 		}
 		else if ((B_WILDCARD_COMPARE_CHAR(chrWildcard)
 				== B_WILDCARD_COMPARE_CHAR(chrText))
 				|| (chrWildcard == '?'))
 		{
-			chrText = utf8::next(textPtr, text.end());
-			chrWildcard = utf8::next(wildcardPtr, wildcard.end());
+			utf8::next(textPtr, text.end());
+			utf8::next(wildcardPtr, wildcard.end());
+
+			if (textPtr == text.end())
+				break;
+
+			if (wildcardPtr == wildcard.end())
+				break;
+
+			chrText = utf8::peek_next(textPtr, text.end());
+			chrWildcard = utf8::peek_next(wildcardPtr, wildcard.end());
 		}
 		else
 		{
 			wildcardPtr = mp;
-			textPtr = cp++;
-			chrText = utf8::next(textPtr, text.end());
-			chrWildcard = utf8::next(wildcardPtr, wildcard.end());
+			textPtr = cp;
+			utf8::next(cp, text.end());
+
+			if (cp == text.end())
+				break;
+
+			if (wildcardPtr == wildcard.end())
+				break;
+
+			chrText = utf8::peek_next(textPtr, text.end());
+			chrWildcard = utf8::peek_next(wildcardPtr, wildcard.end());
 		}
 	}
 
 	while (chrWildcard == '*')
 	{
-		++wildcardPtr;
+		utf8::next(wildcardPtr, wildcard.end());
+
+		if (wildcardPtr == wildcard.end())
+			break;
+
+		chrWildcard = utf8::peek_next(wildcardPtr, wildcard.end());
 	}
 
 	return (!*wildcardPtr);
@@ -820,9 +870,10 @@ String stringFromUtf16(Utf16StringBuffer text)
 	Array<Utf8Byte> str;
 
 	str.resize(wcslen((wchar_t*)text) * 4 + 1); // enough room, plus \0
-	auto end = utf8::utf16to8(text, text + wcslen((wchar_t*)text) + 1, str.data());
-
-	return String(str.data(), (size_t)(end - str.begin()));
+	auto end = utf8::utf16to8(text, text + wcslen((wchar_t*)text), str.data());
+	auto count = (size_t)(end - str.begin());
+	
+	return String(str.data(), count);
 }
 
 void utf32ToUtf8NoAlloc(const Utf32StringBuffer text, const Utf32StringBuffer textEnd, Utf8StringBuffer outText, size_t maxOutTextByteSize)
