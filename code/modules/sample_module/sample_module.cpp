@@ -317,14 +317,14 @@ public:
 			getApplication().stopped = true;
 		}
 
-		if (getLogic().inputMap.isActionCombo("ultraFire"))
+		if (getLogic().inputMap.isActionCombo("ultrăîțFire话"))
 		{
-			B_LOG_DEBUG("ULTRAFIRE!" << getTimeMilliseconds());
+			B_LOG_INFO("ULTRAFIRE!" << getTimeMilliseconds());
 		}
 		// do not fire yet if a combo was initiated
 		else if (getLogic().inputMap.isAction("fire") && !getLogic().inputMap.isAnyActionComboInitiated())
 		{
-			B_LOG_DEBUG("FIRE!" << getTimeMilliseconds());
+			B_LOG_INFO("FIRE!" << getTimeMilliseconds());
 		}
 
 		Quat q;

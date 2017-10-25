@@ -39,9 +39,9 @@
 
 	"actionCombos":
 	{
-		"ultraFire":
+		"ultrăîțFire话":
 		{
-			"actions": "moveLeft fire fire",
+			"actions": "fire fire",
 			"maxDelay": 500
 		}
 	}

@@ -871,8 +871,7 @@ String stringFromUtf16(Utf16StringBuffer text)
 
 	str.resize(wcslen((wchar_t*)text) * 4 + 1); // enough room, plus \0
 	auto end = utf8::utf16to8(text, text + wcslen((wchar_t*)text), str.data());
-	auto count = (size_t)(end - str.begin());
-	
+	auto count = wcslen((wchar_t*)text);
 	return String(str.data(), count);
 }
 
