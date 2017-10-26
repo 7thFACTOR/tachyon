@@ -1,7 +1,7 @@
 project "launcher"
-	kind "ConsoleApp"
+	kind "WindowedApp"
 	defines {"B_IMPORTS", "E_IMPORTS"}
-	defines {"_CONSOLE"}
+	--defines {"_CONSOLE"}
 	add_sources_from("./")
 	add_res_from("./")
 	link_win32()
@@ -9,9 +9,9 @@ project "launcher"
 	link_engine()
 
 project "launcher_s"
-	kind "ConsoleApp"
+	kind "WindowedApp"
 	defines {"B_STATIC", "E_STATIC"}
-	defines {"_CONSOLE"}
+	--defines {"_CONSOLE"}
 	add_sources_from("./")
 	add_res_from("./")
 	link_win32()

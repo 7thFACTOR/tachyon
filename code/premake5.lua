@@ -52,8 +52,8 @@ scriptRoot = _WORKING_DIR
 filter {}
 debugdir "../bin"
 
--- We supoort utf8
-characterset ("MBCS")
+-- We support Unicode
+characterset ("Unicode")
 
 flags { "NoMinimalRebuild", "MultiProcessorCompile", "NoPCH", "C++11" }
 warnings "Off"

@@ -81,15 +81,15 @@ public:
 	}
 };
 
-#if !defined(_CONSOLE) && defined(_WINDOWS)
+#if !defined(_CONSOLE) && defined(_DWINDOWS)
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 #else
-int main(int argc, char* argv[])
+int _tmain(int argc, char* argv[])
 #endif
 {
 	CommandLineArguments args;
 
-#if defined(_WINDOWS) && !defined(_CONSOLE)
+#if defined(_DWINDOWS) && !defined(_CONSOLE)
 	args.parse(__argc, __argv);
 #else
 	args.parse(argc, argv);
