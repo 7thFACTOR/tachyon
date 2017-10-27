@@ -34,7 +34,9 @@ bool TextureResourceRepository::load(Stream& stream, ResourceId resId)
 	stream >> tex.parameters.mipMapLodBias;
 	stream >> tex.parameters.maxAnisotropy;
 
-	B_LOG_DEBUG("\tTexture has " << mipMapCount
+	B_LOG_DEBUG("\tTexture has "
+		<< "Size: " << tex.width << "x" << tex.height << " "
+		<< mipMapCount
 		<< " mipmaps, type: " << (u32)tex.type
 		<< ", format: " << (u32)tex.format
 		<< ", usage: " << (u32)tex.usage);
@@ -60,8 +62,10 @@ bool TextureResourceRepository::load(Stream& stream, ResourceId resId)
 
 			stream >> tmp;
 			mipMap.bitmapDataImageOffsets.append(tmp);
+			B_LOG_INFO("\t\t\tBitmap offset  " << tmp);
 			stream >> tmp;
 			mipMap.bitmapDataImageSizes.append(tmp);
+			B_LOG_INFO("\t\t\tBitmap size  " << tmp);
 		}
 
 		// allocate mem for all the images in the mipmap

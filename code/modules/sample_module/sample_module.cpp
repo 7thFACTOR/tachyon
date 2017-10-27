@@ -236,9 +236,9 @@ public:
 		setRandomSeed(2);
 
 		if (1)
-			for (int i = 0; i < 5; i++)
+			for (int i = 0; i < 1; i++)
 			{
-				for (int j = 0; j < 5; j++)
+				for (int j = 0; j < 2; j++)
 				{
 					meshes.append(mainWorld.createEntity());
 					auto meshEntity = meshes.back();
@@ -261,7 +261,7 @@ public:
 						randomFloat(-5000.0f, 5000.0f) };
 
 					mesh->meshResourceId = loadResource("meshes/primitives_cube.mesh");
-					meshRend->materials.append(loadResource("meshes/animated_box_01 - Default.material"));
+					meshRend->materials.append(loadResource("materials/default.material"));
 				}
 			}
 

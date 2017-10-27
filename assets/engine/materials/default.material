@@ -26,6 +26,7 @@
 		"roughness": 0.1,
 		"diffuseSampler": "textures/default.psd",
 		"normalSampler": "textures/default_n.png",
-		"specularSampler": "textures/black.png"
+		"specularSampler": "textures/black.png",
+		"skyCubeSampler": "textures/sky/sky.cubemap_texture"
 	}
 }

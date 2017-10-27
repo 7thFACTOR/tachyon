@@ -81,20 +81,24 @@ public:
 
 #if !defined(_CONSOLE) && defined(_WINDOWS)
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
+#elif defined(_CONSOLE) && defined(_WINDOWS)
+int _tmain(int argc, _TCHAR* argv[])
 #else
-int wmain(int argc, wchar_t* argv[], wchar_t *envp[])
+int main(int argc, char* argv[])
 #endif
 {
 	CommandLineArguments args;
 
-#if defined(_WINDOWS) && !defined(_CONSOLE)
-	args.parse(__argc, __argv);
+#if defined(_WINDOWS)
+	args.parse(__argc, __wargv);
 #else
 	args.parse(argc, argv);
 #endif
 	StdioLogger stdioLog;
 
 	getBaseLogger().linkChild(&stdioLog);
+
+	B_LOG_INFO("UTFF " << args.getArgValue("huan"));
 
 	// lets compile any assets that are changed lately
 #ifndef _SHIPPING

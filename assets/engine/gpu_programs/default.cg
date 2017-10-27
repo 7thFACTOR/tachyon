@@ -4,7 +4,7 @@ sampler2D diffuseSampler;
 sampler2D normalSampler;
 sampler2D specularSampler;
 //sampler2D emissiveSampler;
-//samplerCUBE skyCubeSampler;
+samplerCUBE skyCubeSampler;
 float3x3 TBN;
 
 VertexOUT mainVS(VertexIN IN)
@@ -22,7 +22,7 @@ VertexOUT mainVS(VertexIN IN)
 	OUT.color = IN.color;
 	OUT.tangent = normalize(TBN[0]);
 	OUT.binormal = normalize(TBN[1]);
-	OUT.normal = normalize(TBN[2]);
+	OUT.normal = IN.normal;//normalize(TBN[2]);
 	
 	float3 lightDir = float3(1, -1, 0);
 	OUT.light = lightDir;//normalize(mul(float4(normalize(lightDir), 0), mtxWorldInverse));
@@ -47,11 +47,12 @@ float4 mainPS(VertexOUT IN) : COLOR
 	float4 specular = tex2D(specularSampler, IN.uv*uvSpecularRepeat);
 	//float4 emissive = tex2D(emissiveSampler, IN.uv*uvEmissiveRepeat);
 	
-	//float3 refl = reflect(IN.view, bumpNormal);
-	//float4 skyColor = texCUBE(skyCubeSampler, normalize(refl));
+	float3 refl = reflect(IN.view, IN.normal);
+	float4 skyColor = texCUBE(skyCubeSampler, normalize(refl));
 	
-	//float4 newColor = lerp(skyColor, diffuse, specular.r) * diffuseColor;
-	float4 newColor = diffuse * diffuseColor;
+	float4 newColor = skyColor;
+	return skyColor;
+	//float4 newColor = diffuse * diffuseColor;
 	float4 color = ambientColor * newColor + newColor * diffuseFactor + specularColor * specular.r;
 	return float4(color);
 }

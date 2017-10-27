@@ -3,13 +3,29 @@
 #include "base/stdio_logger.h"
 #include "base/logger.h"
 
+#ifdef _WINDOWS
+#include <tchar.h>
+#include <windows.h>
+#endif
+
 using namespace base;
 
-//TODO: make the AC also as a DLL to be used by editor so it can show messages?
-// but probably not
+#if !defined(_CONSOLE) && defined(_WINDOWS)
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
+#elif defined(_CONSOLE) && defined(_WINDOWS)
+int _tmain(int argc, _TCHAR* argv[])
+#else
 int main(int argc, char* argv[])
+#endif
 {
-	CommandLineArguments args(argc, argv);
+	CommandLineArguments args;
+
+#if defined(_WINDOWS)
+	args.parse(__argc, __wargv);
+#else
+	args.parse(argc, argv);
+#endif
+
 	StdioLogger logger;
 	base::getBaseLogger().linkChild(&logger);
 

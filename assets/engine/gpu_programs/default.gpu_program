@@ -32,6 +32,7 @@
 		"diffuseSampler": { "type": "texture" },
 		"normalSampler": { "type": "texture" },
 		"specularSampler": { "type": "texture" },
-		"emissiveSampler": { "type": "texture" }
+		"emissiveSampler": { "type": "texture" },
+		"skyCubeSampler": { "type": "texture" }
 	}
 }

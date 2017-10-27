@@ -71,6 +71,8 @@ TextureProcessor::TextureProcessor()
 	extensions.append(".jpg");
 	extensions.append(".bmp");
 	extensions.append(".psd");
+	extensions.append(".cubemap_texture");
+	extensions.append(".volume_texture");
 	supportedAssetInfo = SupportedAssetInfo(ResourceType::Texture, extensions);
 }
 
@@ -100,8 +102,9 @@ void TextureProcessor::freeData()
 	{
 		for (size_t j = 0; j < mipMaps[i].images.size(); j++)
 		{
-			delete [] mipMaps[i].images[j].sourceData;
-			delete [] mipMaps[i].images[j].compressedData;
+			auto img = mipMaps[i].images[j];
+			delete [] img.sourceData;
+			delete [] img.compressedData;
 		}
 	}
 
@@ -143,12 +146,28 @@ void debugImage(u32* pixelData, u32 width, u32 height)
 
 bool TextureProcessor::import(const String& importFilename, JsonDocument& assetCfg)
 {
+	if (getFilenameExtension(importFilename) == ".cubemap_texture")
+	{
+		assetCfg.addValue("textureType", "cubemap");
+		assetCfg.beginArray("images");
+		assetCfg.endArray();
+	}
+	else if (getFilenameExtension(importFilename) == ".volume_texture")
+	{
+		assetCfg.addValue("textureType", "volume");
+		assetCfg.beginArray("images");
+		assetCfg.endArray();
+	}
+	else
+	{
+		assetCfg.addValue("textureType", "2d");
+	}
+
 	assetCfg.addValue("type", "texture");
 	assetCfg.addValue("format", "rgba8");
 	assetCfg.addValue("allowNpo2", true);
 	assetCfg.addValue("premultiplyAlpha", false);
 	assetCfg.addValue("flipVertical", true);
-	assetCfg.addValue("textureType", "2d");
 	assetCfg.addValue("autoGenMips", true);
 
 	return true;
@@ -204,6 +223,12 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 
 	String imageFilename = asset.absFilename;
 
+	// if many images in the texture, then do not import one
+	if (imagesArray)
+	{
+		imageFilename = "";
+	}
+
 	if (imageFilename.isEmpty() && !imagesArray)
 	{
 		B_LOG_ERROR("No image(s) specified as source for the texture: '" << asset.name << "'");
@@ -244,50 +269,12 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 		break;
 	}
 
-	//TODO: this needs to be sized to the number of mipmaps which will be generated.
-	// For this we need to know the size of the texture and from there compute the number of downsized images from pow^2 (ex: tex size 2048: mip levels computed: 1024, 512, 256, 128, 64, 32, 8, 4, 2, 1 so mipmap count: 12, including original image)
+	Array<String> imageFilenames;
 
-	mipMaps.resize(1);
 
 	if (imageFilename.notEmpty())
 	{
-		stbi_uc* imgData = stbi_load(imageFilename.c_str(), &width, &height, &components, wantedComponentCount);
-		auto mipMapCountW = log2(width);
-		auto mipMapCountH = log2(height);
-
-		mipMapCount = B_MIN(mipMapCountW, mipMapCountH);
-
-		B_LOG_INFO("Generating " << mipMapCountW << " mip levels");
-
-		if (!imgData)
-		{
-			B_LOG_ERROR("Cannot load image: " << imageFilename);
-			return false;
-		}
-
-		TextureImageData texImgData;
-		u32 closestW, closestH;
-
-		if (!checkNpo2Image(width, height, closestW, closestH) && !allowNpo2Texture)
-		{
-			B_LOG_WARNING("This is a non-power of 2 texture which might not work properly in-game, please resize to: " << closestW << "x" << closestH);
-
-			stbi_image_free(imgData);
-			return false;
-		}
-
-		if (flipVertical)
-		{
-			flipVertically((u32*)imgData, width, height);
-		}
-
-		texImgData.sourceData = imgData;
-		texImgData.sourceDataSize = width * height * wantedComponentCount * bytesPerComponent;
-		
-		mipMaps[0].width = width;
-		mipMaps[0].height = height;
-		mipMaps[0].components = components;
-		mipMaps[0].images.append(texImgData);
+		imageFilenames.append(imageFilename);
 	}
 	else if (imagesArray)
 	{
@@ -295,39 +282,109 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 		{
 			auto imageInfo = imagesArray->at(i);
 			imageFilename = mergePathName(asset.absFilenamePath, imageInfo->asString());
-			stbi_uc* imgData = stbi_load(imageFilename.c_str(), &width, &height, &components, wantedComponentCount);
+			imageFilenames.append(imageFilename);
+		}
+	}
 
-			if (!imgData)
-			{
-				B_LOG_ERROR("Cannot load image " << imageInfo->asString());
-				return false;
-			}
+	for (int i = 0; i < imageFilenames.size(); i++)
+	{
+		TextureImageData texImgData;
+
+		imageFilename = imageFilenames[i];
+		stbi_uc* imgData = stbi_load(imageFilename.c_str(), &width, &height, &components, wantedComponentCount);
+
+		if (!imgData)
+		{
+			B_LOG_ERROR("Cannot load image: " << imageFilename);
+			return false;
+		}
+
+		// on first image, resize our mipmap array
+		if (i == 0)
+		{
+			if (width <= height)
+				mipMapCount = log2(width);
+			else
+				mipMapCount = log2(height);
+
+			mipMapCount++;
+			mipMaps.resize(mipMapCount);
+			B_LOG_INFO("Generating " << mipMapCount << " mip levels for texture " << width << "x" << height);
 
 			u32 closestW, closestH;
 
 			if (!checkNpo2Image(width, height, closestW, closestH) && !allowNpo2Texture)
 			{
 				B_LOG_WARNING("This is a non-power of 2 texture which might not work properly in-game, please resize to: " << closestW << "x" << closestH);
-				freeData();
+
+				stbi_image_free(imgData);
 				return false;
 			}
-
-			TextureImageData texImgData;
-
-			if (flipVertical)
+		}
+		else
+		{
+			if (mipMaps[0].width != width || mipMaps[0].height != height)
 			{
-				flipVertically((u32*)imgData, width, height);
+				B_LOG_ERROR("Please use an array of images of same width and height to create a texture array or cubemap");
+				return false;
 			}
+		}
 
-			mipMaps[0].width = width;
-			mipMaps[0].height = height;
-			mipMaps[0].components = components;
+		if (flipVertical)
+		{
+			flipVertically((u32*)imgData, width, height);
+		}
 
-			texImgData.sourceData = imgData;
-			texImgData.sourceDataSize = width * height * wantedComponentCount * bytesPerComponent;
-			mipMaps[0].images.append(texImgData);
+		int mipWidth = width;
+		int mipHeight = height;
+
+		texImgData.sourceData = imgData;
+		texImgData.sourceDataSize = width * height * wantedComponentCount * bytesPerComponent;
+
+		mipMaps[0].width = width;
+		mipMaps[0].height = height;
+		mipMaps[0].components = components;
+		mipMaps[0].images.append(texImgData);
+
+		u8* lastResizedMipBuffer = imgData;
+		// if true, then it will use last mip data for further downsample (faster than using original image since its smaller)
+		const bool useLastResizedMipBuffer = true;
+
+		for (u32 mip = 1; mip < mipMapCount; mip++)
+		{
+			mipWidth /= 2;
+			mipHeight /= 2;
+
+			if (mipWidth == 0)
+				mipWidth = 1;
+
+			if (mipHeight == 0)
+				mipHeight = 1;
+
+			B_LOG_INFO("Resize mipmap level #" << mip << " " << mipWidth << "x" << mipHeight << " ...");
+
+			u8* resizedMipBuffer = new u8[mipWidth * mipHeight * 4];
+			stbir_resize_uint8(
+				lastResizedMipBuffer,
+				useLastResizedMipBuffer ? mipWidth * 2 : width,
+				useLastResizedMipBuffer ? mipHeight * 2 : height,
+				0, resizedMipBuffer, mipWidth, mipHeight, 0, wantedComponentCount);
+			texImgData.sourceData = resizedMipBuffer;
+			texImgData.sourceDataSize = mipWidth * mipHeight * wantedComponentCount * bytesPerComponent;
+
+			mipMaps[mip].width = mipWidth;
+			mipMaps[mip].height = mipHeight;
+			mipMaps[mip].components = wantedComponentCount;
+			mipMaps[mip].images.append(texImgData);
+
+			if (useLastResizedMipBuffer)
+			{
+				lastResizedMipBuffer = resizedMipBuffer;
+			}
 		}
 	}
+	
+	// save texture
 
 	File file;
 
@@ -360,11 +417,11 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 	file << mipMapLodBias;
 	file << maxAnisotropy;
 
-	size_t currentOffset = 0;
-
 	// compress the images in the mipmap levels
-	for (u32 i = 0; i < mipMapCount; i++)
+	for (u32 i = 0; i < mipMaps.size(); i++)
 	{
+		size_t currentOffset = 0;
+
 		for (u32 j = 0; j < mipMaps[i].images.size(); j++)
 		{
 			TextureImageData& imgData = mipMaps[i].images[j];
@@ -451,16 +508,16 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 				data = imgData.sourceData;
 			}
 
-			mipMaps[i].bitmapDataImageSizes.append(imgData.compressedDataSize);
+			mipMaps[i].bitmapDataImageSizes.append(dataSize);
 			mipMaps[i].totalBitmapDataSize += dataSize;
 			currentOffset += dataSize;
 		}
 	}
 
 	// write the texture mipmap data
-	for (u32 i = 0; i < mipMapCount; i++)
+	for (u32 i = 0; i < mipMaps.size(); i++)
 	{
-		B_LOG_INFO("Writing texture: " << mipMaps[i].width << "x" << mipMaps[i].height << " Format: " << (u32)format);
+		B_LOG_INFO("Writing texture mipmap: " << mipMaps[i].width << "x" << mipMaps[i].height << " Format: " << (u32)format);
 
 		file << mipMaps[i].width;
 		file << mipMaps[i].height;

@@ -24,6 +24,9 @@ public:
 	CommandLineArguments();
 	void parse(const String& cmdLine, bool hasExeFileName = false);
 	void parse(int argc, Utf8Byte** argv);
+#ifdef _WINDOWS
+	void parse(int argc, wchar_t** argv);
+#endif
 	//! \return the Nth free text argument from command line, or "" if no free text argument found
 	//! \param freeTextIndex the index of the free text argument
 	String getFreeText(u32 freeTextIndex = 0) const;

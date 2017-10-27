@@ -75,6 +75,7 @@ bool AssetCompiler::compile(const CommandLineArguments& arguments)
 	
 	if (!importFilename.isEmpty())
 	{
+		B_LOG_INFO("Importing: " << importFilename);
 		auto bundleInfo = project.getBundleInfoForFilename(importFilename);
 		project.importAsset(importFilename, bundleInfo, forceImport, noCompile);
 	}

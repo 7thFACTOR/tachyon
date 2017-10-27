@@ -1,6 +1,7 @@
 // Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include "base/cmdline_arguments.h"
 #include "base/logger.h"
+#include "base/util.h"
 #include "3rdparty/utf8/source/utf8.h"
 
 namespace base
@@ -113,6 +114,32 @@ void CommandLineArguments::parse(int argc, Utf8Byte** argv)
 	}
 #undef ARGS_PARSER_CHECK_SLASH
 }
+
+#ifdef _WINDOWS
+void CommandLineArguments::parse(int argc, wchar_t** argv)
+{
+	char** utf8args = new char*[argc];
+
+	for (int i = 0; i < argc; i++)
+	{
+		String str;
+		str = stringFromUtf16(argv[i]);
+
+		utf8args[i] = new char[str.getByteSize() + 1];
+		memcpy(utf8args[i], str.c_str(), str.getByteSize() + 1);
+	}
+
+	parse(argc, utf8args);
+
+	for (int i = 0; i < argc; i++)
+	{
+		delete[] utf8args[i];
+	}
+
+	delete[] utf8args;
+}
+
+#endif
 
 String CommandLineArguments::getFreeText(u32 freeTextIndex) const
 {

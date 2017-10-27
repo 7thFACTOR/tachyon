@@ -6,6 +6,8 @@ project "launcher"
 	filter { "configurations:Debug or DebugEditor or Development or DevelopmentEditor", "system:windows" }
 		kind "ConsoleApp"
 		defines {"_CONSOLE"}
+		entrypoint "wmainCRTStartup"
+	filter {}
 	add_sources_from("./")
 	add_res_from("./")
 	link_win32()
@@ -20,6 +22,8 @@ project "launcher_s"
 	filter { "configurations:Debug or DebugEditor or Development or DevelopmentEditor", "system:windows" }
 		kind "ConsoleApp"
 		defines {"_CONSOLE"}
+		entrypoint "wmainCRTStartup"
+	filter {}
 	add_sources_from("./")
 	add_res_from("./")
 	link_win32()

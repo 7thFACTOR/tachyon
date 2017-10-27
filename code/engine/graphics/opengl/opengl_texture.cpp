@@ -435,26 +435,29 @@ bool OpenglTexture::upload()
 			{
 				for (u32 mip = 0; mip < texRes->mipMaps.size(); ++mip)
 				{
+					auto& mipmap = texRes->mipMaps[mip];
+					auto bmpDataOffset = mipmap.bitmapDataImageOffsets[faceIndex];
+
 					if (compressed)
 					{
 						glCompressedTexImage2D(
 							cubeFace[faceIndex],
 							mip,
 							internalFormat,
-							texRes->mipMaps[mip].width,
-							texRes->mipMaps[mip].height,
+							mipmap.width,
+							mipmap.height,
 							0,
-							texRes->mipMaps[mip].bitmapDataImageSizes[faceIndex],
-							texRes->mipMaps[mip].bitmapData + texRes->mipMaps[mip].bitmapDataImageOffsets[faceIndex]);
+							mipmap.bitmapDataImageSizes[faceIndex],
+							mipmap.bitmapData + bmpDataOffset);
 					}
 					else
 					{
 						glTexImage2D(
 							cubeFace[faceIndex], mip, internalFormat,
-							texRes->mipMaps[mip].width,
-							texRes->mipMaps[mip].height,
+							mipmap.width,
+							mipmap.height,
 							0, format, pixelPrecision,
-							texRes->mipMaps[mip].bitmapData + texRes->mipMaps[mip].bitmapDataImageOffsets[faceIndex]);
+							mipmap.bitmapData + bmpDataOffset);
 					}
 					CHECK_OPENGL_ERROR;
 				}

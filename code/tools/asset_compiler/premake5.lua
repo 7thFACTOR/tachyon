@@ -1,8 +1,12 @@
 project "asset_compiler"
+	filter { "configurations:Shipping or ShippingEditor", "system:windows" }
+		kind "WindowedApp"
+		entrypoint ""
+	filter { "configurations:Debug or DebugEditor or Development or DevelopmentEditor", "system:windows" }
+		kind "ConsoleApp"
+		defines {"_CONSOLE"}
+		entrypoint "wmainCRTStartup"
 	filter {}
-	kind "ConsoleApp"
-	defines {"B_IMPORTS", "E_IMPORTS"}
-	defines {"_CONSOLE"}
 	debugargs { "../assets/engine" }
 	add_sources_from("./")
 	add_res_from("./")
