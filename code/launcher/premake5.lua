@@ -1,8 +1,11 @@
 project "launcher"
-	kind "WindowedApp"
 	defines {"B_IMPORTS", "E_IMPORTS"}
-	--defines {"_CONSOLE"}
-	entrypoint ""
+	filter { "configurations:Shipping or ShippingEditor", "system:windows" }
+		kind "WindowedApp"
+		entrypoint ""
+	filter { "configurations:Debug or DebugEditor or Development or DevelopmentEditor", "system:windows" }
+		kind "ConsoleApp"
+		defines {"_CONSOLE"}
 	add_sources_from("./")
 	add_res_from("./")
 	link_win32()
@@ -10,10 +13,13 @@ project "launcher"
 	link_engine()
 
 project "launcher_s"
-	kind "WindowedApp"
 	defines {"B_STATIC", "E_STATIC"}
-	--defines {"_CONSOLE"}
-	entrypoint ""
+	filter { "configurations:Shipping or ShippingEditor", "system:windows" }
+		kind "WindowedApp"
+		entrypoint ""
+	filter { "configurations:Debug or DebugEditor or Development or DevelopmentEditor", "system:windows" }
+		kind "ConsoleApp"
+		defines {"_CONSOLE"}
 	add_sources_from("./")
 	add_res_from("./")
 	link_win32()

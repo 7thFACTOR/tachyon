@@ -42,7 +42,7 @@ architecture "x64"
 -- Shipping: the engine, modules, release mode, optimized for speed, but with no editor support
 -- DebugEditor: the editor, engine, modules, with debug information, with editor support
 -- DevelopmentEditor: the editor, engine, modules, with debug information, with editor support
--- Shipping: the editor, engine, modules, release mode, optimized for speed, with editor support
+-- ShippingEditor: the editor, engine, modules, release mode, optimized for speed, with editor support
 configurations { "Debug", "Development", "Shipping", "DebugEditor", "DevelopmentEditor", "ShippingEditor" }
 
 -- Keep the script root to be used in paths

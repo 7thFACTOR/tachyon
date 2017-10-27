@@ -82,7 +82,7 @@ public:
 #if !defined(_CONSOLE) && defined(_WINDOWS)
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
 #else
-int _tmain(int argc, char* argv[])
+int wmain(int argc, wchar_t* argv[], wchar_t *envp[])
 #endif
 {
 	CommandLineArguments args;
