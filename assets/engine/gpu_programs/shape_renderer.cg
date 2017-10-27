@@ -168,7 +168,6 @@ float3 Diffuse( float3 DiffuseColor, float Roughness, float NoV, float NoL, floa
 	//return Diffuse_OrenNayar( DiffuseColor, Roughness, NoV, NoL, VoH );
 }
 
-
 float4 mainTexPS(VertexOUT IN) : COLOR
 {
 	//return float4(1,0,0,1);

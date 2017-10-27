@@ -1,12 +1,7 @@
 // Copyright (C) 2017 7thFACTOR Software, All rights reserved
-#ifdef _WINDOWS
-	#include "resource.h"
-	#include <tchar.h>
-#endif
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
-#include <wchar.h>
 #include "base/cmdline_arguments.h"
 #include "core/application.h"
 #include "base/process.h"
@@ -32,7 +27,10 @@
 #include "logic/logic.h"
 
 #ifdef _WINDOWS
+	#include <wchar.h>
+	#include <tchar.h>
 	#include <windows.h>
+	#include "resource.h"
 #endif
 
 #ifdef _LINUX
@@ -81,15 +79,15 @@ public:
 	}
 };
 
-#if !defined(_CONSOLE) && defined(_DWINDOWS)
-int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
+#if !defined(_CONSOLE) && defined(_WINDOWS)
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
 #else
 int _tmain(int argc, char* argv[])
 #endif
 {
 	CommandLineArguments args;
 
-#if defined(_DWINDOWS) && !defined(_CONSOLE)
+#if defined(_WINDOWS) && !defined(_CONSOLE)
 	args.parse(__argc, __argv);
 #else
 	args.parse(argc, argv);

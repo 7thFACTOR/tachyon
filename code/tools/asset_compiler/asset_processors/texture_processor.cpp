@@ -11,6 +11,8 @@
 #include "../asset_compiler.h"
 #include "core/resources/texture_resource.h"
 #include "../project.h"
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include "3rdparty/stb_image/stb_image_resize.h"
 
 namespace ac
 {
@@ -147,7 +149,7 @@ bool TextureProcessor::import(const String& importFilename, JsonDocument& assetC
 	assetCfg.addValue("premultiplyAlpha", false);
 	assetCfg.addValue("flipVertical", true);
 	assetCfg.addValue("textureType", "2d");
-	assetCfg.addValue("genMips", true);
+	assetCfg.addValue("autoGenMips", true);
 
 	return true;
 }
@@ -179,7 +181,7 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 	JsonArray* imagesArray = assetCfg.getArray("images");
 	TextureType type = (TextureType)B_STRING_TO_ENUM(TextureType, assetCfg.getString("textureType", "2d"));
 	TextureUsageType usage = (TextureUsageType)B_STRING_TO_ENUM(TextureUsageType, assetCfg.getString("usage", "static"));
-	bool genMips = assetCfg.getBool("genMips", true);
+	bool autoGenMips = assetCfg.getBool("autoGenMips", true);
 	u32 wantedComponentCount = 4;
 	u32 bytesPerComponent = 1;//TODO: HDR
 	int width = 0, height = 0, components = 0;
@@ -243,12 +245,19 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 	}
 
 	//TODO: this needs to be sized to the number of mipmaps which will be generated.
-	// For this we need to know the size of the texture and from there compute the number of downsized images from pow^2 (ex: tex size 2048: mip levels computed: 1024, 512, 256, 128, 64, 32, 8, 4, 2, so mipmap count: 10, including original image)
+	// For this we need to know the size of the texture and from there compute the number of downsized images from pow^2 (ex: tex size 2048: mip levels computed: 1024, 512, 256, 128, 64, 32, 8, 4, 2, 1 so mipmap count: 12, including original image)
+
 	mipMaps.resize(1);
 
 	if (imageFilename.notEmpty())
 	{
 		stbi_uc* imgData = stbi_load(imageFilename.c_str(), &width, &height, &components, wantedComponentCount);
+		auto mipMapCountW = log2(width);
+		auto mipMapCountH = log2(height);
+
+		mipMapCount = B_MIN(mipMapCountW, mipMapCountH);
+
+		B_LOG_INFO("Generating " << mipMapCountW << " mip levels");
 
 		if (!imgData)
 		{

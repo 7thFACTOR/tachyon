@@ -34,10 +34,6 @@
 			"engine":
 			{
 				"path": ""
-			},
-			"textures":
-			{
-				"path": "textures"
 			}
 		},
 		"defaultBundleName": "engine"
