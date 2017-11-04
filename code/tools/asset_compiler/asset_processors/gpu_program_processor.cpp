@@ -234,7 +234,7 @@ bool GpuProgramProcessor::process(Asset& asset, JsonDocument& assetCfg)
 
 	File file;
 
-	if (!file.open(asset.deployFilename, FileOpenFlags::BinaryWrite))
+	if (!file.open(asset.absDeployFilename, FileOpenFlags::BinaryWrite))
 		return false;
 
 	crtPath = getFilenamePath(asset.absFilename);

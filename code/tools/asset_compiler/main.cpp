@@ -2,6 +2,7 @@
 #include "asset_compiler.h"
 #include "base/stdio_logger.h"
 #include "base/logger.h"
+#include "core/globals.h"
 
 #ifdef _WINDOWS
 #include <tchar.h>
@@ -10,9 +11,7 @@
 
 using namespace base;
 
-#if !defined(_CONSOLE) && defined(_WINDOWS)
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
-#elif defined(_CONSOLE) && defined(_WINDOWS)
+#if defined(_CONSOLE) && defined(_WINDOWS)
 int _tmain(int argc, _TCHAR* argv[])
 #else
 int main(int argc, char* argv[])
@@ -31,13 +30,14 @@ int main(int argc, char* argv[])
 
 	if (args.hasSwitch("version"))
 	{
-		B_LOG_INFO(AC_VERSION);
+		B_LOG_INFO(engine::getEngineVersionString());
 		return 0;
 	}
 
 	B_LOG_INFO("Asset Compiler v" << AC_VERSION << " (C) 7thFACTOR Entertainment");
+	args.debug();
 
-	if (argc < 2)
+	if (args.arguments.isEmpty())
 	{
 		B_LOG_INFO("Usage: asset_compiler <options> <file.config>");
 		return 0;

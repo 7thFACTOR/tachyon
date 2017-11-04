@@ -12,7 +12,7 @@ class E_API Texture
 public:
 	Texture() {}
 	virtual ~Texture() {}
-	virtual void setImageData(u32 lod, u32 depthIndex, u32 lodWidth, u32 lodHeight, u32 lodDepth, u8* bitmapData, size_t bitmapDataSize, bool isCompressed) = 0;
+	virtual void setImageData(u32 lod, u32 lodWidth, u32 lodHeight, u32 lodDepth, u8* bitmapData, size_t bitmapDataSize, bool isCompressed) = 0;
 	virtual void setFromResource(ResourceId resId) = 0;
 	virtual void setParameters(const TextureParameters& value) = 0;
 	virtual bool upload() = 0;

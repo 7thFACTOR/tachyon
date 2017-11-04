@@ -80,7 +80,6 @@ bool Project::load(const String& projectFilename)
 		buildCfg->type = (BuildType)B_STRING_TO_ENUM(BuildType, config->getString("buildType", "development"));
 		buildCfg->outputPath = config->getString("outputPath");
 		buildCfg->deployPath = config->getString("deployPath");
-		buildCfg->excludeMask = config->getString("excludeMask");
 
 		if (buildCfg->type == BuildType::Shipping && buildCfg->deployPath.isEmpty())
 		{
@@ -100,6 +99,16 @@ bool Project::load(const String& projectFilename)
 
 				procCfg.cfg = procCfgNode->asObject();
 				buildCfg->processorConfigs.add(processorConfigs.at(j).key, procCfg);
+			}
+		}
+
+		auto excludeFileMasks = config->getArray("excludeFileMasks");
+
+		if (excludeFileMasks)
+		{
+			for (auto& msk : *excludeFileMasks)
+			{
+				buildCfg->excludeFileMasks.append(msk->asString());
 			}
 		}
 
@@ -157,15 +166,15 @@ bool Project::load(const String& projectFilename)
 	return true;
 }
 
-void Project::importNewAssets(bool forceImport, bool noCompile, const String& mask, const String& excludeMask)
+void Project::importNewAssets(bool forceImport, bool noCompile)
 {
 	for (auto& bundle : bundles)
 	{
-		importAssets(bundle, forceImport, noCompile, mask, excludeMask);
+		importAssets(bundle, forceImport, noCompile);
 	}
 }
 
-void Project::importAssets(BundleInfo* bundle, bool forceImport, bool noCompile, const String& mask, const String& excludeMask)
+void Project::importAssets(BundleInfo* bundle, bool forceImport, bool noCompile)
 {
 	Array<FoundFileInfo> files;
 	String ext;
@@ -196,15 +205,21 @@ void Project::importAssets(BundleInfo* bundle, bool forceImport, bool noCompile,
 		auto& foundAssetFilename = files[i].filename;
 		auto ext = getFilenameExtension(foundAssetFilename);
 
-		if (mask.notEmpty())
+		if (currentBuildConfig->excludeFileMasks.notEmpty())
 		{
-			if (!wildcardCompare(mask, foundAssetFilename))
-				continue;
-		}
+			auto niceName = beautifyPath(foundAssetFilename);
+			bool skipFile = false;
 
-		if (excludeMask.notEmpty())
-		{
-			if (wildcardCompare(excludeMask, foundAssetFilename))
+			for (auto& msk : currentBuildConfig->excludeFileMasks)
+			{
+				if (wildcardCompare(msk, niceName))
+				{
+					B_LOG_WARNING("Skip excluded file: " << niceName << " mask: " << msk);
+					skipFile = true;
+				}
+			}
+
+			if (skipFile)
 				continue;
 		}
 
@@ -275,7 +290,7 @@ void Project::importAsset(const String& importFilename, BundleInfo* bundle, bool
 		asset.absFilenamePath = getFilenamePath(importFilename);
 		asset.resId = toResourceId(asset.name);
 		asset.uuid = generateUuid();
-		asset.deployFilename = mergePathName(destFolder, toString(asset.resId));
+		asset.relDeployFilename = mergePathName(bundle->path, toString(asset.resId));
 		asset.lastWriteTime = dt.toUnixTime();
 		asset.type = processor->getSupportedAssetInfo().outputResourceType;
 		asset.bundle = bundle;
@@ -285,6 +300,8 @@ void Project::importAsset(const String& importFilename, BundleInfo* bundle, bool
 
 		B_LOG_DEBUG("Imported asset " << asset.absFilename << " resType " << (u32)asset.type);
 	}
+
+	asset.absDeployFilename = mergePathName(destFolder, asset.relDeployFilename);
 
 	// if already has an asset file, no need to import
 	if (fileExists(importFilename + ".asset") && !forceImport)
@@ -394,9 +411,9 @@ bool Project::generateBundle(BundleInfo* bundle)
 		if (asset.intermediateAsset)
 			continue;
 
-		u64 fileSize = computeFileSize(asset.deployFilename);
+		u64 fileSize = computeFileSize(asset.absDeployFilename);
 
-		getFileDateTime(asset.deployFilename, nullptr, nullptr, &dt);
+		getFileDateTime(asset.absDeployFilename, nullptr, nullptr, &dt);
 		
 		file << asset.resId;
 		file << asset.type;
@@ -434,7 +451,7 @@ bool Project::generateBundle(BundleInfo* bundle)
 
 			fileDataBuffer.resize(fileSize);
 
-			if (currentFile.open(asset.deployFilename, FileOpenFlags::BinaryRead))
+			if (currentFile.open(asset.absDeployFilename, FileOpenFlags::BinaryRead))
 			{
 				//TODO: compress the data with minizip
 				currentFile.read(fileDataBuffer.data(), fileSize);
@@ -467,7 +484,7 @@ bool Project::saveDatabase(BundleInfo* bundle)
 			file << asset.value.name;
 			file << asset.value.absFilename;
 			file << asset.value.absFilenamePath;
-			file << asset.value.deployFilename;
+			file << asset.value.relDeployFilename;
 			file << asset.value.lastWriteTime;
 			file << asset.value.intermediateAsset;
 			file << asset.value.dependencies.size();
@@ -487,6 +504,10 @@ bool Project::loadDatabase(BundleInfo* bundle)
 	String dbFilename = mergePathName(rootPath, bundle->name + ".db");
 	File file;
 
+	// make abs path for the current bundle folder path
+	String absBundlePath = mergePathPath(bundle->project->rootPath, bundle->path);
+	String absOutBundlePath = mergePathPath(bundle->project->currentBuildConfig->outputPath, bundle->path);
+
 	bundle->assets.clear();
 
 	if (file.open(dbFilename, FileOpenFlags::BinaryRead))
@@ -501,6 +522,7 @@ bool Project::loadDatabase(BundleInfo* bundle)
 		if (projectAbsPath != rootPath)
 		{
 			B_LOG_INFO("Detected a change of the given project path, refreshing the entry absolute filenames...");
+			refreshAbsFilename = true;
 		}
 		
 		bundle->assets.reserve(fileCount);
@@ -518,7 +540,7 @@ bool Project::loadDatabase(BundleInfo* bundle)
 			file >> asset.name;
 			file >> asset.absFilename;
 			file >> asset.absFilenamePath;
-			file >> asset.deployFilename;
+			file >> asset.relDeployFilename;
 			file >> asset.lastWriteTime;
 			file >> asset.intermediateAsset;
 
@@ -540,7 +562,15 @@ bool Project::loadDatabase(BundleInfo* bundle)
 			}
 
 			asset.bundle = bundle;
+
+			// make path to final data
+			// extract the file path
+			String destFolder = asset.absFilenamePath;
 			
+			destFolder.replace(absBundlePath, absOutBundlePath);
+
+			asset.absDeployFilename = mergePathName(destFolder, asset.relDeployFilename);
+
 			// check if file exists, if not, then remove the asset by not adding it
 			if (fileExists(asset.absFilename))
 			{
@@ -632,7 +662,7 @@ void Project::checkForModifiedAssets(const Array<Asset*>& allAssets, Array<Asset
 			}
 
 			if (crtTime != asset->lastWriteTime
-				|| !fileExists(asset->deployFilename)
+				|| !fileExists(asset->absDeployFilename)
 				|| forceModified
 				|| modified)
 			{
@@ -670,6 +700,17 @@ Asset* Project::findAsset(AssetUuid uuid)
 				return &bundle->assets.valueAt(i);
 			}
 		}
+	}
+
+	return nullptr;
+}
+
+BuildConfig* Project::findBuildConfig(const String& name)
+{
+	for (auto& cfg : buildConfigs)
+	{
+		if (cfg->name == name)
+			return cfg;
 	}
 
 	return nullptr;

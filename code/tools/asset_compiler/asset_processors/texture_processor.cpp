@@ -33,13 +33,13 @@ B_BEGIN_ENUM_STRINGIFY(TextureFormat)
 B_END_ENUM_STRINGIFY(TextureFormat)
 
 B_BEGIN_ENUM_STRINGIFY(TextureType)
-	B_ADD_ENUM_STRINGIFY("cubemap", TextureType::Cubemap)
-	B_ADD_ENUM_STRINGIFY("cubemap_array", TextureType::CubemapArray)
 	B_ADD_ENUM_STRINGIFY("1d", TextureType::Texture1D)
 	B_ADD_ENUM_STRINGIFY("1d_array", TextureType::Texture1DArray)
 	B_ADD_ENUM_STRINGIFY("2d", TextureType::Texture2D)
 	B_ADD_ENUM_STRINGIFY("2d_array", TextureType::Texture2DArray)
-	B_ADD_ENUM_STRINGIFY("volume", TextureType::Volume)
+	B_ADD_ENUM_STRINGIFY("cubemap", TextureType::Cubemap)
+	B_ADD_ENUM_STRINGIFY("cubemap_array", TextureType::CubemapArray)
+	B_ADD_ENUM_STRINGIFY("3d", TextureType::Texture3D)
 B_END_ENUM_STRINGIFY(TextureType)
 
 B_BEGIN_ENUM_STRINGIFY(TextureUsageType)
@@ -71,8 +71,11 @@ TextureProcessor::TextureProcessor()
 	extensions.append(".jpg");
 	extensions.append(".bmp");
 	extensions.append(".psd");
-	extensions.append(".cubemap_texture");
-	extensions.append(".volume_texture");
+	extensions.append(".1dtexture_array");
+	extensions.append(".2dtexture_array");
+	extensions.append(".3dtexture");
+	extensions.append(".cubemap");
+	extensions.append(".cubemap_array");
 	supportedAssetInfo = SupportedAssetInfo(ResourceType::Texture, extensions);
 }
 
@@ -146,17 +149,29 @@ void debugImage(u32* pixelData, u32 width, u32 height)
 
 bool TextureProcessor::import(const String& importFilename, JsonDocument& assetCfg)
 {
-	if (getFilenameExtension(importFilename) == ".cubemap_texture")
+	if (getFilenameExtension(importFilename) == ".1dtexture_array")
+	{
+		assetCfg.addValue("textureType", "1d_array");
+	}
+	else
+	if (getFilenameExtension(importFilename) == ".2dtexture_array")
+	{
+		assetCfg.addValue("textureType", "2d_array");
+	}
+	else
+	if (getFilenameExtension(importFilename) == ".cubemap")
 	{
 		assetCfg.addValue("textureType", "cubemap");
-		assetCfg.beginArray("images");
-		assetCfg.endArray();
 	}
-	else if (getFilenameExtension(importFilename) == ".volume_texture")
+	else
+	if (getFilenameExtension(importFilename) == ".cubemap_array")
 	{
-		assetCfg.addValue("textureType", "volume");
-		assetCfg.beginArray("images");
-		assetCfg.endArray();
+		assetCfg.addValue("textureType", "cubemap_array");
+	}
+	else
+	if (getFilenameExtension(importFilename) == ".3dtexture")
+	{
+		assetCfg.addValue("textureType", "3d");
 	}
 	else
 	{
@@ -196,10 +211,31 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 	allowNpo2Texture = assetCfg.getBool("allowNpo2", false);
 	premultiplyAlpha = assetCfg.getBool("premultiplyAlpha", premultiplyAlpha);
 	flipVertical = assetCfg.getBool("flipVertical", flipVertical);
-	format = (TextureFormat)B_STRING_TO_ENUM(TextureFormat, assetCfg.getString("format", B_ENUM_TO_STRING(TextureFormat, (u32)format)));
-	JsonArray* imagesArray = assetCfg.getArray("images");
+	format = (TextureFormat)B_STRING_TO_ENUM(TextureFormat, assetCfg.getString("format", B_ENUM_TO_STRING(TextureFormat, (u32)
+	format)));
+
 	TextureType type = (TextureType)B_STRING_TO_ENUM(TextureType, assetCfg.getString("textureType", "2d"));
 	TextureUsageType usage = (TextureUsageType)B_STRING_TO_ENUM(TextureUsageType, assetCfg.getString("usage", "static"));
+	JsonArray* imagesArray = nullptr;
+	JsonDocument texInfoFile;
+
+	if (type == TextureType::Cubemap
+		|| type == TextureType::CubemapArray
+		|| type == TextureType::Texture1DArray
+		|| type == TextureType::Texture2DArray
+		|| type == TextureType::Texture3D)
+	{
+		texInfoFile.loadAndParse(asset.absFilename);
+
+		if (texInfoFile.hasErrors())
+		{
+			B_LOG_ERROR("Cannot load texture file info from: " << asset.absFilename);
+			return false;
+		}
+
+		imagesArray = texInfoFile.getArray("images");
+	}
+
 	bool autoGenMips = assetCfg.getBool("autoGenMips", true);
 	u32 wantedComponentCount = 4;
 	u32 bytesPerComponent = 1;//TODO: HDR
@@ -388,7 +424,7 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 
 	File file;
 
-	if (!file.open(asset.deployFilename, FileOpenFlags::BinaryWrite))
+	if (!file.open(asset.absDeployFilename, FileOpenFlags::BinaryWrite))
 		return false;
 
 	//TODO: mipmap count, compute mip levels here in the asset compiler, not in the engine with glGenerateMipmaps

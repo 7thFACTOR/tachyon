@@ -74,7 +74,7 @@ void toUpperCase(String& str)
 size_t explodeString(const String& str, Array<String>& tokens, const String& separator)
 {
 	size_t pos = str.find(separator, 0);
-	size_t pit = separator.length();
+	size_t sepLen = separator.length();
 	String theStr = str;
 
 	while (pos != String::noIndex)
@@ -84,7 +84,7 @@ size_t explodeString(const String& str, Array<String>& tokens, const String& sep
 			tokens.append(theStr.subString(0, pos));
 		}
 
-		theStr = theStr.subString(pos + pit, theStr.length() - pos - pit);
+		theStr = theStr.subString(pos + sepLen, theStr.length() - pos - sepLen);
 		pos = theStr.find(separator, 0);
 	}
 

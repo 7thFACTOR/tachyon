@@ -226,6 +226,9 @@ String& String::appendBytes(const Utf8Byte* other, size_t byteCount)
 
 String String::subString(size_t startIndex, size_t count) const
 {
+	if (!count)
+		return "";
+
 	auto byteOffset = computeByteCount(0, startIndex);
 	return String(c_str() + byteOffset, count);
 }

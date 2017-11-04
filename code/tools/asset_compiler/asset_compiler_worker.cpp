@@ -82,11 +82,11 @@ void AssetCompilerWorker::onRun()
 
 				if (supportedAssetInfo.outputResourceType == asset->type)
 				{
-					B_LOG_INFO("Processing: '" << asset->name << "' to '" << asset->deployFilename << "'...");
+					B_LOG_INFO("Processing: '" << asset->name << "' to '" << asset->absDeployFilename << "'...");
 
 					String deployFolder;
 
-					deployFolder = getFilenamePath(asset->deployFilename);
+					deployFolder = getFilenamePath(asset->absDeployFilename);
 					createPath(deployFolder);
 
 					B_LOG_DEBUG("Creating deploy path " << deployFolder);
@@ -124,7 +124,7 @@ void AssetCompilerWorker::onRun()
 						}
 						else
 						{
-							B_LOG_ERROR("Cannot retrieve lastwrite timestamp for final asset '" << asset->deployFilename << "'");
+							B_LOG_ERROR("Cannot retrieve lastwrite timestamp for final asset '" << asset->absDeployFilename << "'");
 						}
 					}
 

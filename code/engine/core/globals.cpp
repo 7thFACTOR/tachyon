@@ -61,7 +61,6 @@ public:
 		variables.registerVariable("sys_edit_mode", &sys_edit_mode, VariantType::Bool, false, "set if the engine is in editing mode, summoned by tools/editor");
 		variables.registerVariable("sys_modules_path", &sys_modules_path, VariantType::String, "./modules/", "the modules path");
 		variables.registerVariable("sys_build_type", &sys_build_type, VariantType::String, "development", "current build type, development or release", VariableFlags::ReadOnly);
-		variables.registerVariable("sys_engine_bundle_toc", &sys_engine_bundle_toc, VariantType::String, "../data/engine.toc", "");
 
 		variables.registerVariable("gfx_device_index", &gfx_device_index, VariantType::Int32, 0, "the video device index");
 		variables.registerVariable("gfx_screen_width", &gfx_screen_width, VariantType::Int32, 1024, "video resolution width", VariableFlags::ReadOnly);
@@ -93,7 +92,6 @@ public:
 	bool sys_edit_mode;
 	String sys_modules_path;
 	String sys_build_type;
-	String sys_engine_bundle_toc;
 		
 	String gfx_api;
 	i32 gfx_device_index;

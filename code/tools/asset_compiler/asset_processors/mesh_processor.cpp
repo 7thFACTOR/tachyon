@@ -32,7 +32,7 @@ bool MeshProcessor::process(Asset& asset, JsonDocument& assetCfg)
 	// no modification for now, the mesh data format is the same as the final one
 	//TODO: optimize for various platforms?
 
-	copyFile(asset.absFilename, asset.deployFilename);
+	copyFile(asset.absFilename, asset.absDeployFilename);
 
 	return true;
 }

@@ -53,7 +53,7 @@ bool FontProcessor::process(Asset& asset, JsonDocument& assetCfg)
 
 	File fontResFile;
 
-	if (!fontResFile.open(asset.deployFilename, FileOpenFlags::BinaryWrite))
+	if (!fontResFile.open(asset.absDeployFilename, FileOpenFlags::BinaryWrite))
 	{
 		return false;
 	}
