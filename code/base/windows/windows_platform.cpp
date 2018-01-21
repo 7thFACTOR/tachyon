@@ -618,7 +618,7 @@ u32 getTimeMilliseconds()
 	return timeGetTime();
 }
 
-f64 getTimeMicroseconds()
+f64 getTimeMillisecondsPrecise()
 {
 	LARGE_INTEGER currentTime;
 	LARGE_INTEGER frequency;

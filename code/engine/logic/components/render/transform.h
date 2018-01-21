@@ -40,11 +40,15 @@ struct E_API TransformComponent : Component
 	Vec3 scale = { 1.0f, 1.0f, 1.0f };
 	Quat rotation;
 	TransformFlags flags = TransformFlags::InheritParentRotation | TransformFlags::InheritParentScale;
+	//TODO: remove these, can be computed on the fly from matrix
 	Vec3 lookDirection = { 0.0f, 0.0f, 1.0f };
 	Vec3 upAxis = { 0.0f, 1.0f, 0.0f };
 	Vec3 rightAxis = { 1.0f, 0.0f, 0.0f };
 	//! the roll angle around the local Z axis
 	f32 roll = 0.0f;
+#ifdef USE_ROT_POS_MATRIX
+	Matrix rotPosMatrix;
+#endif
 	Matrix worldMatrix;
 	Matrix localMatrix;
 	Matrix parentSpaceMatrix;

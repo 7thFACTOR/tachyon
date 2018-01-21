@@ -98,6 +98,5 @@ inline bool checkFlags(T x) { return (enumBasicType)x != 0; }; \
 inline bool any(T x) { return (enumBasicType)x != 0; }; \
 inline bool has(T x, T y) { return ((enumBasicType)x & (enumBasicType)y) != 0; }; \
 inline enumBasicType fromFlags(T x) { return (enumBasicType)x; };
-
 template <typename T>
 inline T toFlags(int x) { return (T)x; };
