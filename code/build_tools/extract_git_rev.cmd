@@ -1,0 +1,6 @@
+REM It assumes this cmd file is run from the root of the repository
+echo Deleting old version...
+del code\engine\core\revision_number.h
+echo Extracting Git last revision hash and generating header...
+@echo off
+git log -1 --pretty=format:"// Copyright (C) 2017 7thFACTOR Software, All rights reserved%%n#pragma once%%n%%nnamespace engine%%n{%%nconst char* const engineRepositoryChangelist=\"%%H\";%%n}" >> code\engine\core\revision_number.h
