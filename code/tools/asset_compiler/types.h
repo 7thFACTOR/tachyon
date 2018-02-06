@@ -48,8 +48,7 @@ struct BuildConfig
 	BuildType type = BuildType::Development;
 	String outputPath;
 	String deployPath;
-	String mask;
-	String excludeMask;
+	Array<String> excludeFileMasks;
 	Dictionary<String/*asset processor name*/, ProcessorConfig> processorConfigs;
 };
 
@@ -61,7 +60,8 @@ struct Asset
 	String name; // path to asset relative to bundle's root folder, ex: "textures/mecha/test.png"
 	String absFilename; // relative to asset compiler exe
 	String absFilenamePath; // path from absFilename, relative to asset compiler exe, for convenience
-	String deployFilename;
+	String relDeployFilename;
+	String absDeployFilename;
 	ResourceType type = ResourceType::None;
 	struct BundleInfo* bundle = nullptr;
 	u32 lastWriteTime = 0;

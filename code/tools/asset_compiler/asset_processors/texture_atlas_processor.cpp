@@ -106,7 +106,7 @@ bool TextureAtlasProcessor::process(Asset& asset, JsonDocument& assetCfg)
 
 	File atlasFile;
 
-	if (!atlasFile.open(asset.deployFilename, FileOpenFlags::BinaryWrite))
+	if (!atlasFile.open(asset.absDeployFilename, FileOpenFlags::BinaryWrite))
 	{
 		return false;
 	}

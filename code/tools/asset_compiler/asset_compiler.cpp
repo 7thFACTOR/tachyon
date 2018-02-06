@@ -29,8 +29,6 @@ bool AssetCompiler::compile(const CommandLineArguments& arguments)
 	String projectFolder = beautifyPath(args.getFreeText());
 	String singleFilename = args.getArgValue("file");
 	String buildConfigName = args.getArgValue("build-cfg");
-	String mask = args.getArgValue("mask", "*.*");
-	String excludeMask = args.getArgValue("exclude-mask", "");
 	bool forceCompile = args.hasSwitch("force-compile", false) || args.hasSwitch("fc", false);
 	bool noCompile = args.hasSwitch("no-compile", false);
 	bool forceImport = args.hasSwitch("force-import", false) || args.hasSwitch("fi", false);
@@ -54,16 +52,6 @@ bool AssetCompiler::compile(const CommandLineArguments& arguments)
 			if (buildCfg->name == buildConfigName)
 			{
 				project.currentBuildConfig = buildCfg;
-
-				if (mask.isEmpty())
-				{
-					mask = buildCfg->mask;
-				}
-
-				if (excludeMask.isEmpty())
-				{
-					excludeMask = buildCfg->excludeMask;
-				}
 			}
 		}
 	}
@@ -81,7 +69,7 @@ bool AssetCompiler::compile(const CommandLineArguments& arguments)
 	}
 	else
 	{
-		project.importNewAssets(forceImport, noCompile, mask, excludeMask);
+		project.importNewAssets(forceImport, noCompile);
 	}
 
 	Array<ResourceId> changedAssetIds;

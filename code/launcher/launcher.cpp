@@ -41,7 +41,7 @@ using namespace base;
 using namespace engine;
 
 String configPath = "../config/";
-String bundlePath = "../data/";
+String dataPath = "../data/";
 String modulePath = "./modules/";
 String bundleAddonsPath = "../data/addons";
 FileChangeMonitor mon;
@@ -107,6 +107,9 @@ int main(int argc, char* argv[])
 
 	B_LOG_INFO("Creating engine globals...");
 	createEngineGlobals();
+
+	getVariableRegistry().registerVariable("data_path", &dataPath, VariantType::String, dataPath);
+
 	B_LOG_INFO("Loading engine config...");
 	getVariableRegistry().loadVariables(configPath + "engine.config");
 	B_LOG_INFO("Loading app config...");
@@ -137,13 +140,15 @@ int main(int argc, char* argv[])
 	getVariableRegistry().setVariableValue<String>("sys_build_type", "shipping");
 #endif
 
-	B_LOG_INFO("Loading bundles...");
-	getResources().addBundlesFrom(bundlePath, false);
+	B_LOG_INFO("Loading data bundles...");
+
+	getResources().addBundlesFrom(getVariableRegistry().getVariableValue<String>("data_path"), true);
 	getResources().addBundlesFrom(bundleAddonsPath, true);
 	getVariableRegistry().setVariableValue<String>("sys_app_title", "Tachyon Launcher " + buildTypeName);
 
 	LauncherApplication app;
 
+#ifndef _SHIPPING
 	struct MyFileChangeObserver : FileChangeObserver
 	{
 		void onFileChangeNotification(const FileChangeNotification& n) override
@@ -172,6 +177,7 @@ int main(int argc, char* argv[])
 
 	mon.addObserver(&fcn);
 	mon.watchPath("../assets", true);
+#endif
 
 	initializeEngine();
 

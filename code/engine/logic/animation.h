@@ -28,7 +28,7 @@ struct AnimationKeyBase
 
 	f32 time = 0;
 	f32 easeIn = 0;
-	f32	easeOut = 0;
+	f32 easeOut = 0;
 	f32 tension = 0.5f;
 	f32 continuity = 0.5f;
 	f32 bias = 0.5f;

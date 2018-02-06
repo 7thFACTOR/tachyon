@@ -11,22 +11,37 @@
 			{
 				"platform": "win64",
 				"buildType": "development",
-				"outputPath": "../data",
-				"deployPath": "../data",
+				"outputPath": "../data/development/",
+				"deployPath": "../data/development/",
 				"processorConfigs":
 				{
 					"texture":
 					{
 						"format": "rgba8"
 					}
-				}
+				},
+				"excludeFileMasks":
+				[
+					"*/textures/sky/*.png"
+				]
 			},
 			"win64_shipping":
 			{
 				"platform": "win64",
 				"buildType": "shipping",
-				"outputPath": "../data",
-				"deployPath": "../data"
+				"outputPath": "../data/shipping/",
+				"deployPath": "../data/shipping/",
+				"processorConfigs":
+				{
+					"texture":
+					{
+						"format": "rgba8"
+					}
+				},
+				"excludeFileMasks":
+				[
+					"*/textures/sky/*.png"
+				]
 			}
 		},
 		"bundles":

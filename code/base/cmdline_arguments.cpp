@@ -185,8 +185,8 @@ bool CommandLineArguments::hasSwitch(const String& name, bool enabled) const
 	while (iter != arguments.end())
 	{
 		if (iter->key == name 
-			&& iter->value == "switch"
-			|| iter->value == "")
+			&& (iter->value == "switch"
+			|| iter->value == ""))
 		{
 			return true;
 		}

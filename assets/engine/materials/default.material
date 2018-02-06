@@ -27,6 +27,6 @@
 		"diffuseSampler": "textures/default.psd",
 		"normalSampler": "textures/default_n.png",
 		"specularSampler": "textures/black.png",
-		"skyCubeSampler": "textures/sky/sky.cubemap_texture"
+		"skyCubeSampler": "textures/sky/sky.cubemap"
 	}
 }

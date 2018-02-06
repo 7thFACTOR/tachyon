@@ -117,7 +117,7 @@ bool MaterialProcessor::process(Asset& asset, JsonDocument& assetCfg)
 	JsonDocument mtl(asset.absFilename);
 	ResourceId gpuProgramId = toResourceId(mtl.getString("gpuProgram"));
 
-	file.open(asset.deployFilename, FileOpenFlags::BinaryWrite);
+	file.open(asset.absDeployFilename, FileOpenFlags::BinaryWrite);
 	file << gpuProgramId;
 	auto& states = mtl.getObject("states")->getMembers();
 

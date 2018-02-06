@@ -30,11 +30,11 @@ enum class TextureType
 {
 	Texture1D,
 	Texture2D,
+	Texture3D,
 	Cubemap,
 	Texture1DArray,
 	Texture2DArray,
-	CubemapArray,
-	Volume
+	CubemapArray
 };
 
 enum class TextureUsageType

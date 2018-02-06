@@ -14,8 +14,8 @@ public:
 	~Project();
 
 	bool load(const String& projectFilename);
-	void importNewAssets(bool forceImport, bool noCompile, const String& mask, const String& excludeMask);
-	void importAssets(BundleInfo* bundle, bool forceImport, bool noCompile, const String& mask, const String& excludeMask);
+	void importNewAssets(bool forceImport, bool noCompile);
+	void importAssets(BundleInfo* bundle, bool forceImport, bool noCompile);
 	void importAsset(const String& importFilename, BundleInfo* bundle, bool forceImport, bool noCompile);
 	bool generateBundle(BundleInfo* bundle);
 	bool saveDatabase(BundleInfo* bundle);
@@ -23,13 +23,11 @@ public:
 	bool loadAllBundleDatabases();
 	bool saveAllBundleDatabases();
 	BundleInfo* getBundleInfoForFilename(const String& filename);
-	void resolveAllDependencies();
 	void getAllAssets(Array<Asset*>& outAllAssets);
 	void checkForModifiedAssets(const Array<Asset*>& allAssets, Array<Asset*>& outModifiedAssets, bool forceModified);
-	void sortAssetsByDependencies(const Array<Asset*>& allAssets, const Array<Asset*>& modifiedAssets, Array<Asset*>& outSortedAssets);
 	Asset* findAsset(ResourceId resId);
 	Asset* findAsset(AssetUuid uuid);
-	void visitAsset(Asset* asset, Array<Asset*>& sortedAssets);
+	BuildConfig* findBuildConfig(const String& name);
 
 	String title;
 	String description;
