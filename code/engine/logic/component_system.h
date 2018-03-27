@@ -21,9 +21,9 @@ class Logic;
 class World;
 class Entity;
 
-typedef u64 ComponentUpdaterId;
+typedef u64 ComponentSystemId;
 
-class ComponentUpdater
+class ComponentSystem
 {
 public:
 	enum UpdatePriority
@@ -35,9 +35,9 @@ public:
 		Last = 4000
 	};
 
-	ComponentUpdater() {}
-	virtual ~ComponentUpdater() {}
-	virtual ComponentUpdaterId getId() const = 0;
+	ComponentSystem() {}
+	virtual ~ComponentSystem() {}
+	virtual ComponentSystemId getId() const = 0;
 	virtual void update(f32 deltaTime) = 0;
 	virtual void onComponentAdded(World& world, Entity& entity, Component* component) {}
 	virtual void onComponentRemoved(World& world, Entity& entity, Component* component) {}

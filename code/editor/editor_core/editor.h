@@ -12,7 +12,7 @@
 #include "logic/entity.h"
 #include "graphics/shape_renderer.h"
 #include "component_editor_proxy.h"
-#include "logic/component_updaters/render/render_component_updater.h"
+#include "logic/component_systems/render/render_component_system.h"
 
 namespace editor
 {
@@ -35,18 +35,18 @@ public:
 	void shutdown();
 	void update();
 	void renderGizmos();
-	bool registerEvent(EditorEvent* pEvent);
-	bool unregisterEvent(EditorEvent* pEvent);
+	bool registerEvent(EditorEvent* event);
+	bool unregisterEvent(EditorEvent* event);
 	bool isEventRegistered(const String& eventName);
 	void registerComponentEditorProxy(ComponentEditorProxy* proxy);
 	void unregisterComponentEditorProxy(ComponentEditorProxy* proxy);
-	bool triggerEvent(EditorEvent* pEvent, void* pUserData);
-	bool triggerEvent(const String& eventName, void* pUserData);
+	bool triggerEvent(EditorEvent* event, void* userData);
+	bool triggerEvent(const String& eventName, void* userData);
 	//! this method is used by events to call event sinks during the event execution
-	void callEventSinks(EditorEvent* pEvent, TriggerContext context, void* pUserData);
-	bool registerEventSink(EditorEventSink* pEventSink);
-	bool unregisterEventSink(EditorEventSink* pEventSink);
-	void pushHistoryAction(EditorHistoryAction* pAction);
+	void callEventSinks(EditorEvent* event, TriggerContext context, void* userData);
+	bool registerEventSink(EditorEventSink* eventSink);
+	bool unregisterEventSink(EditorEventSink* eventSink);
+	void pushHistoryAction(EditorHistoryAction* action);
 	void setEnableHistory(bool value);
 	bool isHistoryEnabled() const;
 	size_t historyActionCount() const;

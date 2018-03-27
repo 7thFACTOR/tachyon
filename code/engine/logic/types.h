@@ -137,15 +137,15 @@ enum StdComponentTypeIds
 	StdComponentTypeId_Count
 };
 
-enum StdComponentUpdaterIds
+enum StdComponentSystemIds
 {
-	StdComponentUpdaterId_Input,
-	StdComponentUpdaterId_Audio,
-	StdComponentUpdaterId_Raycast,
-	StdComponentUpdaterId_Render,
-	StdComponentUpdaterId_Ui,
+	StdComponentSystemId_Input,
+	StdComponentSystemId_Audio,
+	StdComponentSystemId_Raycast,
+	StdComponentSystemId_Render,
+	StdComponentSystemId_Ui,
 
-	StdComponentUpdaterId_Count
+	StdComponentSystemId_Count
 };
 
 }

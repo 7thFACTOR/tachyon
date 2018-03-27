@@ -613,12 +613,7 @@ bool tryEnterCriticalSection(CriticalSectionHandle handle)
 	return FALSE != TryEnterCriticalSection((LPCRITICAL_SECTION)handle);
 }
 
-u32 getTimeMilliseconds()
-{
-	return timeGetTime();
-}
-
-f64 getTimeMillisecondsPrecise()
+f64 getTimeMilliseconds()
 {
 	LARGE_INTEGER currentTime;
 	LARGE_INTEGER frequency;
@@ -632,6 +627,54 @@ f64 getTimeMillisecondsPrecise()
 	}
 
 	return (f64)currentTime.QuadPart * 1000.0f / (f64)frequency.QuadPart;
+}
+
+f64 getTimeSeconds()
+{
+	LARGE_INTEGER currentTime;
+	LARGE_INTEGER frequency;
+
+	QueryPerformanceFrequency(&frequency);
+	QueryPerformanceCounter(&currentTime);
+
+	if (!frequency.QuadPart)
+	{
+		return 0.0f;
+	}
+
+	return (f64)currentTime.QuadPart / (f64)frequency.QuadPart;
+}
+
+f64 getTimeMicroseconds()
+{
+	LARGE_INTEGER currentTime;
+	LARGE_INTEGER frequency;
+
+	QueryPerformanceFrequency(&frequency);
+	QueryPerformanceCounter(&currentTime);
+
+	if (!frequency.QuadPart)
+	{
+		return 0.0f;
+	}
+
+	return (f64)currentTime.QuadPart * 1000000.0f / (f64)frequency.QuadPart;
+}
+
+f64 getTimeNanoseconds()
+{
+	LARGE_INTEGER currentTime;
+	LARGE_INTEGER frequency;
+
+	QueryPerformanceFrequency(&frequency);
+	QueryPerformanceCounter(&currentTime);
+
+	if (!frequency.QuadPart)
+	{
+		return 0.0f;
+	}
+
+	return (f64)currentTime.QuadPart * 1000000000.0f / (f64)frequency.QuadPart;
 }
 
 void sleep(u32 timeMSec)

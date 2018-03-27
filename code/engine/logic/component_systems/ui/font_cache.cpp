@@ -3,7 +3,7 @@
 #include "core/globals.h"
 #include "core/resource_repository.h"
 #include "core/resources/font_resource.h"
-#include "logic/component_updaters/ui/font_cache.h"
+#include "logic/component_systems/ui/font_cache.h"
 #include "logic/components/ui/font.h"
 
 namespace engine

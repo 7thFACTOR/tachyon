@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd code
+cd ./code
 ./premake5 gmake
 cd ..

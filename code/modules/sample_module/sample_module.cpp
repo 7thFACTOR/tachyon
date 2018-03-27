@@ -30,13 +30,13 @@
 #include "logic/entity.h"
 #include "logic/logic.h"
 #include "logic/component_pool.h"
-#include "logic/component_updater.h"
+#include "logic/component_system.h"
 #include "logic/components/render/transform.h"
 #include "logic/components/render/camera.h"
 #include "logic/components/render/mesh.h"
 #include "logic/components/render/mesh_renderer.h"
 #include "logic/components/input/flyby.h"
-#include "logic/component_updaters/render/render_component_updater.h"
+#include "logic/component_systems/render/render_component_system.h"
 
 #ifdef _WINDOWS
 	#include <windows.h>
@@ -56,12 +56,12 @@ struct TestNewComponent : Component
 	f32 speed = 0;
 };
 
-class TestComponentUpdater : public ComponentUpdater
+class TestComponentSystem : public ComponentSystem
 {
 public:
-	ComponentUpdaterId updaterId = (ComponentUpdaterId)hashString("MyCompany:TestComponentUpdater");
+	ComponentSystemId systemId = (ComponentSystemId)hashString("MyCompany:TestComponentSystem");
 
-	ComponentUpdaterId getId() const override { return updaterId; }
+	ComponentSystemId getId() const override { return systemId; }
 
 	void update(f32 deltaTime) override
 	{
@@ -158,7 +158,7 @@ public:
 	Array<Entity*> meshes;
 	ShapeRenderer shpRenderer;
 	ComponentPoolTpl<TestNewComponent> testNewComponentPool;
-	TestComponentUpdater testComponentUpdater;
+	TestComponentSystem testComponentSystem;
 
 	SampleModule()
 	{
@@ -218,10 +218,10 @@ public:
 		auto& mainWorld = logic.getWorld();
 
 		logic.addComponentPool(&testNewComponentPool);
-		logic.addComponentUpdater(&testComponentUpdater, ComponentUpdater::UpdatePriority::Later);
+		logic.addComponentSystem(&testComponentSystem, ComponentSystem::UpdatePriority::Later);
 
-		RenderComponentUpdater* rcu = (RenderComponentUpdater*)getLogic().getComponentUpdater(StdComponentUpdaterId_Render);
-		rcu->addObserver(this);
+		auto rcs = (RenderComponentSystem*)getLogic().getComponentSystem(StdComponentSystemId_Render);
+		rcs->addObserver(this);
 
 		entCamera = mainWorld.createEntity();
 		entMesh = mainWorld.createEntity();
@@ -307,7 +307,7 @@ public:
 	void onUnload() override
 	{
 		getLogic().removeComponentPool(&testNewComponentPool);
-		getLogic().removeComponentUpdater(&testComponentUpdater);
+		getLogic().removeComponentSystem(&testComponentSystem);
 	}
 
 	void onUpdate(f32 deltaTime) override
@@ -347,4 +347,4 @@ public:
 	}
 };
 
-E_DECLARE_MODULE(SampleModule, "My Sample Module", "(C) 2017 7thFACTOR", Version(1, 0, 0));
+E_DECLARE_MODULE(SampleModule, "My Sample Module", "(C) 2018 7thFACTOR", Version(1, 0, 0));
