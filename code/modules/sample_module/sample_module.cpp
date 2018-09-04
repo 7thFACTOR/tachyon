@@ -235,10 +235,14 @@ public:
 
 		setRandomSeed(2);
 
+        auto meshResourceId = loadResource("meshes/primitives_cube.mesh");
+        auto mtlid = loadResource("materials/default.material");
+
+
 		if (1)
-			for (int i = 0; i < 1; i++)
+			for (int i = 0; i < 500; i++)
 			{
-				for (int j = 0; j < 2; j++)
+				for (int j = 0; j < 400; j++)
 				{
 					meshes.append(mainWorld.createEntity());
 					auto meshEntity = meshes.back();
@@ -260,8 +264,8 @@ public:
 						randomFloat(-0.0f, 0.0f),
 						randomFloat(-5000.0f, 5000.0f) };
 
-					mesh->meshResourceId = loadResource("meshes/primitives_cube.mesh");
-					meshRend->materials.append(loadResource("materials/default.material"));
+					mesh->meshResourceId = meshResourceId;
+					meshRend->materials.append(mtlid);
 				}
 			}
 

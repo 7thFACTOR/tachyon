@@ -326,12 +326,12 @@ void TaskScheduler::getWorkerTasks(size_t workerIndex, Array<Task*>& outTasks)
 
 void TaskScheduler::startProfiling()
 {
-	profilerStartTime = getTimeMicroseconds();
+	profilerStartTime = getTimeMillisecondsPrecise();
 }
 
 void TaskScheduler::endProfiling()
 {
-	profilerEndTime = getTimeMicroseconds();
+	profilerEndTime = getTimeMillisecondsPrecise();
 }
 
 void TaskScheduler::schedule()
