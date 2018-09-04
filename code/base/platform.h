@@ -221,10 +221,14 @@ B_EXPORT void enterCriticalSection(CriticalSectionHandle handle);
 B_EXPORT void leaveCriticalSection(CriticalSectionHandle handle);
 B_EXPORT bool tryEnterCriticalSection(CriticalSectionHandle handle);
 
-//! \return the elapsed milliseconds since the computer started
-B_EXPORT u32 getTimeMilliseconds();
+//! \return the elapsed precise seconds since the computer started
+B_EXPORT f64 getTimeSeconds();
 //! \return the elapsed precise milliseconds since the computer started
-B_EXPORT f64 getTimeMillisecondsPrecise();
+B_EXPORT f64 getTimeMilliseconds();
+//! \return the elapsed precise microseconds since the computer started
+B_EXPORT f64 getTimeMicroseconds();
+//! \return the elapsed precise nanoseconds since the computer started
+B_EXPORT f64 getTimeNanoseconds();
 
 //! pause execution for timeMsec milliseconds
 B_EXPORT void sleep(u32 timeMSec);

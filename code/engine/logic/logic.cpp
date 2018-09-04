@@ -2,7 +2,7 @@
 #include "logic/logic.h"
 #include "logic/component_pool.h"
 #include "base/timer.h"
-#include "logic/component_updater.h"
+#include "logic/component_system.h"
 #include "base/logger.h"
 #include "base/task_scheduler.h"
 #include "logic/entity.h"
@@ -12,9 +12,9 @@
 #include "core/globals.h"
 #include "core/module.h"
 
-#include "logic/component_updaters/audio/audio_component_updater.h"
-#include "logic/component_updaters/input/input_component_updater.h"
-#include "logic/component_updaters/render/render_component_updater.h"
+#include "logic/component_systems/audio/audio_component_system.h"
+#include "logic/component_systems/input/input_component_system.h"
+#include "logic/component_systems/render/render_component_system.h"
 
 #include "logic/components/audio/ambient_music.h"
 #include "logic/components/render/camera.h"
@@ -43,9 +43,9 @@ bool Logic::initialize()
 	// input
 	addComponentPool(new ComponentPoolTpl<FlybyComponent>());
 
-	addComponentUpdater(new InputComponentUpdater(), ComponentUpdater::UpdatePriority::First);
-	addComponentUpdater(new AudioComponentUpdater(), ComponentUpdater::UpdatePriority::Normal);
-	addComponentUpdater(new RenderComponentUpdater(), ComponentUpdater::UpdatePriority::Last);
+	addComponentSystem(new InputComponentSystem(), ComponentSystem::UpdatePriority::First);
+	addComponentSystem(new AudioComponentSystem(), ComponentSystem::UpdatePriority::Normal);
+	addComponentSystem(new RenderComponentSystem(), ComponentSystem::UpdatePriority::Last);
 
 	return true;
 }
@@ -58,11 +58,11 @@ void Logic::shutdown()
 	}
 	componentPools.clear();
 
-	for (auto& updater : componentUpdaters)
+	for (auto& csystem : componentSystems)
 	{
-		delete updater;
+		delete csystem;
 	}
-	componentUpdaters.clear();
+	componentSystems.clear();
 
 	for (auto world : worlds)
 	{
@@ -105,40 +105,40 @@ void Logic::deleteComponent(Component* component)
 	}
 }
 
-void Logic::addComponentUpdater(ComponentUpdater* updater, u32 priority)
+void Logic::addComponentSystem(ComponentSystem* csystem, u32 priority)
 {
-	// insert before the last highest priority updater
-	if (lastUpdaterPriority > priority)
+	// insert before the last highest priority component system
+	if (lastComponentSystemPriority > priority)
 	{
-		if (componentUpdaters.isEmpty())
+		if (componentSystems.isEmpty())
 		{
-			componentUpdaters.append(updater);
+			componentSystems.append(csystem);
 		}
 		else
 		{
-			// insert before the last updater
-			componentUpdaters.insert(componentUpdaters.size() - 1, updater);
+			// insert before the last system
+			componentSystems.insert(componentSystems.size() - 1, csystem);
 		}
 	}
 	else
 	{
-		componentUpdaters.append(updater);
+		componentSystems.append(csystem);
 	}
 
-	lastUpdaterPriority = priority;
+	lastComponentSystemPriority = priority;
 }
 
-void Logic::removeComponentUpdater(ComponentUpdater* updater)
+void Logic::removeComponentSystem(ComponentSystem* csystem)
 {
-	componentUpdaters.erase(updater);
+	componentSystems.erase(csystem);
 }
 
-ComponentUpdater* Logic::getComponentUpdater(ComponentUpdaterId id)
+ComponentSystem* Logic::getComponentSystem(ComponentSystemId id)
 {
-	for (auto updater : componentUpdaters)
+	for (auto csystem : componentSystems)
 	{
-		if (updater->getId() == id)
-			return updater;
+		if (csystem->getId() == id)
+			return csystem;
 	}
 
 	return nullptr;
@@ -174,9 +174,9 @@ void Logic::update()
 	inputMap.update(deltaTime);
 
 	// update components and their systems
-	for (auto updater : componentUpdaters)
+	for (auto csystem : componentSystems)
 	{
-		updater->update(deltaTime);
+		csystem->update(deltaTime);
 	}
 
 	// update modules

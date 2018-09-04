@@ -9,19 +9,19 @@
 #include "base/math/ray.h"
 #include "core/defines.h"
 #include "logic/component.h"
-#include "logic/component_updater.h"
-#include "logic/component_updaters/ui/font_cache.h"
+#include "logic/component_system.h"
+#include "logic/component_systems/ui/font_cache.h"
 
 namespace engine
 {
 using namespace base;
 
-class UiComponentUpdater : public ComponentUpdater
+class UiComponentSystem : public ComponentSystem
 {
 public:
-	UiComponentUpdater();
-	virtual ~UiComponentUpdater();
-	ComponentUpdaterId getId() const override { return StdComponentUpdaterId_Ui; }
+	UiComponentSystem();
+	virtual ~UiComponentSystem();
+	ComponentSystemId getId() const override { return StdComponentSystemId_Ui; }
 	void update(f32 deltaTime) override;
 
 	// void drawQuad(const Rect& uvRect, const Rect& rect, const RectI pixelSize, const Color& color, AtlasItemSizingPolicy sizePolicy);
@@ -95,7 +95,6 @@ public:
 		// bool useBaseline = false);
 protected:
 	FontCache fontCache;
-
 };
 
 }

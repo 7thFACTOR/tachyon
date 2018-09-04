@@ -368,14 +368,26 @@ bool tryEnterCriticalSection(CriticalSectionHandle handle)
 	return 0 == pthread_mutex_trylock(handle);
 }
 
-u32 getTimeMilliseconds()
+f64 getTimeMilliseconds()
 {
 	struct timespec now;
 
 	if (clock_gettime(CLOCK_MONOTONIC, &now))
 		return 0;
 
+	//TODO: test this, looks odd
 	return now.tv_sec * 1000.0 + now.tv_nsec / 1000000.0;
+}
+
+f64 getTimeSeconds()
+{
+	struct timespec now;
+
+	if (clock_gettime(CLOCK_MONOTONIC, &now))
+		return 0;
+
+	//TODO: test this, looks odd
+	return now.tv_sec + now.tv_nsec / 1000000.0;
 }
 
 f64 getTimeMicroseconds()
@@ -384,8 +396,20 @@ f64 getTimeMicroseconds()
 
 	if (clock_gettime(CLOCK_MONOTONIC, &now))
 		return 0;
-	
-	return now.tv_sec * 1000.0 + now.tv_nsec / 1000.0;
+
+	//TODO: test this, looks odd
+	return now.tv_sec * 1000000.0 + now.tv_nsec / 1000.0;
+}
+
+f64 getTimeNanoseconds()
+{
+	struct timespec now;
+
+	if (clock_gettime(CLOCK_MONOTONIC, &now))
+		return 0;
+
+	//TODO: test this, looks odd
+	return now.tv_sec * 1000000000.0 + now.tv_nsec;
 }
 
 void sleep(u32 timeMSec)

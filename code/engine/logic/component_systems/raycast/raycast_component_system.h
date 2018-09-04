@@ -3,8 +3,8 @@
 #include "base/defines.h"
 #include "base/math/vec3.h"
 #include "base/math/ray.h"
-#include "logic/component_updater.h"
-#include "logic/component_updaters/raycast/raycast_jobs.h"
+#include "logic/component_system.h"
+#include "logic/component_systems/raycast/raycast_jobs.h"
 
 namespace engine
 {
@@ -61,12 +61,12 @@ struct RaycastTaskInfo
 	RaycastFlags flags;
 };
 
-class RaycastComponentUpdater : public ComponentUpdater
+class RaycastComponentSystem : public ComponentSystem
 {
 public:
-	RaycastComponentUpdater();
-	virtual ~RaycastComponentUpdater();
-	ComponentUpdaterId getId() const override { return StdComponentUpdaterId_Raycast; }
+	RaycastComponentSystem();
+	virtual ~RaycastComponentSystem();
+	ComponentSystemId getId() const override { return StdComponentSystemId_Raycast; }
 	void update(f32 deltaTime) override;
 
 protected:

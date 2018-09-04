@@ -1,7 +1,7 @@
 // Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include <string.h>
-#include "logic/component_updaters/input/input_component_updater.h"
-#include "logic/component_updaters/render/render_component_updater.h"
+#include "logic/component_systems/input/input_component_system.h"
+#include "logic/component_systems/render/render_component_system.h"
 #include "core/globals.h"
 #include "logic/logic.h"
 #include "core/globals.h"
@@ -15,7 +15,7 @@
 #include "base/math/conversion.h"
 #include "input/input_map.h"
 #include "base/array.h"
-#include "logic/component_updater.h"
+#include "logic/component_system.h"
 #include "logic/types.h"
 #include "graphics/graphics.h"
 #include "logic/component_pool.h"
@@ -27,12 +27,12 @@
 
 namespace engine
 {
-InputComponentUpdater::InputComponentUpdater()
+InputComponentSystem::InputComponentSystem()
 {
 	rotationSmoother.setSampleCount(4);
 }
 
-InputComponentUpdater::~InputComponentUpdater()
+InputComponentSystem::~InputComponentSystem()
 {}
 
 void cameraAddYawAngle(CameraComponent* camera, TransformComponent* transform, f32 degrees)
@@ -91,7 +91,7 @@ void xformMove(TransformComponent* xform, const Vec3& delta)
 	xform->dirty = true;
 }
 
-void InputComponentUpdater::update(f32 deltaTime)
+void InputComponentSystem::update(f32 deltaTime)
 {
 	if (!getGraphics().getWindow()->isFocused())
 	{
@@ -101,7 +101,7 @@ void InputComponentUpdater::update(f32 deltaTime)
 	updateFlyBy(deltaTime);
 }
 
-void InputComponentUpdater::updateFlyBy(f32 deltaTime)
+void InputComponentSystem::updateFlyBy(f32 deltaTime)
 {
 	auto mousePos = Mouse::getPosition(*getGraphics().getWindow());
 	Vec2 windowCenter = {

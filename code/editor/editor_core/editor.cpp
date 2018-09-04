@@ -167,7 +167,7 @@ void Editor::initialize()
 	getLogic().inputMap.load("../config/app.input");
 	mainWorld = getLogic().createWorld();
 	getLogic().setActiveWorld(mainWorld);
-	RenderComponentUpdater* rcu = (RenderComponentUpdater*)getLogic().getComponentUpdater(StdComponentUpdaterId_Render);
+	auto rcs = (RenderComponentSystem*)getLogic().getComponentSystem(StdComponentSystemId_Render);
 	
 	rcu->addObserver(this);
 }

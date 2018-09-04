@@ -1,5 +1,5 @@
 // Copyright (C) 2017 7thFACTOR Software, All rights reserved
-#include "logic/component_updaters/raycast/raycast_component_updater.h"
+#include "logic/component_systems/raycast/raycast_component_system.h"
 #include "base/qsort.h"
 #include "core/globals.h"
 #include "base/task_scheduler.h"
@@ -19,11 +19,11 @@ static bool sortTraceRayObjectsByDistance(RayHitInfo* a, RayHitInfo* b)
 	return false;
 }
 
-RaycastComponentUpdater::RaycastComponentUpdater()
+RaycastComponentSystem::RaycastComponentSystem()
 {
 #ifdef B_USE_JOB_PROFILING
 	JenkinsLookup3Hash64 hasher;
-	String name = "RaycastComponentUpdater";
+	String name = "RaycastComponentSystem";
 
 	hasher.add(name.c_str(), name.length());
 
@@ -31,13 +31,13 @@ RaycastComponentUpdater::RaycastComponentUpdater()
 #endif
 }
 
-RaycastComponentUpdater::~RaycastComponentUpdater()
+RaycastComponentSystem::~RaycastComponentSystem()
 {}
 
-void RaycastComponentUpdater::update(f32 deltaTime)
+void RaycastComponentSystem::update(f32 deltaTime)
 {}
 
-bool RaycastComponentUpdater::traceRay(
+bool RaycastComponentSystem::traceRay(
 	const Ray& ray,
 	Array<RayHitInfo>& hits,
 	u32 maxIntersectedObjects,

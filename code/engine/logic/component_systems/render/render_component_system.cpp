@@ -1,6 +1,6 @@
 // Copyright (C) 2017 7thFACTOR Software, All rights reserved
 #include <string.h>
-#include "logic/component_updaters/render/render_component_updater.h"
+#include "logic/component_systems/render/render_component_system.h"
 #include "core/globals.h"
 #include "logic/logic.h"
 #include "core/resources/gpu_program_resource.h"
@@ -30,14 +30,14 @@
 
 namespace engine
 {
-RenderComponentUpdater::RenderComponentUpdater()
+RenderComponentSystem::RenderComponentSystem()
 {
 }
 
-RenderComponentUpdater::~RenderComponentUpdater()
+RenderComponentSystem::~RenderComponentSystem()
 {}
 
-void RenderComponentUpdater::updateLocalTransform(TransformComponent& xform)
+void RenderComponentSystem::updateLocalTransform(TransformComponent& xform)
 {
 	Matrix mtxRotation, mtxRoll;
 
@@ -74,7 +74,7 @@ void RenderComponentUpdater::updateLocalTransform(TransformComponent& xform)
 	xform.localMatrix = mtxScale * mtxRotation * mtxTrans;
 }
 
-void RenderComponentUpdater::updateWorldTransform(TransformComponent& xform)
+void RenderComponentSystem::updateWorldTransform(TransformComponent& xform)
 {
 	if (xform.parent)
 	{
@@ -87,7 +87,7 @@ void RenderComponentUpdater::updateWorldTransform(TransformComponent& xform)
 	}
 }
 
-void RenderComponentUpdater::update(f32 deltaTime)
+void RenderComponentSystem::update(f32 deltaTime)
 {
 	if (!shapeRenderer)
 	{
@@ -239,7 +239,7 @@ void RenderComponentUpdater::update(f32 deltaTime)
 	getGraphics().present();
 }
 
-GpuProgram* RenderComponentUpdater::setupMaterial(MeshRendererComponent* meshRenderer, u32 matIndex)
+GpuProgram* RenderComponentSystem::setupMaterial(MeshRendererComponent* meshRenderer, u32 matIndex)
 {
 	ResourceId mat = meshRenderer->materials[matIndex];
 
@@ -329,7 +329,7 @@ GpuProgram* RenderComponentUpdater::setupMaterial(MeshRendererComponent* meshRen
 	return program;
 }
 
-void RenderComponentUpdater::updateCamera(CameraComponent& camera)
+void RenderComponentSystem::updateCamera(CameraComponent& camera)
 {
 	switch (camera.projectionType)
 	{

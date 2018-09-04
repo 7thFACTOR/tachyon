@@ -9,7 +9,7 @@
 #include "base/observer.h"
 #include "base/math/ray.h"
 #include "logic/component.h"
-#include "logic/component_updater.h"
+#include "logic/component_system.h"
 #include "graphics/graphics.h"
 #include "base/observer.h"
 
@@ -28,12 +28,12 @@ struct RenderObserver
 	virtual void onAfterWorldRender() {}
 };
 
-class RenderComponentUpdater : public ComponentUpdater, public Observable<RenderObserver>
+class RenderComponentSystem : public ComponentSystem, public Observable<RenderObserver>
 {
 public:
-	RenderComponentUpdater();
-	virtual ~RenderComponentUpdater();
-	ComponentUpdaterId getId() const override { return StdComponentUpdaterId_Render; }
+	RenderComponentSystem();
+	virtual ~RenderComponentSystem();
+	ComponentSystemId getId() const override { return StdComponentSystemId_Render; }
 	void update(f32 deltaTime) override;
 
 protected:

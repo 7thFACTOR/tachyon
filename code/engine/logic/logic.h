@@ -7,7 +7,7 @@
 #include "logic/types.h"
 #include "logic/world.h"
 #include "logic/component.h"
-#include "logic/component_updater.h"
+#include "logic/component_system.h"
 #include "input/input.h"
 #include "input/input_map.h"
 
@@ -17,7 +17,7 @@ using namespace base;
 
 struct Component;
 class ComponentPool;
-class ComponentUpdater;
+class ComponentSystem;
 class World;
 
 struct LogicObserver
@@ -50,10 +50,10 @@ public:
 	inline ComponentPool* getComponentPool() { return componentPools[(ComponentTypeId)ComponentClassType::typeId]; }
 	Component* createComponent(ComponentTypeId type);
 	void deleteComponent(Component* component);
-	void addComponentUpdater(ComponentUpdater* updater, u32 priority = ComponentUpdater::UpdatePriority::Normal);
-	void removeComponentUpdater(ComponentUpdater* updater);
-	const Array<ComponentUpdater*>& getComponentUpdaters() const { return componentUpdaters; }
-	ComponentUpdater* getComponentUpdater(ComponentUpdaterId id);
+	void addComponentSystem(ComponentSystem* csystem, u32 priority = ComponentSystem::UpdatePriority::Normal);
+	void removeComponentSystem(ComponentSystem* csystem);
+	const Array<ComponentSystem*>& getComponentSystems() const { return componentSystems; }
+	ComponentSystem* getComponentSystem(ComponentSystemId id);
 	Component* addComponentToEntity(ComponentTypeId type, Entity* entity);
 	template<typename ComponentClassType>
 	inline ComponentClassType* addComponentToEntity(Entity* entity) { return (ComponentClassType*)addComponentToEntity((ComponentTypeId)ComponentClassType::typeId, entity); }
@@ -76,8 +76,8 @@ protected:
 	f32 frameCount = 0;
 	f64 fpsTime = 0;
 	Dictionary<ComponentTypeId, ComponentPool*> componentPools;
-	Array<ComponentUpdater*> componentUpdaters;
-	u32 lastUpdaterPriority = 0;
+	Array<ComponentSystem*> componentSystems;
+	u32 lastComponentSystemPriority = 0;
 	Array<World*> worlds;
 	World* currentWorld = nullptr;
 };

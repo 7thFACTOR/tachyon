@@ -7,7 +7,7 @@
 #include "base/observer.h"
 #include "base/math/ray.h"
 #include "logic/component.h"
-#include "logic/component_updater.h"
+#include "logic/component_system.h"
 #include "graphics/graphics.h"
 #include "logic/component_pool.h"
 #include "base/math/smoother.h"
@@ -16,12 +16,12 @@ namespace engine
 {
 class Logic;
 
-class InputComponentUpdater : public ComponentUpdater
+class InputComponentSystem : public ComponentSystem
 {
 public:
-	InputComponentUpdater();
-	virtual ~InputComponentUpdater();
-	ComponentUpdaterId getId() const override { return StdComponentUpdaterId_Input; }
+	InputComponentSystem();
+	virtual ~InputComponentSystem();
+	ComponentSystemId getId() const override { return StdComponentSystemId_Input; }
 	void update(f32 deltaTime) override;
 
 protected:

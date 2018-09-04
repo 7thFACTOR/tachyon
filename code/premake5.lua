@@ -1,7 +1,18 @@
 workspace "tachyon"
 
+
 -- Location of the solutions
 if _ACTION == "vs2015" then
+	location "../build"
+	-- We're on Windows, this will be used in code for ifdef
+	defines {"_WINDOWS"}
+	system ("windows")
+	-- Setup post build to copy the binaries to /bin
+	--postbuildcommands { "xcopy /y \"$(TargetPath)\" $(SolutionDir)\\..\\bin\\" }
+end
+
+-- Location of the solutions
+if _ACTION == "vs2017" then
 	location "../build"
 	-- We're on Windows, this will be used in code for ifdef
 	defines {"_WINDOWS"}
@@ -24,11 +35,26 @@ if _ACTION == "xcode4" then
 	system ("apple")
 end
 
-postbuildcommands { "mkdir -p ../bin" }
-postbuildcommands { "{COPY} \"%{cfg.buildtarget.abspath}\" ../bin" }
+
+function os.winSdkVersion()
+	local reg_arch = iif( os.is64bit(), "\\Wow6432Node\\", "\\" )
+	local sdk_version = os.getWindowsRegistry( "HKLM:SOFTWARE" .. reg_arch .."Microsoft\\Microsoft SDKs\\Windows\\v10.0\\ProductVersion" )
+	if sdk_version ~= nil then return sdk_version end
+end
+
+
+if _ACTION == "vs2017" then
+filter {"system:windows", "action:vs*"}
+	systemversion(os.winSdkVersion() .. ".0")
+end
+
+
+
+postbuildcommands { "{MKDIR} ..\\bin" }
+postbuildcommands { "{COPY} %{cfg.buildtarget.abspath} ..\\bin" }
 
 filter { "configurations:Debug or DebugEditor", "system:windows" }
-	postbuildcommands { "{COPY} \"%{cfg.buildtarget.directory}\%{prj.name}.pdb\" ../bin" }
+	postbuildcommands { "{COPY} %{cfg.buildtarget.directory}/%{prj.name}.pdb ..\\bin" }
 filter {}
 
 language "C++"
@@ -55,7 +81,10 @@ debugdir "../bin"
 -- We support Unicode
 characterset ("Unicode")
 
-flags { "NoMinimalRebuild", "MultiProcessorCompile", "NoPCH", "C++11" }
+flags { "NoMinimalRebuild", "MultiProcessorCompile", "NoPCH" }
+if _ACTION == "vs2017" then
+	cppdialect "C++11"
+end
 warnings "Off"
 
 filter { "system:windows" }
