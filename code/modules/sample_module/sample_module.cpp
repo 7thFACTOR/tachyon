@@ -238,11 +238,10 @@ public:
         auto meshResourceId = loadResource("meshes/primitives_cube.mesh");
         auto mtlid = loadResource("materials/default.material");
 
-
 		if (1)
-			for (int i = 0; i < 500; i++)
+			for (int i = 0; i < 10; i++)
 			{
-				for (int j = 0; j < 400; j++)
+				for (int j = 0; j < 10; j++)
 				{
 					meshes.append(mainWorld.createEntity());
 					auto meshEntity = meshes.back();

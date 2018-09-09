@@ -317,7 +317,7 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 		for (size_t i = 0; i < imagesArray->size(); i++)
 		{
 			auto imageInfo = imagesArray->at(i);
-			imageFilename = mergePathName(asset.absFilenamePath, imageInfo->asString());
+			imageFilename = mergePathName(asset.absFilePath, imageInfo->asString());
 			imageFilenames.append(imageFilename);
 		}
 	}

@@ -80,7 +80,7 @@ bool TextureAtlasProcessor::process(Asset& asset, JsonDocument& assetCfg)
 		{
 			auto imageInfo = imagesArray->at(i)->asObject();
 			String filename;
-			filename = mergePathName(asset.absFilenamePath, imageInfo->getString("image"));
+			filename = mergePathName(asset.absFilePath, imageInfo->getString("image"));
 			stbi_uc* imgData = stbi_load(filename.c_str(), &imgWidth, &imgHeight, &components, wantedComponents);
 
 			if (!imgData)

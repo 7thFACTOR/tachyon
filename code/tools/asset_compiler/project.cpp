@@ -287,7 +287,7 @@ void Project::importAsset(const String& importFilename, BundleInfo* bundle, bool
 		asset.project = this;
 		asset.name = assetFilename;
 		asset.absFilename = importFilename;
-		asset.absFilenamePath = getFilenamePath(importFilename);
+		asset.absFilePath = getFilenamePath(importFilename);
 		asset.resId = toResourceId(asset.name);
 		asset.uuid = generateUuid();
 		asset.relDeployFilename = mergePathName(bundle->path, toString(asset.resId));
@@ -483,7 +483,7 @@ bool Project::saveDatabase(BundleInfo* bundle)
 			file << asset.value.type;
 			file << asset.value.name;
 			file << asset.value.absFilename;
-			file << asset.value.absFilenamePath;
+			file << asset.value.absFilePath;
 			file << asset.value.relDeployFilename;
 			file << asset.value.lastWriteTime;
 			file << asset.value.intermediateAsset;
@@ -539,7 +539,7 @@ bool Project::loadDatabase(BundleInfo* bundle)
 			file >> asset.type;
 			file >> asset.name;
 			file >> asset.absFilename;
-			file >> asset.absFilenamePath;
+			file >> asset.absFilePath;
 			file >> asset.relDeployFilename;
 			file >> asset.lastWriteTime;
 			file >> asset.intermediateAsset;
@@ -547,7 +547,7 @@ bool Project::loadDatabase(BundleInfo* bundle)
 			if (refreshAbsFilename)
 			{
 				asset.absFilename = mergePathName(bundle->absPath, asset.name);
-				asset.absFilenamePath = getFilenamePath(asset.absFilename);
+				asset.absFilePath = getFilenamePath(asset.absFilename);
 			}
 
 			size_t deps = 0;
@@ -565,7 +565,7 @@ bool Project::loadDatabase(BundleInfo* bundle)
 
 			// make path to final data
 			// extract the file path
-			String destFolder = asset.absFilenamePath;
+			String destFolder = asset.absFilePath;
 			
 			destFolder.replace(absBundlePath, absOutBundlePath);
 

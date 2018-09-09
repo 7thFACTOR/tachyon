@@ -98,9 +98,9 @@ int main(int argc, char* argv[])
 
 	getBaseLogger().linkChild(&stdioLog);
 
-	B_LOG_INFO("UTFF " << args.getArgValue("huan"));
+	B_LOG_INFO("UTF8 " << args.getArgValue("huan"));
 
-	// lets compile any assets that are changed lately
+	// lets compile any assets that were changed lately
 #ifndef _SHIPPING
 	Process acEngine("asset_compiler.exe", "../assets/engine", ProcessFlags::WaitToFinish);
 #endif

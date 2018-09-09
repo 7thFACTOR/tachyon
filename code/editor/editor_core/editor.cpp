@@ -169,7 +169,7 @@ void Editor::initialize()
 	getLogic().setActiveWorld(mainWorld);
 	auto rcs = (RenderComponentSystem*)getLogic().getComponentSystem(StdComponentSystemId_Render);
 	
-	rcu->addObserver(this);
+	rcs->addObserver(this);
 }
 
 void Editor::shutdown()

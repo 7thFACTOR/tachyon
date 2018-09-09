@@ -59,7 +59,7 @@ struct Asset
 	AssetUuid uuid = AssetUuid::nullValue();
 	String name; // path to asset relative to bundle's root folder, ex: "textures/mecha/test.png"
 	String absFilename; // relative to asset compiler exe
-	String absFilenamePath; // path from absFilename, relative to asset compiler exe, for convenience
+	String absFilePath; // path from absFilename, relative to asset compiler exe, for convenience
 	String relDeployFilename;
 	String absDeployFilename;
 	ResourceType type = ResourceType::None;
