@@ -225,11 +225,11 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 		|| type == TextureType::Texture2DArray
 		|| type == TextureType::Texture3D)
 	{
-		texInfoFile.loadAndParse(asset.absFilename);
+		texInfoFile.loadAndParse(asset.absoluteName);
 
 		if (texInfoFile.hasErrors())
 		{
-			B_LOG_ERROR("Cannot load texture file info from: " << asset.absFilename);
+			B_LOG_ERROR("Cannot load texture file info from: " << asset.absoluteName);
 			return false;
 		}
 
@@ -257,7 +257,7 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 	TextureAddressType texAddressY = (TextureAddressType)B_STRING_TO_ENUM(TextureAddressType, assetCfg.getString("addressY", "repeat"));
 	TextureAddressType texAddressZ = (TextureAddressType)B_STRING_TO_ENUM(TextureAddressType, assetCfg.getString("addressZ", "repeat"));
 
-	String imageFilename = asset.absFilename;
+	String imageFilename = asset.absoluteName;
 
 	// if many images in the texture, then do not import one
 	if (imagesArray)
@@ -317,7 +317,7 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 		for (size_t i = 0; i < imagesArray->size(); i++)
 		{
 			auto imageInfo = imagesArray->at(i);
-			imageFilename = mergePathName(asset.absFilePath, imageInfo->asString());
+			imageFilename = mergePathName(asset.absolutePath, imageInfo->asString());
 			imageFilenames.append(imageFilename);
 		}
 	}
@@ -424,7 +424,7 @@ bool TextureProcessor::process(Asset& asset, JsonDocument& assetCfg)
 
 	File file;
 
-	if (!file.open(asset.absDeployFilename, FileOpenFlags::BinaryWrite))
+	if (!file.open(asset.absoluteOutputFilename, FileOpenFlags::BinaryWrite))
 		return false;
 
 	//TODO: mipmap count, compute mip levels here in the asset compiler, not in the engine with glGenerateMipmaps

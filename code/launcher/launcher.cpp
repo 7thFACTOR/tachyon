@@ -41,7 +41,7 @@ using namespace base;
 using namespace engine;
 
 String configPath = "../config/";
-String dataPath = "../data/";
+String dataPath = "../assets/engine/.builds/win64dev";
 String modulePath = "./modules/";
 String bundleAddonsPath = "../data/addons";
 FileChangeMonitor mon;

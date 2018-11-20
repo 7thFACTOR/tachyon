@@ -49,7 +49,7 @@ bool TextureAtlasProcessor::import(const String& importFilename, JsonDocument& a
 bool TextureAtlasProcessor::process(Asset& asset, JsonDocument& assetCfg)
 {
 	auto cfg = asset.project->currentBuildConfig->processorConfigs["texture_atlas"].cfg;
-	JsonDocument atlasAsset(asset.absFilename);
+	JsonDocument atlasAsset(asset.absoluteName);
 
 	u32 atlasWidth = atlasAsset.getI32("atlasWidth", 1024);
 	u32 atlasHeight = atlasAsset.getI32("atlasHeight", 1024);
@@ -63,7 +63,7 @@ bool TextureAtlasProcessor::process(Asset& asset, JsonDocument& assetCfg)
 
 	ImageAtlas atlas(atlasWidth, atlasHeight);
 
-	assetFilename = getFilenameName(asset.absFilename);
+	assetFilename = getFilenameName(asset.absoluteName);
 
 	if (!imagesArray)
 	{
@@ -80,7 +80,7 @@ bool TextureAtlasProcessor::process(Asset& asset, JsonDocument& assetCfg)
 		{
 			auto imageInfo = imagesArray->at(i)->asObject();
 			String filename;
-			filename = mergePathName(asset.absFilePath, imageInfo->getString("image"));
+			filename = mergePathName(asset.absolutePath, imageInfo->getString("image"));
 			stbi_uc* imgData = stbi_load(filename.c_str(), &imgWidth, &imgHeight, &components, wantedComponents);
 
 			if (!imgData)
@@ -99,14 +99,14 @@ bool TextureAtlasProcessor::process(Asset& asset, JsonDocument& assetCfg)
 	String pngFilename;
 	String texFilename;
 
-	pngFilename = changeFilenameExtension(asset.absFilename, ".png");
+	pngFilename = changeFilenameExtension(asset.absoluteName, ".png");
 	stbi_write_png(pngFilename.c_str(), atlasWidth, atlasHeight, 4, atlas.getAtlasImageBuffer(), atlasWidth * 4);
 
-	texFilename = changeFilenameExtension(asset.absFilename, ".png");
+	texFilename = changeFilenameExtension(asset.absoluteName, ".png");
 
 	File atlasFile;
 
-	if (!atlasFile.open(asset.absDeployFilename, FileOpenFlags::BinaryWrite))
+	if (!atlasFile.open(asset.absoluteOutputFilename, FileOpenFlags::BinaryWrite))
 	{
 		return false;
 	}
@@ -133,7 +133,7 @@ bool TextureAtlasProcessor::process(Asset& asset, JsonDocument& assetCfg)
 
 bool TextureAtlasProcessor::isModified(Asset& asset)
 {
-	String texFilename = changeFilenameExtension(asset.absFilename, ".png");
+	String texFilename = changeFilenameExtension(asset.absoluteName, ".png");
 
 	if (!fileExists(texFilename))
 		return true;

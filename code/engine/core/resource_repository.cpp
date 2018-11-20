@@ -500,12 +500,16 @@ void ResourceRepository::addBundlesFrom(const String& bundlesPath, bool recursiv
 		}
 	}
 
+    B_LOG_INFO("Scanning " << bundlesPath << " for bundles...");
+
 	if (mode == BundleMode::OneBigFile)
 		scanFileSystem(bundlesPath, "*.bundle", foundBundles, recursive);
 	else
 		scanFileSystem(bundlesPath, "*.toc", foundBundles, recursive);
 
-	for (auto& bundle : foundBundles)
+    B_LOG_INFO("Found " << foundBundles.size() << " bundles");
+    
+    for (auto& bundle : foundBundles)
 	{
 		addBundle(getFilenameNoExtension(bundle.filename), mode, password);
 	}

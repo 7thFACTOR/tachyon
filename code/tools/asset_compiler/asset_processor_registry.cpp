@@ -1,4 +1,6 @@
 // Copyright (C) 2017 7thFACTOR Software, All rights reserved
+
+// built-in asset processors
 #include "asset_processor_registry.h"
 #include "asset_processors/texture_processor.h"
 #include "asset_processors/texture_atlas_processor.h"

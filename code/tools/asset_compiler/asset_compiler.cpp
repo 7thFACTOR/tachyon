@@ -141,8 +141,7 @@ void AssetCompiler::compileAssets(Array<Asset*>& assets)
 	{
 		// assign file to the thread
 		workerThreads[threadIndex].addAsset(asset);
-
-		threadIndex++;
+		++threadIndex;
 
 		if (threadIndex >= workerThreadCount)
 		{
@@ -164,7 +163,8 @@ void AssetCompiler::compileAssets(Array<Asset*>& assets)
 	}
 
 	auto timeElapsed = getTimeMilliseconds();
-	// wait for the threads
+	
+    // wait for the threads to finish
 	while (true)
 	{
 		bool done = true;

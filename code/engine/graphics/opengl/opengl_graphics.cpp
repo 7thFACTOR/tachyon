@@ -263,6 +263,10 @@ void OpenglGraphics::initializeGL()
 
 	B_LOG_INFO("OpenGL Version: '" << ver << "'");
 
+    String vendor = (const char*)glGetString(GL_VENDOR);
+
+    B_LOG_INFO("OpenGL Vendor: '" << vendor << "'");
+
 	if (oglLowSpecs)
 	{
 		B_LOG_INFO("Using low-spec OpenGL ES functions and extensions");

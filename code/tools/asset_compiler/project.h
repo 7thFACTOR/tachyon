@@ -32,7 +32,8 @@ public:
 	String title;
 	String description;
 	String rootPath;
-	BuildConfig* currentBuildConfig;
+    bool cleanShippingFolder = true; // will delete the output asset files, because we keep the in the final bundle files
+ 	BuildConfig* currentBuildConfig;
 	JsonDocument projectJsonDoc;
 	Array<BuildConfig*> buildConfigs;
 	Array<BundleInfo*> bundles;

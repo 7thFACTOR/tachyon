@@ -54,7 +54,7 @@ bool FbxProcessor::import(const String& importFilename, JsonDocument& assetCfg)
 
 bool FbxProcessor::process(Asset& asset, JsonDocument& assetCfg)
 {
-	return import(asset.absFilename, assetCfg);
+	return import(asset.absoluteName, assetCfg);
 }
 
 bool FbxProcessor::importMeshes(FbxFileImporter& fbxImporter, const String& basePath, JsonDocument& assetCfg)

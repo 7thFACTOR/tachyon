@@ -222,7 +222,7 @@ bool GpuProgramProcessor::import(const String& importFilename, JsonDocument& ass
 bool GpuProgramProcessor::process(Asset& asset, JsonDocument& assetCfg)
 {
 	String filename, crtPath;
-	JsonDocument gpuProg(asset.absFilename);
+	JsonDocument gpuProg(asset.absoluteName);
 
 	auto cfg = asset.project->currentBuildConfig->processorConfigs["gpu_program"].cfg;
 	GraphicsApiType gfxApi = GraphicsApiType::OpenGL;
@@ -234,10 +234,10 @@ bool GpuProgramProcessor::process(Asset& asset, JsonDocument& assetCfg)
 
 	File file;
 
-	if (!file.open(asset.absDeployFilename, FileOpenFlags::BinaryWrite))
+	if (!file.open(asset.absoluteOutputFilename, FileOpenFlags::BinaryWrite))
 		return false;
 
-	crtPath = getFilenamePath(asset.absFilename);
+	crtPath = getFilenamePath(asset.absoluteName);
 
 	file << gfxApi;
 	// options
@@ -333,7 +333,7 @@ bool GpuProgramProcessor::process(Asset& asset, JsonDocument& assetCfg)
 			}
 			else
 			{
-				B_LOG_ERROR("Expecting gpu program constant object in JSON: " << asset.absFilename);
+				B_LOG_ERROR("Expecting gpu program constant object in JSON: " << asset.absoluteName);
 				return false;
 			}
 		}
