@@ -15,9 +15,9 @@ VertexOUT mainVS(VertexIN IN)
 	TBN[1] = normalize(mul(float4(IN.bitangent, 0), mtxWorld));
 	TBN[2] = normalize(mul(float4(IN.normal, 0), mtxWorld));
 
-	float3 wPos = mul(float4(IN.position, 1.0), mtxWorld).xyz;
+	float3 wPos = mul(mtxWorld, float4(IN.position, 1.0)).xyz;
 	OUT.worldPos = wPos;
-	OUT.position = mul(float4(IN.position, 1.0), mtxWorldViewProjection);
+	OUT.position = mul(mtxWorldViewProjection, float4(IN.position, 1.0));
 	OUT.uv = IN.uv;
 	OUT.color = IN.color;
 	OUT.tangent = normalize(TBN[0]);

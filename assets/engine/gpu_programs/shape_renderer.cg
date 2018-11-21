@@ -7,12 +7,12 @@ VertexOUT mainVS(ShapeVertexIN IN)
 {
 	VertexOUT OUT;
 	
-	float3 worldPos = normalize(mul(float4(IN.position, 1.0), mtxWorld).xyz);
-	OUT.position = mul(float4(IN.position, 1.0), mtxWorldViewProjection);
+	float3 worldPos = normalize(mul(mtxWorld, float4(IN.position, 1.0)).xyz);
+	OUT.position = mul(mtxWorldViewProjection, float4(IN.position, 1.0));
 	OUT.normal = IN.normal;
 	OUT.color = IN.color;
 	OUT.uv = IN.uv;
-	OUT.light = normalize(mul(float4(-sunDirection, 1.0), mtxWorld).xyz);
+	OUT.light = normalize(mul(mtxWorld, float4(-sunDirection, 1.0)).xyz);
 	OUT.view = normalize(worldPos - mtxViewInverse[3].xyz);
 	OUT.worldPos = worldPos;
 
@@ -39,9 +39,9 @@ VertexOUT mainVS_instanced(InstancedShapeVertexIN IN)
 		float4(0,0,0,IN.mtxInstanceWorldRow3.w)
 	);
 
-	float4 localPos = mul(float4(IN.position, 1.0), mtxInstance);
-	float light = dot(sunDirection, normalize(mul(float4(IN.normal, 1.0), mtxInstanceRot).xyz));
-	OUT.position = mul(localPos, mtxWorldViewProjection);
+	float4 localPos = mul(mtxInstance, float4(IN.position, 1.0));
+	float light = dot(sunDirection, normalize(mul(mtxInstanceRot, float4(IN.normal, 1.0)).xyz));
+	OUT.position = mul(mtxWorldViewProjection, localPos);
 	OUT.color = IN.color * diffuseColor * IN.instanceColor;
 	OUT.color.rgb *= light;
 	OUT.normal = IN.normal;
@@ -62,9 +62,9 @@ VertexOUT mainTexVS(ShapeVertexIN IN)
 {
 	VertexOUT OUT;
 	
-	float3 worldPos = mul(float4(IN.position, 1.0), mtxWorld).xyz;
-	OUT.position = mul(float4(IN.position, 1.0), mtxWorldViewProjection);
-	OUT.normal = normalize(mul(IN.normal, (float3x3)mtxWorld));
+	float3 worldPos = mul(mtxWorld, float4(IN.position, 1.0)).xyz;
+	OUT.position = mul(mtxWorldViewProjection, float4(IN.position, 1.0));
+	OUT.normal = normalize(mul((float3x3)mtxWorld), IN.normal);
 	OUT.color = IN.color * diffuseColor;
 	OUT.uv = IN.uv * uvDiffuseRepeat + uvDiffuseOffset;
 	OUT.light = -sunDirection;
