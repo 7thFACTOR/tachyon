@@ -11,8 +11,7 @@
 			{
 				"platform": "win64",
 				"buildType": "development",
-				"outputPath": "../data/development/",
-				"deployPath": "../data/development/",
+				"outputPath": ".builds/win64dev",
 				"processorConfigs":
 				{
 					"texture":
@@ -29,8 +28,7 @@
 			{
 				"platform": "win64",
 				"buildType": "shipping",
-				"outputPath": "../data/shipping/",
-				"deployPath": "../data/shipping/",
+				"outputPath": ".builds/win64",
 				"processorConfigs":
 				{
 					"texture":

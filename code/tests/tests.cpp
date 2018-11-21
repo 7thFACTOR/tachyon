@@ -199,11 +199,11 @@ int main(int argc, char** args)
 
 	doc.beginDocument();
 
-	doc.addValue("shit1", 111);
-	doc.addValue("shit2", 123.23f);
-	doc.addValue("shit3", false);
-	doc.addValue("shit4", "CRAPO");
-	doc.beginArray("shit5");
+	doc.addValue("val1", 111);
+	doc.addValue("val2", 123.23f);
+	doc.addValue("val3", false);
+	doc.addValue("val4", "CRAPO");
+	doc.beginArray("val5");
 		doc.addValue(1);
 		doc.addValue(2);
 		doc.addValue(3.33f);
@@ -216,14 +216,14 @@ int main(int argc, char** args)
 		doc.addValue("width", 11111);
 		doc.addValue("height", 22222);
 		doc.beginObject("soko");
-			doc.addValue("ass", 1001.5f);
+			doc.addValue("test", 1001.5f);
 		doc.endObject();
 	doc.endObject();
 	doc.endDocument();
 	doc.save("testwrite.json", &JsonSaveOptions());
 	doc.save("testwrite.sjson", &JsonSaveOptions::sjsonOptions());
 
-	B_LOG_INFO(doc.getF32("obo/soko/ass"));
+	B_LOG_INFO(doc.getF32("obo/soko/test"));
 	B_LOG_INFO(doc.getF32("obo/soko/asds"));
 	B_LOG_INFO(doc.getF32(""));
 

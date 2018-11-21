@@ -79,13 +79,11 @@ bool Project::load(const String& projectFilename)
 		buildCfg->platform = (BuildPlatformType)B_STRING_TO_ENUM(BuildPlatformType, config->getString("platform", "win64"));
 		buildCfg->type = (BuildType)B_STRING_TO_ENUM(BuildType, config->getString("buildType", "development"));
 		buildCfg->outputPath = config->getString("outputPath");
-		buildCfg->deployPath = config->getString("deployPath");
 
-		if (buildCfg->type == BuildType::Shipping && buildCfg->deployPath.isEmpty())
-		{
-			buildCfg->deployPath = buildCfg->outputPath;
-		}
+        // cache the absolute paths for convenience
+        buildCfg->absoluteOutputPath = mergePathPath(rootPath, buildCfg->outputPath);
 
+        // add the asset processors custom configuration params
 		auto processorConfigsJson = config->getObject("processorConfigs");
 
 		if (processorConfigsJson)
@@ -132,7 +130,7 @@ bool Project::load(const String& projectFilename)
 
 			bundleInfo->name = bundlesNode->getMembers().at(i).key;
 			bundleInfo->path = bundleNode->getString("path");
-			bundleInfo->absPath = mergePathPath(rootPath, bundleInfo->path);
+			bundleInfo->absolutePath = mergePathPath(rootPath, bundleInfo->path);
 			bundleInfo->project = this;
 
 			bundles.append(bundleInfo);
@@ -151,7 +149,7 @@ bool Project::load(const String& projectFilename)
 		
 		bundleInfo->name = projectJsonDoc.getString("assetCompiler/defaultBundleName", "gamedata");
 		bundleInfo->path = projectJsonDoc.getString("assetCompiler/defaultBundlePath", "");
-		bundleInfo->absPath = mergePathPath(rootPath, bundleInfo->path);
+		bundleInfo->absolutePath = mergePathPath(rootPath, bundleInfo->path);
 		bundleInfo->project = this;
 		bundles.append(bundleInfo);
 
@@ -182,7 +180,6 @@ void Project::importAssets(BundleInfo* bundle, bool forceImport, bool noCompile)
 	String assetFilename;
 	String outAssetFile;
 	String assetName;
-	String absBundlePath = mergePathPath(bundle->project->rootPath, bundle->path);
 	String fileMask;
 	Array<String> supportedExtensions;
 
@@ -192,13 +189,13 @@ void Project::importAssets(BundleInfo* bundle, bool forceImport, bool noCompile)
 	{
 		for (auto& ext : processor->getSupportedAssetInfo().assetExtensions)
 		{
-			scanFileSystem(absBundlePath, "*" + ext, files, true);
+			scanFileSystem(bundle->absolutePath, "*" + ext, files, true);
 		}
 	}
 
 	B_LOG_SUCCESS("Scanned bundle folders in " << (getTimeMilliseconds() - scanTime)/1000.0f << " sec");
 
-	B_LOG_INFO("Found " << files.size() << " files in the bundle folder: '" << absBundlePath << "'");
+	B_LOG_INFO("Found " << files.size() << " files in the bundle folder: '" << bundle->absolutePath << "'");
 
 	for (size_t i = 0, iCount = files.size(); i < iCount; ++i)
 	{
@@ -224,8 +221,9 @@ void Project::importAssets(BundleInfo* bundle, bool forceImport, bool noCompile)
 		}
 
 		// skip known file types
+        //TODO: make a nicer function filter, let users add ignored files also
 		if (ext.find(".asset") != String::noIndex
-			|| ext.find(".db") != String::noIndex
+			|| ext.find(".bundledb") != String::noIndex
 			|| ext.find(".project") != String::noIndex
 			|| ext.find(".cg") != String::noIndex)
 			continue;
@@ -252,12 +250,10 @@ void Project::importAsset(const String& importFilename, BundleInfo* bundle, bool
 	String destFolder = getFilenamePath(importFilename);
 	String assetFilename = importFilename;
 	// make abs path for the current bundle folder path
-	String absBundlePath = mergePathPath(bundle->project->rootPath, bundle->path);
-	String absOutBundlePath = mergePathPath(bundle->project->currentBuildConfig->outputPath, bundle->path);
+	String absOutBundlePath = mergePathPath(currentBuildConfig->absoluteOutputPath, bundle->path);
 
-	// make path to final data
-	destFolder.replace(absBundlePath, absOutBundlePath);
-	assetFilename.replace(beautifyPath(rootPath, true), "");
+    // make the asset name, which is relative to the bundle path
+	assetFilename.replace(beautifyPath(bundle->absolutePath, true), "");
 
 	bool addToList = true;
 	bool doImport = true;
@@ -286,22 +282,17 @@ void Project::importAsset(const String& importFilename, BundleInfo* bundle, bool
 	{
 		asset.project = this;
 		asset.name = assetFilename;
-		asset.absFilename = importFilename;
-		asset.absFilenamePath = getFilenamePath(importFilename);
 		asset.resId = toResourceId(asset.name);
 		asset.uuid = generateUuid();
-		asset.relDeployFilename = mergePathName(bundle->path, toString(asset.resId));
-		asset.lastWriteTime = dt.toUnixTime();
+        asset.lastWriteTime = dt.toUnixTime();
 		asset.type = processor->getSupportedAssetInfo().outputResourceType;
 		asset.bundle = bundle;
 		asset.intermediateAsset = processor->getSupportedAssetInfo().importerOnly;
-
+        asset.recacheAbsolutePaths(currentBuildConfig);
 		bundle->assets.add(asset.resId, asset);
 
-		B_LOG_DEBUG("Imported asset " << asset.absFilename << " resType " << (u32)asset.type);
+		B_LOG_DEBUG("Imported asset: '" << asset.absoluteName << "' resType: " << (u32)asset.type);
 	}
-
-	asset.absDeployFilename = mergePathName(destFolder, asset.relDeployFilename);
 
 	// if already has an asset file, no need to import
 	if (fileExists(importFilename + ".asset") && !forceImport)
@@ -352,18 +343,17 @@ bool Project::generateBundle(BundleInfo* bundle)
 	File file;
 	String filename;
 
-	if (currentBuildConfig->type == BuildType::Shipping)
+    if (currentBuildConfig->type == BuildType::Shipping)
 	{
-		filename = mergePathName(currentBuildConfig->deployPath, bundle->name + ".bundle");
+		filename = mergePathName(currentBuildConfig->absoluteOutputPath, bundle->name + ".bundle");
 	}
 	else if (currentBuildConfig->type == BuildType::Development)
 	{
-		filename = mergePathName(currentBuildConfig->outputPath, bundle->name + ".toc");
+        filename = mergePathName(currentBuildConfig->absoluteOutputPath, bundle->name + ".toc");
 	}
 
 	if (!bundle->hasModifiedAssets
-		&& ((currentBuildConfig->type == BuildType::Shipping) ? fileExists(filename) : true)
-		)
+		&& ((currentBuildConfig->type == BuildType::Shipping) ? fileExists(filename) : true))
 	{
 		return true;
 	}
@@ -372,7 +362,7 @@ bool Project::generateBundle(BundleInfo* bundle)
 
 	if (currentBuildConfig->type == BuildType::Shipping)
 	{
-		createPath(currentBuildConfig->deployPath);
+		createPath(bundle->absolutePath);
 	}
 
 	if (!file.open(filename, FileOpenFlags::BinaryWrite))
@@ -390,7 +380,7 @@ bool Project::generateBundle(BundleInfo* bundle)
 	for (auto& asset : bundleAssets)
 	{
 		if (!asset.value.intermediateAsset)
-			assetCount++;
+			++assetCount;
 	}
 	
 	file << isCompressed;
@@ -411,9 +401,9 @@ bool Project::generateBundle(BundleInfo* bundle)
 		if (asset.intermediateAsset)
 			continue;
 
-		u64 fileSize = computeFileSize(asset.absDeployFilename);
+		u64 fileSize = computeFileSize(asset.absoluteOutputFilename);
 
-		getFileDateTime(asset.absDeployFilename, nullptr, nullptr, &dt);
+		getFileDateTime(asset.absoluteOutputFilename, nullptr, nullptr, &dt);
 		
 		file << asset.resId;
 		file << asset.type;
@@ -435,7 +425,7 @@ bool Project::generateBundle(BundleInfo* bundle)
 	if (currentBuildConfig->type == BuildType::Shipping)
 	{
 		int i = 0;
-		B_LOG_INFO("Writing big bundle file " << filename  << "...");
+		B_LOG_INFO("Writing final asset bundle file " << filename  << "...");
 
 		for (auto& item : bundleAssets)
 		{
@@ -451,7 +441,7 @@ bool Project::generateBundle(BundleInfo* bundle)
 
 			fileDataBuffer.resize(fileSize);
 
-			if (currentFile.open(asset.absDeployFilename, FileOpenFlags::BinaryRead))
+			if (currentFile.open(asset.absoluteOutputFilename, FileOpenFlags::BinaryRead))
 			{
 				//TODO: compress the data with minizip
 				currentFile.read(fileDataBuffer.data(), fileSize);
@@ -463,17 +453,32 @@ bool Project::generateBundle(BundleInfo* bundle)
 
 	file.close();
 
+    // delete all the final asset
+    if (cleanShippingFolder && currentBuildConfig->type == BuildType::Shipping)
+    {
+        B_LOG_INFO("Cleaning shipping folder...");
+        for (auto& item : bundleAssets)
+        {
+            Asset& asset = item.value;
+            
+            B_LOG_INFO(" Deleting: " << asset.absoluteOutputFilename);
+            deleteFile(asset.absoluteOutputFilename);
+            B_LOG_INFO(" Deleting: " << getFilenamePath(asset.absoluteOutputFilename));
+            deleteFolder(getFilenamePath(asset.absoluteOutputFilename));
+        }
+    }
+
 	return true;
 }
 
 bool Project::saveDatabase(BundleInfo* bundle)
 {
-	String dbFilename = mergePathName(rootPath, bundle->name + ".db");
+	String dbFilename = mergePathName(rootPath, bundle->name + ".bundledb");
 	File file;
 
 	if (file.open(dbFilename, FileOpenFlags::BinaryWrite))
 	{
-		file << rootPath;
+		file << rootPath; // save root path of the project so we check when bundle relocated
 		file << bundle->assets.size();
 
 		for (auto& asset : bundle->assets)
@@ -482,9 +487,6 @@ bool Project::saveDatabase(BundleInfo* bundle)
 			file << asset.value.uuid;
 			file << asset.value.type;
 			file << asset.value.name;
-			file << asset.value.absFilename;
-			file << asset.value.absFilenamePath;
-			file << asset.value.relDeployFilename;
 			file << asset.value.lastWriteTime;
 			file << asset.value.intermediateAsset;
 			file << asset.value.dependencies.size();
@@ -501,18 +503,18 @@ bool Project::saveDatabase(BundleInfo* bundle)
 
 bool Project::loadDatabase(BundleInfo* bundle)
 {
-	String dbFilename = mergePathName(rootPath, bundle->name + ".db");
+	String dbFilename = mergePathName(rootPath, bundle->name + ".bundledb");
 	File file;
 
 	// make abs path for the current bundle folder path
-	String absBundlePath = mergePathPath(bundle->project->rootPath, bundle->path);
-	String absOutBundlePath = mergePathPath(bundle->project->currentBuildConfig->outputPath, bundle->path);
+	String absBundlePath = mergePathPath(rootPath, bundle->path);
+	String absOutBundlePath = mergePathPath(currentBuildConfig->outputPath, bundle->path);
 
 	bundle->assets.clear();
 
 	if (file.open(dbFilename, FileOpenFlags::BinaryRead))
 	{
-		size_t fileCount;
+		size_t fileCount = 0;
 		String projectAbsPath;
 		bool refreshAbsFilename = false;
 
@@ -538,17 +540,8 @@ bool Project::loadDatabase(BundleInfo* bundle)
 			file >> asset.uuid;
 			file >> asset.type;
 			file >> asset.name;
-			file >> asset.absFilename;
-			file >> asset.absFilenamePath;
-			file >> asset.relDeployFilename;
 			file >> asset.lastWriteTime;
 			file >> asset.intermediateAsset;
-
-			if (refreshAbsFilename)
-			{
-				asset.absFilename = mergePathName(bundle->absPath, asset.name);
-				asset.absFilenamePath = getFilenamePath(asset.absFilename);
-			}
 
 			size_t deps = 0;
 			
@@ -563,16 +556,14 @@ bool Project::loadDatabase(BundleInfo* bundle)
 
 			asset.bundle = bundle;
 
-			// make path to final data
-			// extract the file path
-			String destFolder = asset.absFilenamePath;
-			
-			destFolder.replace(absBundlePath, absOutBundlePath);
-
-			asset.absDeployFilename = mergePathName(destFolder, asset.relDeployFilename);
+            //TODO: we could also save absolute filenames and recache only when needed
+            //if (refreshAbsFilename)
+            {
+                asset.recacheAbsolutePaths(currentBuildConfig);
+            }
 
 			// check if file exists, if not, then remove the asset by not adding it
-			if (fileExists(asset.absFilename))
+			if (fileExists(asset.absoluteName))
 			{
 				bundle->assets.add(asset.resId, asset);
 			}
@@ -619,7 +610,8 @@ BundleInfo* Project::getBundleInfoForFilename(const String& filename)
 {
 	for (auto bundle : bundles)
 	{
-		if (filename.find(bundle->absPath) != String::noIndex)
+        //TODO: test this with relative /.. inside
+		if (filename.find(bundle->absolutePath) != String::noIndex)
 		{
 			return bundle;
 		}
@@ -649,7 +641,7 @@ void Project::checkForModifiedAssets(const Array<Asset*>& allAssets, Array<Asset
 
 	for (auto asset : allAssets)
 	{
-		if (getFileDateTime(asset->absFilename, 0, 0, &lwt))
+		if (getFileDateTime(asset->absoluteName, 0, 0, &lwt))
 		{
 			u32 crtTime = lwt.toUnixTime();
 
@@ -662,7 +654,7 @@ void Project::checkForModifiedAssets(const Array<Asset*>& allAssets, Array<Asset
 			}
 
 			if (crtTime != asset->lastWriteTime
-				|| !fileExists(asset->absDeployFilename)
+				|| !fileExists(asset->absoluteOutputFilename)
 				|| forceModified
 				|| modified)
 			{

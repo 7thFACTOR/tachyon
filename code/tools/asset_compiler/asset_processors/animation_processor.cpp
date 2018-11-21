@@ -31,10 +31,10 @@ bool AnimationProcessor::process(Asset& asset, JsonDocument& assetCfg)
 {
 	File file;
 
-	if (!file.open(asset.absDeployFilename, FileOpenFlags::BinaryWrite))
+	if (!file.open(asset.absoluteOutputFilename, FileOpenFlags::BinaryWrite))
 		return false;
 
-	JsonDocument srcDoc(asset.absFilename);
+	JsonDocument srcDoc(asset.absoluteName);
 
 	auto jsonLayers = srcDoc.getArray("layers");
 

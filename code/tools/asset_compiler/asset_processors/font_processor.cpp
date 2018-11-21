@@ -49,11 +49,11 @@ bool FontProcessor::process(Asset& asset, JsonDocument& assetCfg)
 	bool dynamic = assetCfg.getBool("dynamic");
 	String assetFilename;
 
-	assetFilename = getFilenameName(asset.absFilename);
+	assetFilename = getFilenameName(asset.absoluteName);
 
 	File fontResFile;
 
-	if (!fontResFile.open(asset.absDeployFilename, FileOpenFlags::BinaryWrite))
+	if (!fontResFile.open(asset.absoluteOutputFilename, FileOpenFlags::BinaryWrite))
 	{
 		return false;
 	}

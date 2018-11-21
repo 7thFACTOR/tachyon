@@ -46,9 +46,9 @@ struct BuildConfig
 	String name;
 	BuildPlatformType platform = BuildPlatformType::Win64;
 	BuildType type = BuildType::Development;
-	String outputPath;
-	String deployPath;
-	Array<String> excludeFileMasks;
+	String outputPath; // relative to project root
+    String absoluteOutputPath;
+    Array<String> excludeFileMasks;
 	Dictionary<String/*asset processor name*/, ProcessorConfig> processorConfigs;
 };
 
@@ -57,11 +57,10 @@ struct Asset
 	Project* project = nullptr;
 	ResourceId resId = nullResourceId;
 	AssetUuid uuid = AssetUuid::nullValue();
-	String name; // path to asset relative to bundle's root folder, ex: "textures/mecha/test.png"
-	String absFilename; // relative to asset compiler exe
-	String absFilenamePath; // path from absFilename, relative to asset compiler exe, for convenience
-	String relDeployFilename;
-	String absDeployFilename;
+    String name; // path to asset relative to bundle's root folder, ex: "textures/mecha/test.png"
+    String absoluteName;
+    String absolutePath;
+    String absoluteOutputFilename;
 	ResourceType type = ResourceType::None;
 	struct BundleInfo* bundle = nullptr;
 	u32 lastWriteTime = 0;
@@ -69,26 +68,17 @@ struct Asset
 	bool localizable = true;
 	bool intermediateAsset = false;
 
-	Asset()
-		: bundle(nullptr)
-		, resId(0)
-		, lastWriteTime(0)
-	{}
+    void recacheAbsolutePaths(struct BuildConfig* cfg);
 };
 
 struct BundleInfo
 {
-	Project* project;
+	Project* project = nullptr;
 	String name;
-	String path;
-	String absPath;
-	bool hasModifiedAssets;
+	String path; // relative to project folder
+    String absolutePath; // absolute path, used temporarily
+	bool hasModifiedAssets = false;
 	Dictionary<ResourceId, Asset> assets;
-
-	BundleInfo()
-		: hasModifiedAssets(false)
-		, project(nullptr)
-	{}
 };
 
 }

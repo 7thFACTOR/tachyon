@@ -114,10 +114,10 @@ bool MaterialProcessor::process(Asset& asset, JsonDocument& assetCfg)
 {
 	auto cfg = asset.project->currentBuildConfig->processorConfigs["material"].cfg;
 	File file;
-	JsonDocument mtl(asset.absFilename);
+	JsonDocument mtl(asset.absoluteName);
 	ResourceId gpuProgramId = toResourceId(mtl.getString("gpuProgram"));
 
-	file.open(asset.absDeployFilename, FileOpenFlags::BinaryWrite);
+	file.open(asset.absoluteOutputFilename, FileOpenFlags::BinaryWrite);
 	file << gpuProgramId;
 	auto& states = mtl.getObject("states")->getMembers();
 
@@ -266,7 +266,7 @@ bool MaterialProcessor::process(Asset& asset, JsonDocument& assetCfg)
 
 	// we need to load the assigned gpu program so we can extract constants info
 	JsonDocument docGpuProgram;
-	String programFilename = mergePathName(asset.bundle->absPath, mtl.getString("gpuProgram"));
+	String programFilename = mergePathName(asset.bundle->absolutePath, mtl.getString("gpuProgram"));
 
 	if (!docGpuProgram.loadAndParse(programFilename))
 	{

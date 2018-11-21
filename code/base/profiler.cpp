@@ -55,7 +55,7 @@ ProfilerSection* Profiler::registerSection(u64 id, const String& name)
 		section->id = id;
 		section->name = name;
 		section->parent = currentParent;
-		section->lastTime = getTimeMicroseconds();
+		section->lastTime = getTimeMilliseconds();
 		section->graphTimings.reserve(maxGraphTimingsBufferSize);
 
 		if (currentParent)
@@ -111,7 +111,7 @@ void Profiler::free()
 
 void Profiler::begin(ProfilerSection* section)
 {
-	section->lastTime = getTimeMicroseconds();
+	section->lastTime = getTimeMilliseconds();
 	section->ended = false;
 	++section->executeCount;
 	//TODO:
@@ -121,7 +121,7 @@ void Profiler::begin(ProfilerSection* section)
 
 void Profiler::end(ProfilerSection* section)
 {
-	section->deltaTime = getTimeMicroseconds() - section->lastTime;
+	section->deltaTime = getTimeMilliseconds() - section->lastTime;
 	section->totalTime += fabsf(section->deltaTime);
 
 	if (section->peakTime < section->deltaTime)
@@ -156,7 +156,7 @@ void Profiler::reset(ProfilerSection* section)
 	section->timingPeekTimer = 0;
 	section->peakTime = 0;
 	section->averageTime = 0;
-	section->lastTime = getTimeMicroseconds();
+	section->lastTime = getTimeMilliseconds();
 	section->totalTime = 0;
 }
 

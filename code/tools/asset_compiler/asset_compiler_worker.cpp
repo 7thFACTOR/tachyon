@@ -70,8 +70,16 @@ void AssetCompilerWorker::onRun()
 		if (asset)
 		{
 			File outputFile;
+            BundleInfo* bundle = asset->bundle;
+            String deployFolder;
 
-			for (size_t j = 0, jCount = processors.size(); j < jCount; ++j)
+            if (!asset->bundle)
+            {
+                B_LOG_ERROR("Asset has no bundle: " << asset->resId << " " << asset->name);
+                continue;
+            }
+            
+            for (size_t j = 0, jCount = processors.size(); j < jCount; ++j)
 			{
 				auto& supportedAssetInfo = processors[j]->getSupportedAssetInfo();
 
@@ -82,22 +90,12 @@ void AssetCompilerWorker::onRun()
 
 				if (supportedAssetInfo.outputResourceType == asset->type)
 				{
-					B_LOG_INFO("Processing: '" << asset->name << "' to '" << asset->absDeployFilename << "'...");
+					B_LOG_INFO("Processing: '" << asset->name << "' to '" << asset->absoluteOutputFilename << "'...");
 
-					String deployFolder;
+                    createPath(asset->absolutePath);
+                    createPath(getFilenamePath(asset->absoluteOutputFilename));
 
-					deployFolder = getFilenamePath(asset->absDeployFilename);
-					createPath(deployFolder);
-
-					B_LOG_DEBUG("Creating deploy path " << deployFolder);
-
-					if (!asset->bundle)
-					{
-						B_LOG_ERROR("Asset has no bundle: " << asset->resId << " " << asset->name);
-						break;
-					}
-
-					JsonDocument doc(asset->absFilename + ".asset");
+					JsonDocument doc(mergePathPath(bundle->absolutePath, asset->name + ".asset"));
 
 					if (doc.hasErrors())
 					{
@@ -106,7 +104,7 @@ void AssetCompilerWorker::onRun()
 
 					asset->dependencies.clear();
 
-					B_LOG_INFO("Processing " << asset->absFilename + ".asset");
+					B_LOG_INFO("Processing " << asset->name + ".asset");
 
 					bool ok = processors[j]->process(*asset, doc);
 
@@ -117,14 +115,15 @@ void AssetCompilerWorker::onRun()
 					else
 					{
 						DateTime dt;
+                        String finalPath;
 
-						if (getFileDateTime(asset->absFilename, 0, 0, &dt))
+						if (getFileDateTime(asset->absoluteName, 0, 0, &dt))
 						{
 							asset->lastWriteTime = dt.toUnixTime();
 						}
 						else
 						{
-							B_LOG_ERROR("Cannot retrieve lastwrite timestamp for final asset '" << asset->absDeployFilename << "'");
+							B_LOG_ERROR("Cannot retrieve lastwrite timestamp for asset '" << asset->absoluteName << "'");
 						}
 					}
 
@@ -133,7 +132,7 @@ void AssetCompilerWorker::onRun()
 			}
 		}
 
-		yield();
+		base::yield();
 	}
 
 	B_LOG_INFO("Worker " << workerIndex << " has finished.");
