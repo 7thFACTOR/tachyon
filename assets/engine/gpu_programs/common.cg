@@ -262,15 +262,14 @@ struct CanvasVertexOUT
 struct VertexOUT
 {
 	float4 position : POSITION;
-	float3 normal : TEXCOORD0;
+	float3 normEye : TEXCOORD0;
 	float4 color : TEXCOORD1;
 	float2 uv : TEXCOORD2;
 	float3 light : TEXCOORD3;
 	float3 view : TEXCOORD4;
-	float3 worldPos : TEXCOORD5;
+	float3 posEye : TEXCOORD5;
 	float3 tangent : TEXCOORD6;
 	float3 binormal : TEXCOORD7;
-	
 };
 
 //-----------------------------------------------------------------------------

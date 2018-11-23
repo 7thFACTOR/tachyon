@@ -378,24 +378,8 @@ void MatrixTpl<Type>::transpose()
 template <typename Type>
 MatrixTpl<Type> MatrixTpl<Type>::getTransposed() const
 {
-	MatrixTpl mtx;
-
-	mtx.m[0][1] = m[1][0];
-	mtx.m[0][2] = m[2][0];
-	mtx.m[0][3] = m[3][0];
-
-	mtx.m[1][0] = m[0][1];
-	mtx.m[1][2] = m[2][1];
-	mtx.m[1][3] = m[3][1];
-
-	mtx.m[2][0] = m[0][2];
-	mtx.m[2][1] = m[1][2];
-	mtx.m[2][3] = m[3][2];
-
-	mtx.m[3][0] = m[0][3];
-	mtx.m[3][1] = m[1][3];
-	mtx.m[3][2] = m[2][3];
-
+	MatrixTpl mtx = *this;
+    mtx.transpose();
 	return mtx;
 }
 

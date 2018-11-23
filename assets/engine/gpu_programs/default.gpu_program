@@ -9,6 +9,7 @@
 		"mtxWorldProjection": { "type": "worldProjection" },
 		"mtxWorld": { "type": "world" },
 		"mtxWorldInverse": { "type": "worldInverse" },
+		"mtxWorldViewInverse": { "type": "worldViewInverse" },
 		"mtxWorldView": { "type": "worldView" },
 		"mtxView": { "type": "view" },
 		"mtxViewInverse": { "type": "viewInverse" },

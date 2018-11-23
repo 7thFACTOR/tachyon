@@ -7,6 +7,6 @@ project "sample_module"
 	link_base()
 	link_engine()
 	
-	if _OS == "windows" then
+	if _TARGET_OS == "windows" then
 		postbuildcommands { "xcopy /y \"$(TargetPath)\" $(SolutionDir)\\..\\bin\\modules\\" }
 	end

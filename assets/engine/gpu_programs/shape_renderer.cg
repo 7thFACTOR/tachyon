@@ -64,7 +64,7 @@ VertexOUT mainTexVS(ShapeVertexIN IN)
 	
 	float3 worldPos = mul(mtxWorld, float4(IN.position, 1.0)).xyz;
 	OUT.position = mul(mtxWorldViewProjection, float4(IN.position, 1.0));
-	OUT.normal = normalize(mul((float3x3)mtxWorld), IN.normal);
+	OUT.normal = normalize(mul((float3x3)mtxWorld, IN.normal));
 	OUT.color = IN.color * diffuseColor;
 	OUT.uv = IN.uv * uvDiffuseRepeat + uvDiffuseOffset;
 	OUT.light = -sunDirection;
@@ -86,8 +86,8 @@ VertexOUT mainTexVS_instanced(InstancedShapeVertexIN IN)
 		IN.mtxInstanceWorldRow3
 	);
 	
-	float4 instPos = mul(float4(IN.position, 1.0), mtxInstance);
-	OUT.position = mul(instPos, mtxWorldViewProjection);
+	float4 instPos = mul(mtxInstance, float4(IN.position, 1.0));
+	OUT.position = mul(mtxWorldViewProjection, instPos);
 	OUT.color = IN.color * diffuseColor;
 	OUT.uv = IN.uv * uvDiffuseRepeat + uvDiffuseOffset;
 	OUT.normal = IN.normal;

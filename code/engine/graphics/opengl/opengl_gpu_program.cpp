@@ -25,12 +25,16 @@ void OpenglGpuProgram::setMatrixUniform(const String& constName, const Matrix& m
 {
 	GLint loc = glGetUniformLocation(oglProgram, constName.c_str());
 	CHECK_OPENGL_ERROR;
+    static Matrix transposed;
 
 	if (loc != -1)
 	{
-		glUniformMatrix4fv(loc, 1, GL_TRUE, (const f32*)&mtx.m[0]);
-		CHECK_OPENGL_ERROR;
-	}
+        //glUniformMatrix4fv(loc, 1, GL_TRUE, (const f32*)&mtx.m[0]);
+        transposed = mtx.getTransposed();
+        glUniform4fv(loc, 4, (const f32*)&transposed.m[0]);
+		//CHECK_OPENGL_ERROR;
+        { openglCheckError("GETU"); };
+    }
 }
 
 void OpenglGpuProgram::setMatrixArrayUniform(const String& constName, const Matrix* matrices, u32 count)
@@ -40,7 +44,7 @@ void OpenglGpuProgram::setMatrixArrayUniform(const String& constName, const Matr
 
 	if (loc != -1)
 	{
-		glUniformMatrix4fv(loc, count, GL_TRUE, (const f32*)&matrices->m[0]);
+		glUniformMatrix4fv(loc, count, GL_FALSE, (const f32*)&matrices->m[0]);
 		CHECK_OPENGL_ERROR;
 	}
 }

@@ -11,48 +11,49 @@ VertexOUT mainVS(VertexIN IN)
 {
 	VertexOUT OUT;
 
-	TBN[0] = normalize(mul(float4(IN.tangent, 0), mtxWorld));
-	TBN[1] = normalize(mul(float4(IN.bitangent, 0), mtxWorld));
-	TBN[2] = normalize(mul(float4(IN.normal, 0), mtxWorld));
+	TBN[0] = normalize(mul(mtxWorld, float4(IN.tangent, 0)));
+	TBN[1] = normalize(mul(mtxWorld, float4(IN.bitangent, 0)));
+	TBN[2] = normalize(mul(mtxWorldView, float4(IN.normal, 0)));
 
-	float3 wPos = mul(mtxWorld, float4(IN.position, 1.0)).xyz;
-	OUT.worldPos = wPos;
+	float3 wPos = mul(mtxWorldView, float4(IN.position, 1.0)).xyz;
+	float3 viewDir = normalize(mtxWorldViewInverse[3].xyz - wPos);
+	OUT.posEye = viewDir;
+	OUT.normEye = IN.normal;
 	OUT.position = mul(mtxWorldViewProjection, float4(IN.position, 1.0));
-	OUT.uv = IN.uv;
-	OUT.color = IN.color;
-	OUT.tangent = normalize(TBN[0]);
-	OUT.binormal = normalize(TBN[1]);
-	OUT.normal = IN.normal;//normalize(TBN[2]);
+	// OUT.uv = IN.uv;
+	// OUT.color = IN.color;
+	// OUT.tangent = normalize(TBN[0]);
+	// OUT.binormal = normalize(TBN[1]);
 	
-	float3 lightDir = float3(1, -1, 0);
-	OUT.light = lightDir;//normalize(mul(float4(normalize(lightDir), 0), mtxWorldInverse));
-	float3 viewDir = normalize(mtxViewInverse[3].xyz - wPos);
-	OUT.view = normalize(viewDir);
+	// float3 lightDir = float3(1, -1, 0);
+	// OUT.light = lightDir;//normalize(mul(float4(normalize(lightDir), 0), mtxWorldInverse));
+	// float3 viewDir = normalize(wPos - mtxWorldViewInverse[3].xyz);
+	// OUT.view = normalize(viewDir);
 
 	return OUT;	
 }
 
 float4 mainPS(VertexOUT IN) : COLOR
 {
-	float3x3 TBN = float3x3(normalize(IN.tangent), normalize(IN.binormal), normalize(IN.normal));
-	float3 lightVector = -IN.light;
-	float3 normal = normalize(tex2D(normalSampler, IN.uv * uvNormalRepeat) * 2.0 - 1.0);
-    float3 bumpNormal = normalize(mul(normal, TBN));	
-	float diffuseFactor = max(dot(bumpNormal, lightVector), 0);
-	float3 halfDir = normalize(normalize(lightVector) + IN.view);
-	float specAngle = max(dot(halfDir, bumpNormal), 0);
-	float specularFactor = pow(specAngle, specularExponent);
+	// float3x3 TBN = float3x3(normalize(IN.tangent), normalize(IN.binormal), normalize(IN.normal));
+	// float3 lightVector = -IN.light;
+	// float3 normal = normalize(tex2D(normalSampler, IN.uv * uvNormalRepeat) * 2.0 - 1.0);
+    // float3 bumpNormal = normalize(mul(normal, TBN));	
+	// float diffuseFactor = max(dot(bumpNormal, lightVector), 0);
+	// float3 halfDir = normalize(normalize(lightVector) + IN.view);
+	// float specAngle = max(dot(halfDir, bumpNormal), 0);
+	// float specularFactor = pow(specAngle, specularExponent);
 	
-	float4 diffuse = tex2D(diffuseSampler, IN.uv*uvDiffuseRepeat);
-	float4 specular = tex2D(specularSampler, IN.uv*uvSpecularRepeat);
-	//float4 emissive = tex2D(emissiveSampler, IN.uv*uvEmissiveRepeat);
+	// float4 diffuse = tex2D(diffuseSampler, IN.uv*uvDiffuseRepeat);
+	// float4 specular = tex2D(specularSampler, IN.uv*uvSpecularRepeat);
+	// //float4 emissive = tex2D(emissiveSampler, IN.uv*uvEmissiveRepeat);
 	
-	float3 refl = reflect(IN.view, IN.normal);
-	float4 skyColor = texCUBE(skyCubeSampler, normalize(refl));
+	//float3 refl = reflect(normalize(IN.posEye), normalize(IN.normEye));
+	float4 skyColor = texCUBE(skyCubeSampler, normalize(IN.posEye));
 	
-	float4 newColor = skyColor;
 	return skyColor;
-	//float4 newColor = diffuse * diffuseColor;
-	float4 color = ambientColor * newColor + newColor * diffuseFactor + specularColor * specular.r;
-	return float4(color);
+	// float4 newColor = skyColor;
+	// //float4 newColor = diffuse * diffuseColor;
+	// float4 color = ambientColor * newColor + newColor * diffuseFactor + specularColor * specular.r;
+	// return float4(color);
 }
