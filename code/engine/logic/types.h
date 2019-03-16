@@ -14,11 +14,12 @@ typedef u32 EntityId;
 typedef u64 ComponentTypeId;
 
 const EntityId invalidEntityId = 0;
+const ComponentTypeId invalidComponentTypeId = 0;
 
 //! Built-in component types
 enum StdComponentTypeIds
 {
-	StdComponentTypeId_Unknown,
+	StdComponentTypeId_Unknown = 0,
 	
 	//////////////////////////////////////////////////////////////////////////
 	// General

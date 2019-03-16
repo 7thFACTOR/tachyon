@@ -3,5 +3,5 @@
 
 namespace engine
 {
-const char* const engineRepositoryChangelist="d23afc10bc17bacd0893cbd9411016b384d6448b";
+const char* const engineRepositoryChangelist="59ebc95b999737bb04e034d2a5639c6847ce0db8";
 }

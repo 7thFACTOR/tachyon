@@ -14,8 +14,13 @@ using namespace base;
 
 class Entity;
 
+#define DEFINE_COMPONENT(type, className) \
+	static const ComponentTypeId typeId = type; \
+    virtual size_t getSize() const { return sizeof(className); }
+
 struct Component : public PropertyHolder, public Streamable
 {
+    DEFINE_COMPONENT(StdComponentTypeIds::StdComponentTypeId_Unknown, Component)
 	Component() {}
 	virtual ~Component() {}
 

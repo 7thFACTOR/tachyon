@@ -13,20 +13,46 @@ namespace engine
 {
 using namespace base;
 
+const u32 maxEntityComponentCount = 128;
+const u32 maxEntityTagCount = 128;
+
 struct Component;
 class World;
+
+struct EntityArchetype
+{
+    String name;
+    Array<ComponentTypeId> componentTypes;
+};
 
 class E_API Entity
 {
 public:
-	friend class Logic;
-	Entity() {}
-	virtual ~Entity() {}
-	inline Component* getComponent(ComponentTypeId componentType) { return components[componentType]; }
+    struct ComponentInfo
+    {
+        ComponentTypeId typeId = 0;
+        Component* component = nullptr;
+    };
+    
+    friend class Logic;
+	
+    Entity() {}
+	~Entity() {}
+    Component* getComponent(ComponentTypeId componentType);
 	template<typename ComponentClassType>
-	inline ComponentClassType* getComponent() { return (ComponentClassType*)components[(ComponentTypeId)ComponentClassType::typeId]; }
-	inline const Dictionary<ComponentTypeId, Component*>& getComponents() const { return components; }
-	inline struct TransformComponent* getTransform() { return (struct TransformComponent*)components[StdComponentTypeId_Transform]; }
+	inline ComponentClassType* getComponent()
+    {
+        for (u32 i = 0; i < componentCount; i++)
+        {
+            if (componentInfo[i].typeId == (ComponentTypeId)ComponentClassType::typeId)
+                return (ComponentClassType*)componentInfo[i].component;
+        }
+
+        return nullptr;
+    }
+
+	inline ComponentInfo* getComponentInfos() { return componentInfo; }
+	inline struct TransformComponent* getTransform() { return (struct TransformComponent*)getComponent<struct TransformComponent>(); }
 	Component* addComponent(ComponentTypeId type);
 	template<typename ComponentClassType>
 	inline ComponentClassType* addComponent() { return (ComponentClassType*)addComponent((ComponentTypeId)ComponentClassType::typeId); }
@@ -35,15 +61,15 @@ public:
 	String name;
 	bool active = true;
 	Entity* parent = nullptr;
-	Array<EntityTagIndex> tags;
+    EntityTagIndex tags[maxEntityTagCount] = { 0 };
 	struct EntityGroup* group = nullptr;
 	ResourceId prefabId = 0;
 	
 protected:
-	Component* addComponent(Component* component);
-	inline void removeComponent(ComponentTypeId type) { components.erase(type); }
+    void removeComponent(ComponentTypeId type);
 
-	Dictionary<ComponentTypeId, Component*> components;
+    u32 componentCount = 0;
+    ComponentInfo componentInfo[maxEntityComponentCount] = { 0 };
 };
 
 }
