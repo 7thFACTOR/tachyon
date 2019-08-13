@@ -12,4 +12,9 @@ Component* Entity::addComponent(ComponentTypeId type)
 	return (Component*)getLogic().addComponentToEntity(type, this);
 }
 
+void Entity::removeComponent(ComponentTypeId type)
+{
+
+}
+
 }
