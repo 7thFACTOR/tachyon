@@ -351,13 +351,14 @@ void* ResourceRepository::map(ResourceId resId, u32 waitTryMsec)
 		return nullptr;
 	}
 
+	u32 lastTime = getTimeMilliseconds();
 	u32 waited = 0;
 	void* res = nullptr;
 
 	while (waited <= waitTryMsec && !res)
 	{
 		res = iter->value->tryMap(resId);
-		waited++;
+		waited = getTimeMilliseconds() - lastTime;
 		yield();
 	}
 
